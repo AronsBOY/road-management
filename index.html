@@ -337,13 +337,35 @@ select:focus { border-color: var(--accent); }
 .modal {
   background: var(--surface);
   border-radius: 16px;
-  padding: 28px 32px;
   width: min(680px, 95vw);
   max-height: 90vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
-.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+.modal-title {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 24px 28px 0;
+  flex-shrink: 0;
+}
+
+.modal-body {
+  overflow-y: auto;
+  padding: 20px 28px;
+  flex: 1;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 14px 28px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
 
 .form-grid {
   display: grid;
@@ -1001,6 +1023,7 @@ textarea { resize: vertical; min-height: 70px; }
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <div class="modal-title" id="modal-title">新增案件</div>
+    <div class="modal-body">
     <div class="form-grid">
       <div class="form-field"><label>年度</label><input type="number" id="f-year" value="115"></div>
       <div class="form-field"><label>行政區</label>
@@ -1041,9 +1064,10 @@ textarea { resize: vertical; min-height: 70px; }
       </div>
       <div class="form-field full"><label>備註</label><textarea id="f-notes"></textarea></div>
     </div>
+    </div><!-- end modal-body -->
     <div class="modal-footer">
       <button class="btn" onclick="closeModal()">取消</button>
-      <button class="btn btn-primary" onclick="saveCase()">儲存</button>
+      <button class="btn btn-primary" onclick="saveCase()">✓ 儲存案件</button>
     </div>
   </div>
 </div>
