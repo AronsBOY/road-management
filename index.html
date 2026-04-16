@@ -1251,13 +1251,26 @@ function typeBadge(t) {
 }
 
 // ========== NAVIGATION ==========
-function showPage(id) {
+function showPage(eventOrKey, id) {
+  // 支援兩種呼叫方式：showPage(event) 或 showPage(null, 'all-cases')
+  const pageId = id || eventOrKey;
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const page = document.getElementById('page-' + id);
+  const page = document.getElementById('page-' + pageId);
   if (page) page.classList.add('active');
-  event.currentTarget.classList.add('active');
-  renderPage(id);
+  // 嘗試找到對應的 nav-item 並 active
+  const navItem = document.querySelector(`[data-num]`);
+  if (eventOrKey && eventOrKey.currentTarget) {
+    eventOrKey.currentTarget.classList.add('active');
+  } else {
+    // 從 data-num 反查
+    document.querySelectorAll('.nav-item').forEach(n => {
+      if (n.getAttribute('onclick') && n.getAttribute('onclick').includes("'"+pageId+"'")) {
+        n.classList.add('active');
+      }
+    });
+  }
+  renderPage(pageId);
 }
 
 function renderPage(id) {
@@ -1880,46 +1893,59 @@ function openEditModal(id) {
 
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
+function getVal(id, fallback='') {
+  const el = document.getElementById(id);
+  return el ? el.value : fallback;
+}
+
 function saveCase() {
-  const data = {
-    year: parseInt(document.getElementById('f-year').value),
-    district: document.getElementById('f-district').value,
-    type: document.getElementById('f-type').value,
-    location: document.getElementById('f-location').value,
-    address: document.getElementById('f-address').value,
-    contract: document.getElementById('f-contract').value,
-    start: document.getElementById('f-start').value,
-    end: document.getElementById('f-end').value,
-    length: parseInt(document.getElementById('f-length').value)||0,
-    amount: parseInt(document.getElementById('f-amount').value)||0,
-    status: document.getElementById('f-status').value,
-    description: document.getElementById('f-description').value,
-    source: document.getElementById('f-source').value,
-    scheduleStart: document.getElementById('f-scheduleStart').value,
-    scheduleEnd: document.getElementById('f-scheduleEnd').value,
-    handler: document.getElementById('f-handler').value,
-    designStatus: document.getElementById('f-designStatus').value,
-    designDeadline: document.getElementById('f-designDeadline').value,
-    designFirm: document.getElementById('f-designFirm').value,
-    superviseFirm: document.getElementById('f-superviseFirm').value,
-    constructFirm: document.getElementById('f-constructFirm').value,
-    notes: document.getElementById('f-notes').value,
-  };
-  if (editingId) {
-    const idx = CASES.findIndex(c=>c.id===editingId);
-    if (idx>=0) CASES[idx] = {...CASES[idx], ...data};
-  } else {
-    const maxId = Math.max(...CASES.map(c=>c.id), 0);
-    const maxSeq = Math.max(...CASES.filter(c=>c.year===data.year).map(c=>c.seq),0);
-    CASES.push({id:maxId+1, seq:maxSeq+1, ...data});
-  }
-  saveData();
-  closeModal();
-  // re-render current page
-  const activePage = document.querySelector('.page.active');
-  if (activePage) {
-    const id = activePage.id.replace('page-','');
-    renderPage(id);
+  try {
+    const data = {
+      year:          parseInt(getVal('f-year','115'))||115,
+      district:      getVal('f-district','大園區'),
+      type:          getVal('f-type','人行道'),
+      location:      getVal('f-location'),
+      address:       getVal('f-address'),
+      contract:      getVal('f-contract','115人行道5區'),
+      start:         getVal('f-start'),
+      end:           getVal('f-end'),
+      length:        parseInt(getVal('f-length','0'))||0,
+      amount:        parseInt(getVal('f-amount','0'))||0,
+      status:        getVal('f-status','尚未開始'),
+      description:   getVal('f-description'),
+      source:        getVal('f-source'),
+      scheduleStart: getVal('f-scheduleStart'),
+      scheduleEnd:   getVal('f-scheduleEnd'),
+      handler:       getVal('f-handler'),
+      designStatus:  getVal('f-designStatus','無派設'),
+      designDeadline:getVal('f-designDeadline'),
+      designFirm:    getVal('f-designFirm','-'),
+      superviseFirm: getVal('f-superviseFirm','開巨'),
+      constructFirm: getVal('f-constructFirm','東鈺'),
+      notes:         getVal('f-notes'),
+    };
+
+    if (editingId) {
+      const idx = CASES.findIndex(c=>c.id===editingId);
+      if (idx>=0) CASES[idx] = {...CASES[idx], ...data};
+    } else {
+      const maxId  = CASES.length > 0 ? Math.max(...CASES.map(c=>c.id))  : 0;
+      const maxSeq = CASES.filter(c=>c.year===data.year).length > 0
+                   ? Math.max(...CASES.filter(c=>c.year===data.year).map(c=>c.seq))
+                   : 0;
+      CASES.push({id: maxId+1, seq: maxSeq+1, ...data});
+    }
+
+    saveData();
+    closeModal();
+
+    // 儲存成功後跳到 A2 全部案件，讓使用者看到新案件
+    showPage({currentTarget: document.querySelector('[data-num="A2"]')}, 'all-cases');
+    showToast('✓ 案件儲存成功！共 ' + CASES.length + ' 筆');
+
+  } catch(err) {
+    console.error('saveCase error:', err);
+    alert('儲存失敗：' + err.message + '\n\n請截圖這個訊息回報。');
   }
 }
 
