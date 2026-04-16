@@ -1034,7 +1034,13 @@ textarea { resize: vertical; min-height: 70px; }
       <div class="form-grid">
         <div class="form-field"><label>年度</label><input type="number" id="f-year" value="115"></div>
         <div class="form-field"><label>行政區</label>
-          <select id="f-district"><option>大園區</option><option>中壢區</option><option>蘆竹區</option><option>平鎮區</option><option>八德區</option><option>龜山區</option><option>新屋區</option><option>楊梅區</option></select>
+          <select id="f-district">
+          <option>桃園區</option><option>中壢區</option><option>大溪區</option>
+          <option>楊梅區</option><option>蘆竹區</option><option>大園區</option>
+          <option>龜山區</option><option>八德區</option><option>龍潭區</option>
+          <option>平鎮區</option><option>新屋區</option><option>觀音區</option>
+          <option>復興區</option>
+        </select>
         </div>
         <div class="form-field"><label>類型</label>
           <select id="f-type"><option>人行道</option><option>通學</option></select>
@@ -1214,7 +1220,10 @@ function promoCardHTML(c) {
     <div class="card-footer">
       <span class="card-handler">${c.handler?'承辦：'+c.handler:'未指派'}</span>
       <span class="card-schedule">${schedule}</span>
-      <button class="btn btn-sm" onclick="openEditModal(${c.id})" style="padding:3px 8px;font-size:11px">編輯</button>
+      <div style="display:flex;gap:4px">
+        <button class="btn btn-sm" onclick="openEditModal(${c.id})" style="padding:3px 8px;font-size:11px">編輯</button>
+        <button class="btn btn-sm" onclick="deleteCase(${c.id})" style="padding:3px 8px;font-size:11px;color:var(--red)">🗑</button>
+      </div>
     </div>
   </div>`;
 }
@@ -1433,6 +1442,7 @@ function caseItemHTML(c) {
       <span style="margin-left:auto;display:flex;gap:6px">
         <button class="btn btn-sm" onclick="event.stopPropagation();openEditModal(${c.id})">編輯</button>
         <button class="btn btn-sm" onclick="event.stopPropagation();toggleDetail(${c.id})">詳情</button>
+        <button class="btn btn-sm" onclick="event.stopPropagation();deleteCase(${c.id})" style="color:var(--red);border-color:var(--red-bg)">刪除</button>
       </span>
     </div>
     <div class="case-detail" id="detail-${c.id}">
@@ -1974,6 +1984,25 @@ function saveCase() {
     alert('儲存時發生錯誤：\n' + err.message + '\n\n請截圖此訊息。');
     console.error('saveCase error:', err);
   }
+}
+
+function deleteCase(id) {
+  var c = null;
+  for(var i=0;i<CASES.length;i++){if(CASES[i].id===id){c=CASES[i];break;}}
+  if(!c) return;
+  if(!confirm('確定要刪除這筆案件嗎？\n\n地點：' + c.location + '\n行政區：' + c.district + '\n\n此操作無法復原。')) return;
+  CASES = CASES.filter(function(x){return x.id!==id;});
+  try { localStorage.setItem('road_cases', JSON.stringify(CASES)); } catch(e){}
+  var badge = document.getElementById('badge-total');
+  if(badge) badge.textContent = CASES.length;
+  try { renderDashboard(); } catch(e){}
+  // 重新渲染目前頁面
+  var activePage = document.querySelector('.page.active');
+  if(activePage){
+    var pid = activePage.id.replace('page-','');
+    try { renderPage(pid); } catch(e){}
+  }
+  showToast('🗑 已刪除案件，剩餘 ' + CASES.length + ' 筆');
 }
 
 // Click outside to close modal
