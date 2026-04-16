@@ -1851,47 +1851,41 @@ const FIELDS = ['year','district','type','location','contract','start','end','le
 
 function openAddModal() {
   editingId = null;
-  (document.getElementById('modal-title')||document.createElement('span')).textContent = '新增案件';
-  document.getElementById('f-year').value = 115;
-  document.getElementById('f-district').value = '大園區';
-  document.getElementById('f-type').value = '人行道';
-  document.getElementById('f-status').value = '尚未開始';
-  document.getElementById('f-designStatus').value = '無派設';
-  ['location','address','contract','start','end','description','source','scheduleStart','scheduleEnd','designDeadline','notes'].forEach(f=>{ document.getElementById('f-'+f).value=''; });
-  document.getElementById('f-contract').value = '115人行道5區';
-  document.getElementById('f-length').value = 0;
-  document.getElementById('f-amount').value = 0;
-  document.getElementById('modal').classList.add('open');
+  var sv = function(id,v){var e=document.getElementById(id);if(e)e.value=v;};
+  var se = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  se('modal-title','新增案件');
+  sv('f-year',115); sv('f-district','大園區'); sv('f-type','人行道');
+  sv('f-status','尚未開始'); sv('f-designStatus','無派設');
+  ['location','address','contract','start','end','description','source',
+   'scheduleStart','scheduleEnd','designDeadline','notes'].forEach(function(f){sv('f-'+f,'');});
+  sv('f-contract','115人行道5區'); sv('f-length',0); sv('f-amount',0);
+  sv('f-handler','游智翔'); sv('f-designFirm','-');
+  sv('f-superviseFirm','開巨'); sv('f-constructFirm','東鈺');
+  var m=document.getElementById('modal');
+  if(m) m.classList.add('open');
+  else alert('找不到 modal，請重新整理頁面');
 }
 
 function openEditModal(id) {
-  const c = CASES.find(x=>x.id===id);
-  if (!c) return;
+  var c = null;
+  for(var i=0;i<CASES.length;i++){if(CASES[i].id===id){c=CASES[i];break;}}
+  if(!c) return;
   editingId = id;
-  (document.getElementById('modal-title')||document.createElement('span')).textContent = '編輯案件 — ' + c.location;
-  document.getElementById('f-year').value = c.year;
-  document.getElementById('f-district').value = c.district;
-  document.getElementById('f-type').value = c.type;
-  document.getElementById('f-location').value = c.location;
-  document.getElementById('f-address').value = c.address||'';
-  document.getElementById('f-contract').value = c.contract;
-  document.getElementById('f-start').value = c.start;
-  document.getElementById('f-end').value = c.end;
-  document.getElementById('f-length').value = c.length;
-  document.getElementById('f-amount').value = c.amount;
-  document.getElementById('f-status').value = c.status;
-  document.getElementById('f-description').value = c.description;
-  document.getElementById('f-source').value = c.source;
-  document.getElementById('f-scheduleStart').value = c.scheduleStart;
-  document.getElementById('f-scheduleEnd').value = c.scheduleEnd;
-  document.getElementById('f-handler').value = c.handler;
-  document.getElementById('f-designStatus').value = c.designStatus;
-  document.getElementById('f-designDeadline').value = c.designDeadline||'';
-  document.getElementById('f-designFirm').value = c.designFirm;
-  document.getElementById('f-superviseFirm').value = c.superviseFirm;
-  document.getElementById('f-constructFirm').value = c.constructFirm;
-  document.getElementById('f-notes').value = c.notes;
-  document.getElementById('modal').classList.add('open');
+  var sv = function(id,v){var e=document.getElementById(id);if(e)e.value=v;};
+  var se = function(id,v){var e=document.getElementById(id);if(e)e.textContent=v;};
+  se('modal-title','編輯案件 — ' + c.location);
+  sv('f-year',c.year); sv('f-district',c.district); sv('f-type',c.type);
+  sv('f-location',c.location); sv('f-address',c.address||'');
+  sv('f-contract',c.contract); sv('f-start',c.start); sv('f-end',c.end);
+  sv('f-length',c.length); sv('f-amount',c.amount); sv('f-status',c.status);
+  sv('f-description',c.description); sv('f-source',c.source);
+  sv('f-scheduleStart',c.scheduleStart); sv('f-scheduleEnd',c.scheduleEnd);
+  sv('f-handler',c.handler); sv('f-designStatus',c.designStatus);
+  sv('f-designDeadline',c.designDeadline||''); sv('f-designFirm',c.designFirm);
+  sv('f-superviseFirm',c.superviseFirm); sv('f-constructFirm',c.constructFirm);
+  sv('f-notes',c.notes);
+  var m=document.getElementById('modal');
+  if(m) m.classList.add('open');
 }
 
 function closeModal() {
