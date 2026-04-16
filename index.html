@@ -1,0 +1,2270 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人行道・通學廊道工程管理系統</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #F5F3EE;
+  --surface: #FFFFFF;
+  --surface2: #F0EDE8;
+  --border: #E0DBD3;
+  --border2: #C8C2B8;
+  --text: #1A1814;
+  --text2: #6B6560;
+  --text3: #9B958E;
+  --accent: #2B5BA8;
+  --accent-bg: #EBF0FA;
+  --green: #1E7D45;
+  --green-bg: #E6F4EC;
+  --orange: #C4620A;
+  --orange-bg: #FDF0E5;
+  --gray: #5C5650;
+  --gray-bg: #EEEBE7;
+  --purple: #5B3FA8;
+  --purple-bg: #EFEBFA;
+  --red: #B22E2E;
+  --red-bg: #FAEAEA;
+  --sidebar-w: 240px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans TC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Layout */
+.app { display: flex; min-height: 100vh; }
+
+/* Sidebar */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--text);
+  color: #E8E4DE;
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-header {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-logo {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.45);
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.sidebar-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.4;
+}
+
+.sidebar-sub {
+  font-size: 11px;
+  color: rgba(255,255,255,0.35);
+  margin-top: 4px;
+}
+
+.nav-section {
+  padding: 16px 0 8px;
+}
+
+.nav-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  color: rgba(255,255,255,0.3);
+  padding: 0 20px;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  cursor: pointer;
+  color: rgba(255,255,255,0.6);
+  font-size: 13.5px;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+  user-select: none;
+  line-height: 1.4;
+}
+
+.nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.9); }
+.nav-item.active { background: rgba(255,255,255,0.08); color: #fff; border-left-color: #5B8DD9; }
+
+.nav-icon { width: 16px; font-size: 14px; text-align: center; flex-shrink: 0; }
+
+.nav-badge {
+  margin-left: auto;
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.5);
+  font-size: 11px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-family: 'DM Mono', monospace;
+}
+
+.nav-num {
+  display: inline-block;
+  font-family: 'DM Mono', monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  background: rgba(255,255,255,0.07);
+  border-radius: 4px;
+  padding: 1px 5px;
+  min-width: 26px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.nav-item.active .nav-num { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.12); }
+
+.sidebar-footer {
+  margin-top: auto;
+  padding: 16px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  font-size: 11px;
+  color: rgba(255,255,255,0.25);
+}
+
+/* Main content */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  min-height: 100vh;
+}
+
+/* Page */
+.page { display: none; padding: 32px 36px; max-width: 1200px; }
+.page.active { display: block; }
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.page-title { font-size: 22px; font-weight: 700; color: var(--text); }
+.page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 1px solid var(--border2);
+  background: var(--surface);
+  color: var(--text);
+  font-weight: 500;
+}
+.btn:hover { background: var(--surface2); }
+.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+.btn-primary:hover { background: #2050A0; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+/* Stats row */
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px 18px;
+}
+
+.stat-label { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; margin-bottom: 6px; }
+.stat-value { font-size: 26px; font-weight: 700; color: var(--text); font-family: 'DM Mono', monospace; }
+.stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* Card */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 16px;
+}
+
+.card-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge-done { background: var(--green-bg); color: var(--green); }
+.badge-wip { background: var(--accent-bg); color: var(--accent); }
+.badge-todo { background: var(--gray-bg); color: var(--gray); }
+.badge-design { background: var(--purple-bg); color: var(--purple); }
+.badge-nodesign { background: var(--gray-bg); color: var(--gray); }
+.badge-walk { background: var(--accent-bg); color: var(--accent); }
+.badge-school { background: var(--orange-bg); color: var(--orange); }
+.badge-warning { background: var(--orange-bg); color: var(--orange); }
+
+/* Filter bar */
+.filter-bar {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+  align-items: center;
+}
+
+.filter-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+}
+.filter-input:focus { border-color: var(--accent); }
+
+select {
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+}
+select:focus { border-color: var(--accent); }
+
+/* Cases list */
+.case-item {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 8px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.case-item:hover { border-color: var(--border2); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+
+.case-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+.case-num { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
+.case-title { font-size: 14px; font-weight: 600; }
+.case-district { font-size: 12px; color: var(--text2); }
+.case-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.case-amount { font-size: 12px; color: var(--text2); font-family: 'DM Mono', monospace; }
+.case-handler { font-size: 11px; color: var(--text3); }
+
+.case-detail {
+  display: none;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+}
+.case-detail.open { display: block; }
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px 20px;
+  font-size: 12.5px;
+}
+
+.detail-field { }
+.detail-label { color: var(--text3); font-size: 11px; margin-bottom: 2px; }
+.detail-val { color: var(--text); }
+
+.detail-notes {
+  margin-top: 12px;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--text2);
+}
+
+/* Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 28px 32px;
+  width: min(680px, 95vw);
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.form-field { display: flex; flex-direction: column; gap: 4px; }
+.form-field.full { grid-column: 1 / -1; }
+.form-field.half { grid-column: span 2; }
+
+label { font-size: 11px; color: var(--text2); font-weight: 500; }
+
+input[type="text"], input[type="number"], textarea {
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  font-family: inherit;
+  font-size: 13px;
+  background: var(--surface);
+  color: var(--text);
+  outline: none;
+  width: 100%;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+textarea { resize: vertical; min-height: 70px; }
+
+.modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+
+/* Progress bars */
+.progress-bar {
+  height: 6px;
+  background: var(--surface2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 6px;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+.progress-fill.green { background: var(--green); }
+.progress-fill.orange { background: var(--orange); }
+
+/* Table */
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+}
+.data-table th {
+  text-align: left;
+  padding: 8px 12px;
+  background: var(--surface2);
+  border-bottom: 2px solid var(--border);
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  color: var(--text2);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.data-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: var(--surface2); }
+
+/* District page header */
+.district-hero {
+  background: var(--text);
+  color: #fff;
+  border-radius: 14px;
+  padding: 24px 28px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.district-hero-name { font-size: 26px; font-weight: 700; }
+.district-hero-sub { font-size: 13px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.district-hero-stats { display: flex; gap: 24px; text-align: right; }
+.district-hero-num { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; }
+.district-hero-label { font-size: 11px; color: rgba(255,255,255,0.45); }
+
+/* Budget */
+.budget-bar-container { margin-bottom: 20px; }
+.budget-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
+.budget-bar { height: 10px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
+.budget-fill { height: 100%; border-radius: 5px; background: var(--accent); }
+
+/* Sync indicator */
+.sync-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: #3DAF6E;
+  margin-right: 5px;
+}
+
+/* Toast */
+#toast {
+  position: fixed;
+  bottom: 24px; right: 24px;
+  background: var(--text);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 10px;
+  font-size: 13px;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.25s;
+  z-index: 999;
+  pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+
+/* Promo Cards */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.promo-card {
+  background: var(--surface);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+.promo-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+
+.card-map-area {
+  height: 120px;
+  background: linear-gradient(135deg, #d4e8ff 0%, #c5dff8 40%, #b8d4f0 100%);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-map-area.done-bg   { background: linear-gradient(135deg, #d4f0e0 0%, #b8e8cc 100%); }
+.card-map-area.wip-bg    { background: linear-gradient(135deg, #dce8ff 0%, #c8d8f8 100%); }
+.card-map-area.todo-bg   { background: linear-gradient(135deg, #eeeae4 0%, #e2ddd7 100%); }
+.card-map-area.school-bg { background: linear-gradient(135deg, #fdf0e0 0%, #f8e4c8 100%); }
+
+.map-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+.map-road-h {
+  position: absolute;
+  left: 0; right: 0;
+  height: 8px;
+  background: rgba(255,255,255,0.7);
+  top: 50%;
+  transform: translateY(-50%);
+}
+.map-road-v {
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 8px;
+  background: rgba(255,255,255,0.6);
+  left: 38%;
+}
+.map-pin {
+  position: absolute;
+  width: 24px; height: 24px;
+  background: var(--accent);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  top: 50%; left: 50%;
+  margin: -14px 0 0 -12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+}
+.map-pin::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  background: white;
+  border-radius: 50%;
+  top: 8px; left: 8px;
+  transform: rotate(45deg);
+}
+.map-pin.done-pin { background: var(--green); }
+.map-pin.wip-pin  { background: var(--accent); }
+.map-pin.todo-pin { background: var(--gray); }
+.map-pin.school-pin { background: var(--orange); }
+
+.card-zone-badge {
+  position: absolute;
+  top: 10px; left: 10px;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.04em;
+}
+
+.card-year-tag {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(255,255,255,0.85);
+  color: var(--text2);
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-family: 'DM Mono', monospace;
+}
+
+.card-map-link {
+  position: absolute;
+  bottom: 8px; right: 8px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 4px 9px;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 500;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.card-map-link:hover { background: white; }
+
+.card-body {
+  padding: 16px 18px;
+}
+
+.card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.card-location {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.3;
+}
+
+.card-district-tag {
+  font-size: 11px;
+  color: var(--text3);
+  margin-top: 2px;
+}
+
+.card-badges {
+  display: flex;
+  gap: 5px;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.card-desc {
+  font-size: 12px;
+  color: var(--text2);
+  margin: 8px 0;
+  line-height: 1.5;
+}
+
+.card-stats {
+  display: flex;
+  gap: 0;
+  border-top: 1px solid var(--border);
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.card-stat {
+  flex: 1;
+  text-align: center;
+}
+.card-stat + .card-stat {
+  border-left: 1px solid var(--border);
+}
+.card-stat-num {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'DM Mono', monospace;
+  color: var(--text);
+}
+.card-stat-lbl { font-size: 10px; color: var(--text3); margin-top: 1px; }
+
+.card-footer {
+  padding: 10px 18px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--surface2);
+}
+
+.card-handler {
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.card-schedule {
+  font-size: 11px;
+  color: var(--text3);
+  font-family: 'DM Mono', monospace;
+}
+
+/* View toggle */
+.view-toggle {
+  display: flex;
+  gap: 4px;
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 3px;
+}
+.view-btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--text2);
+  font-family: inherit;
+}
+.view-btn.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+<!-- ===== SIDEBAR ===== -->
+<nav class="sidebar">
+  <div class="sidebar-header">
+    <div class="sidebar-logo">桃園市養護工程處</div>
+    <div class="sidebar-title">人行道・通學廊道<br>工程管理系統</div>
+    <div class="sidebar-sub">115年度 115人行道5區</div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">主要功能</div>
+    <div class="nav-item active" onclick="showPage('dashboard')" data-num="A1">
+      <span class="nav-num">A1</span> 總覽儀表板
+    </div>
+    <div class="nav-item" onclick="showPage('all-cases')" data-num="A2">
+      <span class="nav-num">A2</span> 全部案件
+      <span class="nav-badge" id="badge-total">24</span>
+    </div>
+    <div class="nav-item" onclick="showPage('budget')" data-num="A3">
+      <span class="nav-num">A3</span> 預算管理
+    </div>
+    <div class="nav-item" onclick="showPage('schedule')" data-num="A4">
+      <span class="nav-num">A4</span> 時程追蹤
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">工作報告分區</div>
+    <div class="nav-item" onclick="showPage('report-taoyuan')" data-num="B1">
+      <span class="nav-num">B1</span>
+      <span>第一工區<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">桃園・龜山區</span></span>
+      <span class="nav-badge" id="badge-taoyuan">-</span>
+    </div>
+    <div class="nav-item" onclick="showPage('report-bade')" data-num="B2">
+      <span class="nav-num">B2</span>
+      <span>第二工區<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">八德・大溪・復興區</span></span>
+      <span class="nav-badge" id="badge-bade">-</span>
+    </div>
+    <div class="nav-item" onclick="showPage('report-pingzhen2')" data-num="B3">
+      <span class="nav-num">B3</span>
+      <span>第三工區<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">平鎮・龍潭區</span></span>
+      <span class="nav-badge" id="badge-pingzhen2">-</span>
+    </div>
+    <div class="nav-item" onclick="showPage('report-zhongli2')" data-num="B4">
+      <span class="nav-num">B4</span>
+      <span>第四工區<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">中壢・觀音區</span></span>
+      <span class="nav-badge" id="badge-zhongli2">-</span>
+    </div>
+    <div class="nav-item" onclick="showPage('report-luzhu2')" data-num="B5">
+      <span class="nav-num">B5</span>
+      <span>第五工區<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">蘆竹・大園區</span></span>
+      <span class="nav-badge" id="badge-luzhu2">-</span>
+    </div>
+    <div class="nav-item" onclick="showPage('report-xinwu')" data-num="B6">
+      <span class="nav-num">B6</span>
+      <span>第六工區<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">新屋・楊梅區</span></span>
+      <span class="nav-badge" id="badge-xinwu">-</span>
+    </div>
+    <div class="nav-item" onclick="showPage('report-triangle')" data-num="B7">
+      <span class="nav-num">B7</span>
+      <span>金三角廊道規劃<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">115～119年・全市策略</span></span>
+      <span class="nav-badge" id="badge-triangle">39</span>
+    </div>
+  </div>
+
+  <div class="nav-section">
+    <div class="nav-label">業務報告</div>
+    <div class="nav-item" onclick="showPage('bizreport-c1')" data-num="C1">
+      <span class="nav-num">C1</span>
+      <span>115年改善路段總表<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">12行政區・29路段</span></span>
+      <span class="nav-badge">29</span>
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <span class="sync-dot"></span>資料已同步・<span id="last-save">-</span>
+  </div>
+</nav>
+
+<!-- ===== MAIN CONTENT ===== -->
+<main class="main">
+
+<!-- ====== DASHBOARD ====== -->
+<div class="page active" id="page-dashboard">
+  <div class="page-header">
+    <div>
+      <div class="page-title">[A1] 總覽儀表板</div>
+      <div class="page-sub">115年度人行道・通學廊道工程執行進度</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="triggerImport()">↑ 匯入 Excel</button>
+      <button class="btn" onclick="exportExcel()">↓ 匯出 Excel</button>
+      <button class="btn btn-primary" onclick="openAddModal()">＋ 新增案件</button>
+    </div>
+  </div>
+
+  <div class="stats-row" id="dash-stats"></div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
+    <div class="card">
+      <div class="card-title">預算使用率</div>
+      <div id="dash-budget"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">承辦人案件分配</div>
+      <div id="dash-handlers"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">各行政區執行狀況</div>
+    <div id="dash-districts"></div>
+  </div>
+</div>
+
+<!-- ====== ALL CASES ====== -->
+<div class="page" id="page-all-cases">
+  <div class="page-header">
+    <div>
+      <div class="page-title">[A2] 全部案件</div>
+      <div class="page-sub">115年度・116年度 所有案件彙整</div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <div class="view-toggle">
+        <button class="view-btn" id="vbtn-card" onclick="setCaseView('card')">◫ 卡片</button>
+        <button class="view-btn" id="vbtn-list" onclick="setCaseView('list')">≡ 列表</button>
+      </div>
+      <button class="btn" onclick="triggerImport()" title="從 Excel 匯入案件資料">↑ 匯入</button>
+      <button class="btn" onclick="exportExcel()" title="匯出所有案件為 Excel">↓ 匯出</button>
+      <button class="btn btn-primary" onclick="openAddModal()">＋ 新增案件</button>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <input class="filter-input" type="text" id="search-all" placeholder="搜尋地點、承辦人、案件來源…" oninput="renderAllCases()">
+    <select id="filter-year" onchange="renderAllCases()">
+      <option value="">年度：全部</option>
+      <option value="115">115年</option>
+      <option value="116">116年</option>
+    </select>
+    <select id="filter-district" onchange="renderAllCases()">
+      <option value="">區域：全部</option>
+      <option>大園區</option><option>中壢區</option>
+      <option>蘆竹區</option><option>平鎮區</option>
+    </select>
+    <select id="filter-status" onchange="renderAllCases()">
+      <option value="">狀態：全部</option>
+      <option>已完成</option><option>施工中</option><option>尚未開始</option>
+    </select>
+    <select id="filter-type" onchange="renderAllCases()">
+      <option value="">類型：全部</option>
+      <option>人行道</option><option>通學</option>
+    </select>
+    <select id="filter-design" onchange="renderAllCases()">
+      <option value="">派設：全部</option>
+      <option>有派設</option><option>無派設</option>
+    </select>
+  </div>
+  <div id="case-count" style="font-size:12px;color:var(--text3);margin-bottom:12px;"></div>
+  <div id="all-cases-list"></div>
+</div>
+
+<!-- ====== BUDGET ====== -->
+<div class="page" id="page-budget">
+  <div class="page-header">
+    <div>
+      <div class="page-title">[A3] 預算管理</div>
+      <div class="page-sub">契約金額追蹤與各案件金額明細</div>
+    </div>
+  </div>
+  <div class="stats-row" id="budget-stats"></div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="card-title">預算執行概況</div>
+    <div id="budget-overview"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">各案件金額明細（依金額排序）</div>
+    <table class="data-table" id="budget-table"></table>
+  </div>
+</div>
+
+<!-- ====== SCHEDULE ====== -->
+<div class="page" id="page-schedule">
+  <div class="page-header">
+    <div>
+      <div class="page-title">[A4] 時程追蹤</div>
+      <div class="page-sub">施作期程與設計提交期限追蹤</div>
+    </div>
+  </div>
+  <div id="schedule-content"></div>
+</div>
+
+<!-- ====== DISTRICT PAGES ====== -->
+<div class="page" id="page-dist-dayuan">
+  <div id="hero-dayuan"></div>
+  <div class="stats-row" id="stats-dayuan"></div>
+  <div class="card"><div class="card-title">案件列表</div><div id="list-dayuan"></div></div>
+</div>
+
+<div class="page" id="page-dist-zhongli">
+  <div id="hero-zhongli"></div>
+  <div class="stats-row" id="stats-zhongli"></div>
+  <div class="card"><div class="card-title">案件列表</div><div id="list-zhongli"></div></div>
+</div>
+
+<div class="page" id="page-dist-luzhu">
+  <div id="hero-luzhu"></div>
+  <div class="stats-row" id="stats-luzhu"></div>
+  <div class="card"><div class="card-title">案件列表</div><div id="list-luzhu"></div></div>
+</div>
+
+<div class="page" id="page-dist-pingzhen">
+  <div id="hero-pingzhen"></div>
+  <div class="stats-row" id="stats-pingzhen"></div>
+  <div class="card"><div class="card-title">案件列表</div><div id="list-pingzhen"></div></div>
+</div>
+
+<div class="page" id="page-dist-other">
+  <div class="page-header">
+    <div><div class="page-title">其他轄區</div><div class="page-sub">未分類或其他行政區案件</div></div>
+  </div>
+  <div id="list-other"></div>
+</div>
+
+<!-- REPORT PAGES -->
+<div class="page" id="page-report-taoyuan">
+  <div class="page-header">
+    <div><div class="page-title">[B1] 桃園・龜山 工作報告</div><div class="page-sub">涵蓋行政區：桃園區、龜山區</div></div>
+  </div>
+  <div id="report-taoyuan-content"></div>
+</div>
+
+<div class="page" id="page-report-bade">
+  <div class="page-header">
+    <div><div class="page-title">[B2] 八德・大溪・復興 工作報告</div><div class="page-sub">涵蓋行政區：八德區、大溪區、復興區</div></div>
+  </div>
+  <div id="report-bade-content"></div>
+</div>
+
+<div class="page" id="page-report-pingzhen2">
+  <div class="page-header">
+    <div><div class="page-title">[B3] 平鎮・龍潭 工作報告</div><div class="page-sub">涵蓋行政區：平鎮區、龍潭區</div></div>
+  </div>
+  <div id="report-pingzhen2-content"></div>
+</div>
+
+<div class="page" id="page-report-zhongli2">
+  <div class="page-header">
+    <div><div class="page-title">[B4] 中壢・觀音 工作報告</div><div class="page-sub">涵蓋行政區：中壢區、觀音區</div></div>
+  </div>
+  <div id="report-zhongli2-content"></div>
+</div>
+
+<div class="page" id="page-report-luzhu2">
+  <div class="page-header">
+    <div><div class="page-title">[B5] 蘆竹・大園 工作報告</div><div class="page-sub">涵蓋行政區：蘆竹區、大園區</div></div>
+  </div>
+  <div id="report-luzhu2-content"></div>
+</div>
+
+<div class="page" id="page-report-xinwu">
+  <div class="page-header">
+    <div><div class="page-title">[B6] 新屋・楊梅 工作報告</div><div class="page-sub">涵蓋行政區：新屋區、楊梅區</div></div>
+  </div>
+  <div id="report-xinwu-content"></div>
+</div>
+
+<div class="page" id="page-report-triangle">
+  <div class="page-header">
+    <div><div class="page-title">[B7] 金三角廊道策略規劃</div><div class="page-sub">115～119年・全市13行政區・39個廊道點位</div></div>
+  </div>
+  <div id="report-triangle-content"></div>
+</div>
+
+</main>
+</div>
+
+<!-- ====== C1 業務報告 ====== -->
+<div class="page" id="page-bizreport-c1">
+  <div class="page-header">
+    <div>
+      <div class="page-title">[C1] 115年人行道預計改善路段-總表</div>
+      <div class="page-sub">115年度・12行政區・29路段・總長15,970公尺</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <div class="view-toggle">
+        <button class="view-btn" id="c1-vbtn-card" onclick="setC1View('card')">◫ 卡片</button>
+        <button class="view-btn" id="c1-vbtn-table" onclick="setC1View('table')">≡ 列表</button>
+      </div>
+    </div>
+  </div>
+  <div class="stats-row" id="c1-stats"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
+    <select id="c1-district" onchange="renderC1()" style="font-size:12px;padding:6px 10px">
+      <option value="">行政區：全部</option>
+    </select>
+    <select id="c1-budget" onchange="renderC1()" style="font-size:12px;padding:6px 10px">
+      <option value="">預算來源：全部</option>
+      <option>市府預算</option>
+      <option>中央補助</option>
+    </select>
+    <span id="c1-count" style="font-size:12px;color:var(--text3);align-self:center"></span>
+  </div>
+  <div id="c1-content"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-title" id="modal-title">新增案件</div>
+    <div class="form-grid">
+      <div class="form-field"><label>年度</label><input type="number" id="f-year" value="115"></div>
+      <div class="form-field"><label>行政區</label>
+        <select id="f-district"><option>大園區</option><option>中壢區</option><option>蘆竹區</option><option>平鎮區</option><option>八德區</option><option>龜山區</option><option>新屋區</option><option>楊梅區</option></select>
+      </div>
+      <div class="form-field"><label>類型</label>
+        <select id="f-type"><option>人行道</option><option>通學</option></select>
+      </div>
+      <div class="form-field half"><label>地點/位置</label><input type="text" id="f-location"></div>
+      <div class="form-field"><label>執行契約</label><input type="text" id="f-contract" value="115人行道5區"></div>
+      <div class="form-field full"><label>Google 地址（地圖連結用，例：桃園市大園區聖德北路）</label><input type="text" id="f-address" placeholder="桃園市○○區○○路"></div>
+      <div class="form-field half"><label>起點</label><input type="text" id="f-start"></div>
+      <div class="form-field half"><label>終點</label><input type="text" id="f-end"></div>
+      <div class="form-field"><label>長度(m)</label><input type="number" id="f-length"></div>
+      <div class="form-field"><label>預估金額</label><input type="number" id="f-amount"></div>
+      <div class="form-field"><label>狀態</label>
+        <select id="f-status"><option>尚未開始</option><option>施工中</option><option>已完成</option></select>
+      </div>
+      <div class="form-field full"><label>施工概述</label><input type="text" id="f-description"></div>
+      <div class="form-field full"><label>案件來源</label><input type="text" id="f-source"></div>
+      <div class="form-field"><label>預計施作起</label><input type="text" id="f-scheduleStart" placeholder="3月16日"></div>
+      <div class="form-field"><label>預計施作迄</label><input type="text" id="f-scheduleEnd" placeholder="3月25日"></div>
+      <div class="form-field"><label>承辦人</label>
+        <select id="f-handler"><option>游智翔</option><option>劉秀霞</option><option value=""></option></select>
+      </div>
+      <div class="form-field"><label>派設狀態</label>
+        <select id="f-designStatus"><option>無派設</option><option>有派設</option></select>
+      </div>
+      <div class="form-field"><label>設計提交期限</label><input type="text" id="f-designDeadline" placeholder="5月31日"></div>
+      <div class="form-field"><label>設計單位</label>
+        <select id="f-designFirm"><option>-</option><option>邑菖</option><option>開巨</option></select>
+      </div>
+      <div class="form-field"><label>監造單位</label>
+        <select id="f-superviseFirm"><option>開巨</option><option>-</option></select>
+      </div>
+      <div class="form-field"><label>施工單位</label>
+        <select id="f-constructFirm"><option>東鈺</option><option>-</option></select>
+      </div>
+      <div class="form-field full"><label>備註</label><textarea id="f-notes"></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveCase()">儲存</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast">✓ 已儲存</div>
+
+<!-- 隱藏的匯入 input -->
+<input type="file" id="excel-import-input" accept=".xlsx,.xls" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ========== DATA ==========
+const CONTRACT_TOTAL = 39367867;
+const DISPATCHED_TOTAL = 39346099;
+
+let CASES = [
+  {id:1,year:115,seq:1,district:"大園區",type:"人行道",location:"聖德北路",address:"桃園市大園區聖德北路",start:"溪海休閒農業區遊客中心",end:"聖德北路970巷",length:340,contract:"115人行道5區",description:"局部修復",amount:1200000,status:"已完成",source:"徐其萬議員",scheduleStart:"3月16日",scheduleEnd:"3月25日",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:2,year:115,seq:2,district:"中壢區",type:"人行道",location:"延平路",address:"桃園市中壢區延平路",start:"仁海宮",end:"元化路",length:170,contract:"115人行道5區",description:"人行道改善工程",amount:8296099,status:"施工中",source:"2026台灣設計展",scheduleStart:"3月23日",scheduleEnd:"5月31日",designStatus:"有派設",designDeadline:"已核定",handler:"游智翔",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:"電箱及寬頻手孔要請管線單位遷移"},
+  {id:3,year:115,seq:3,district:"大園區",type:"人行道",location:"致善路一段",address:"桃園市大園區致善路一段",start:"領航南路一段",end:"高鐵南路一段",length:800,contract:"115人行道5區",description:"局部修復",amount:500000,status:"施工中",source:"隊長派案",scheduleStart:"4月1日",scheduleEnd:"4月30日",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"4月底前完成巡查，有破損嚴重處、容易跌倒直接錄案修復"},
+  {id:4,year:115,seq:7,district:"大園區",type:"人行道",location:"園科路",address:"桃園市大園區園科路",start:"園學路",end:"大園國中門口前(靠埤塘側)",length:350,contract:"115人行道5區",description:"鋪面更新(混凝土拉毛)",amount:1200000,status:"施工中",source:"徐其萬議員 游吾和議員",scheduleStart:"4月1日",scheduleEnd:"4月17日",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:5,year:115,seq:8,district:"大園區",type:"人行道",location:"環區南路",address:"桃園市大園區環區南路",start:"環區西路",end:"環區東路",length:600,contract:"115人行道5區",description:"鋪面更新(混凝土拉毛)",amount:1700000,status:"尚未開始",source:"徐其萬議員 游吾和議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:6,year:115,seq:9,district:"大園區",type:"人行道",location:"環區北路",address:"桃園市大園區環區北路",start:"環區東路",end:"大觀路",length:950,contract:"115人行道5區",description:"局部修復",amount:1000000,status:"尚未開始",source:"徐其萬議員 游吾和議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:7,year:115,seq:4,district:"大園區",type:"人行道",location:"大豐二街",address:"桃園市大園區大豐二街",start:"大仁路",end:"高鐵北路二段",length:250,contract:"115人行道5區",description:"鋪面更新(噴花)",amount:3750000,status:"尚未開始",source:"里長及校方(大園高中)",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"預計暑假施作，路側灌木移除，先行跟大園高中辦會勘"},
+  {id:8,year:115,seq:5,district:"大園區",type:"人行道",location:"中山南路二段(青山里)",address:"桃園市大園區中山南路二段",start:"興德路",end:"永園路二段",length:130,contract:"115人行道5區",description:"人行道改善工程",amount:3300000,status:"尚未開始",source:"徐其萬議員",scheduleStart:"8月1日",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:9,year:115,seq:6,district:"蘆竹區",type:"人行道",location:"南竹路二段",address:"桃園市蘆竹區南竹路二段",start:"中正北路",end:"南竹路二段2巷(橋)",length:350,contract:"115人行道5區",description:"標線型人行道+溝蓋翻新",amount:0,status:"尚未開始",source:"錢龍議員",scheduleStart:"8月1日",scheduleEnd:"11月15日",designStatus:"有派設",designDeadline:"7月15日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"路口行人保護措施、車道寬及標線調整、溝蓋更新等"},
+  {id:10,year:115,seq:10,district:"蘆竹區",type:"通學",location:"大竹國小",address:"桃園市蘆竹區大竹國小",start:"大竹國小外",end:"-",length:24,contract:"115人行道5區",description:"新設遮雨棚+噴花地坪",amount:2900000,status:"尚未開始",source:"延續114年度通學",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"已核定",handler:"劉秀霞",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:"目前校方已提出需求，設計費用增加討論中"},
+  {id:11,year:115,seq:11,district:"蘆竹區",type:"人行道",location:"新南路一段(單號側)",address:"桃園市蘆竹區新南路一段",start:"新南路一段11號",end:"忠孝東路",length:130,contract:"115人行道5區",description:"人行道改善工程",amount:3500000,status:"尚未開始",source:"邱顯助里長",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"5月31日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
+  {id:12,year:115,seq:12,district:"蘆竹區",type:"人行道",location:"新南路一段(單號側)",address:"桃園市蘆竹區新南路一段",start:"忠孝東路",end:"南華一街",length:200,contract:"115人行道5區",description:"人行道改善工程",amount:5000000,status:"尚未開始",source:"邱顯助里長",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"5月31日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
+  {id:13,year:115,seq:13,district:"蘆竹區",type:"人行道",location:"海港路",address:"桃園市蘆竹區海港路",start:"西濱路一段",end:"防汛道路",length:200,contract:"115人行道5區",description:"人行道改善工程",amount:3500000,status:"尚未開始",source:"錢龍議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"8月15日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
+  {id:14,year:115,seq:14,district:"蘆竹區",type:"人行道",location:"南工路",address:"桃園市蘆竹區南工路",start:"",end:"",length:0,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"蘆竹里蔡清雲里長",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"劉秀霞",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"請承辦人邀集里長辦會勘確認施作範圍"},
+  {id:15,year:115,seq:15,district:"蘆竹區",type:"人行道",location:"中興路(雙號側)",address:"桃園市蘆竹區中興路",start:"中興路100巷",end:"興仁路",length:350,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"10月1日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
+  {id:16,year:115,seq:16,district:"平鎮區",type:"通學",location:"北勢國小",address:"桃園市平鎮區北勢國小",start:"北勢國小前門、後門",end:"-",length:80,contract:"115人行道5區",description:"前門高壓磚換新+後門摩托車出入口加大",amount:3500000,status:"尚未開始",source:"王珮毓議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"4/2(四)與校方討論形式確認，紀錄已彙整完成"},
+  {id:17,year:116,seq:1,district:"蘆竹區",type:"人行道",location:"新南路一段(雙號側)",address:"桃園市蘆竹區新南路一段",start:"106號(廣信五金)",end:"158號(自助洗衣店)",length:140,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"立法委員 牛煦庭",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"5月31日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:18,year:116,seq:2,district:"蘆竹區",type:"人行道",location:"六福路",address:"桃園市蘆竹區六福路",start:"五福一路50巷",end:"五福一路口",length:200,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"許清順議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:19,year:116,seq:3,district:"蘆竹區",type:"人行道",location:"大新路",address:"桃園市蘆竹區大新路",start:"大新路1號",end:"大新一街",length:150,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"張桂綿議員、劉勝全議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"大新路5號至9號私設斜坡下方有自來水及瓦斯管，施工請注意"},
+  {id:20,year:116,seq:4,district:"蘆竹區",type:"通學",location:"外社國小",address:"桃園市蘆竹區外社國小",start:"外社國小",end:"",length:85,contract:"115人行道5區",description:"新設避車彎+溝蓋翻新",amount:3000000,status:"尚未開始",source:"劉勝全議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"劉秀霞",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:"已於114年8月6日設計核定"},
+  {id:21,year:116,seq:5,district:"蘆竹區",type:"人行道",location:"機捷路二段",address:"桃園市蘆竹區機捷路二段",start:"機捷路二段978號",end:"機捷路二段898號",length:80,contract:"115人行道5區",description:"人行道延伸及增設斜坡",amount:0,status:"尚未開始",source:"錢龍議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"劉秀霞",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:22,year:116,seq:6,district:"大園區",type:"人行道",location:"中山南路二段",address:"桃園市大園區中山南路二段",start:"明德街",end:"領航北路三段",length:100,contract:"115人行道5區",description:"人行道改善工程(混凝土刷毛)",amount:0,status:"尚未開始",source:"自行巡查",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"7-11前路緣及舖面高低差至少20公分以上"},
+  {id:23,year:116,seq:7,district:"蘆竹區",type:"人行道",location:"長榮路",address:"桃園市蘆竹區長榮路",start:"榮安路",end:"南山路二段",length:550,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"自行巡查",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"劉秀霞",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:24,year:116,seq:8,district:"蘆竹區",type:"通學",location:"大華國小",address:"桃園市蘆竹區大華國小",start:"",end:"",length:0,contract:"115人行道5區",description:"細節工務會議討論",amount:0,status:"尚未開始",source:"1999市政信箱",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"劉秀霞",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"已於113、114年皆錄案，但學校不同意施作實體人行道，爰取消設計"},
+];
+
+// Work reports per zone (editable)
+let REPORTS = {
+  taoyuan: { title:"(1)桃園龜山", cases:[], notes:"", lastUpdate:"" },
+  bade: { title:"(2)八德大溪復興", cases:[], notes:"", lastUpdate:"" },
+  pingzhen2: { title:"(3)平鎮龍潭", cases:[], notes:"", lastUpdate:"" },
+  zhongli2: { title:"(4)中壢觀音", cases:[], notes:"", lastUpdate:"" },
+  luzhu2: { title:"(5)蘆竹大園", cases:[], notes:"", lastUpdate:"" },
+  xinwu: { title:"(6)新屋楊梅", cases:[], notes:"", lastUpdate:"" },
+  triangle: { title:"金三角", cases:[], notes:"", lastUpdate:"" },
+};
+
+// Map districts to report zones
+const DISTRICT_ZONE = {
+  "大園區": "luzhu2", "蘆竹區": "luzhu2",
+  "中壢區": "zhongli2", "觀音區": "zhongli2",
+  "平鎮區": "pingzhen2", "龍潭區": "pingzhen2",
+  "龜山區": "taoyuan", "桃園區": "taoyuan",
+  "八德區": "bade", "大溪區": "bade", "復興區": "bade",
+  "新屋區": "xinwu", "楊梅區": "xinwu",
+};
+
+let editingId = null;
+let caseViewMode = 'card'; // 'list' or 'card'
+
+// ========== PROMO CARD ==========
+function getZoneForDistrict(district) {
+  const zoneMap = {
+    '桃園區':'B1','龜山區':'B1',
+    '八德區':'B2','大溪區':'B2','復興區':'B2',
+    '平鎮區':'B3','龍潭區':'B3',
+    '中壢區':'B4','觀音區':'B4',
+    '蘆竹區':'B5','大園區':'B5',
+    '新屋區':'B6','楊梅區':'B6',
+  };
+  return zoneMap[district] || 'B?';
+}
+
+function pinClass(c) {
+  if (c.type==='通學') return 'school-pin';
+  if (c.status==='已完成') return 'done-pin';
+  if (c.status==='施工中') return 'wip-pin';
+  return 'todo-pin';
+}
+function bgClass(c) {
+  if (c.type==='通學') return 'school-bg';
+  if (c.status==='已完成') return 'done-bg';
+  if (c.status==='施工中') return 'wip-bg';
+  return 'todo-bg';
+}
+
+function promoCardHTML(c) {
+  const addr = c.address || ('桃園市'+c.district+c.location);
+  const mapsUrl = 'https://maps.google.com/maps?q=' + encodeURIComponent(addr);
+  const zone = getZoneForDistrict(c.district);
+  const schedule = c.scheduleStart ? (c.scheduleEnd ? c.scheduleStart+'～'+c.scheduleEnd : c.scheduleStart) : '待排程';
+  const amtStr = c.amount ? 'NT$'+Math.round(c.amount/10000)+'萬' : '-';
+
+  return `<div class="promo-card">
+    <div class="card-map-area ${bgClass(c)}">
+      <div class="map-grid"></div>
+      <div class="map-road-h"></div>
+      <div class="map-road-v"></div>
+      <div class="map-pin ${pinClass(c)}"></div>
+      <span class="card-zone-badge">${zone} · ${c.year}年</span>
+      <span class="card-year-tag">#${c.seq}</span>
+      <a class="card-map-link" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation()">
+        ◎ Google Maps
+      </a>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div>
+          <div class="card-location">${c.location}</div>
+          <div class="card-district-tag">${c.district}</div>
+        </div>
+        <div class="card-badges">
+          ${typeBadge(c.type)}
+        </div>
+      </div>
+      ${c.description ? `<div class="card-desc">${c.description}</div>` : ''}
+      ${c.start ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">
+        <span style="font-weight:500">起：</span>${c.start}
+        ${c.end&&c.end!=='-'?` <span style="font-weight:500;margin-left:6px">迄：</span>${c.end}`:''}
+      </div>`:''}
+      <div class="card-stats">
+        <div class="card-stat">
+          <div class="card-stat-num">${c.length||'-'}</div>
+          <div class="card-stat-lbl">長度(m)</div>
+        </div>
+        <div class="card-stat">
+          <div class="card-stat-num" style="font-size:13px">${amtStr}</div>
+          <div class="card-stat-lbl">預估金額</div>
+        </div>
+        <div class="card-stat">
+          ${statusBadge(c.status)}
+          <div class="card-stat-lbl" style="margin-top:3px">${designBadge(c.designStatus).replace('badge','').replace(/<[^>]+>/g,'').trim()||''}</div>
+        </div>
+      </div>
+    </div>
+    <div class="card-footer">
+      <span class="card-handler">${c.handler?'承辦：'+c.handler:'未指派'}</span>
+      <span class="card-schedule">${schedule}</span>
+      <button class="btn btn-sm" onclick="openEditModal(${c.id})" style="padding:3px 8px;font-size:11px">編輯</button>
+    </div>
+  </div>`;
+}
+
+// ========== STORAGE ==========
+function saveData() {
+  try {
+    localStorage.setItem('road_cases', JSON.stringify(CASES));
+    localStorage.setItem('road_reports', JSON.stringify(REPORTS));
+    const now = new Date();
+    const ts = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
+    (document.getElementById('last-save')||document.createElement('span')).textContent = ts;
+    showToast('✓ 已儲存');
+  } catch(e) {}
+}
+
+function loadData() {
+  try {
+    const c = localStorage.getItem('road_cases');
+    if (c) CASES = JSON.parse(c);
+    const r = localStorage.getItem('road_reports');
+    if (r) REPORTS = JSON.parse(r);
+  } catch(e) {}
+}
+
+// ========== UTILS ==========
+function fmt(n) { return n ? n.toLocaleString('zh-TW') : '-'; }
+function statusBadge(s) {
+  const m = { '已完成':'badge-done','施工中':'badge-wip','尚未開始':'badge-todo' };
+  return `<span class="badge ${m[s]||'badge-todo'}">${s}</span>`;
+}
+function designBadge(s) {
+  return s==='有派設' ? `<span class="badge badge-design">有派設</span>` : `<span class="badge badge-nodesign">無派設</span>`;
+}
+function typeBadge(t) {
+  return t==='通學' ? `<span class="badge badge-school">通學</span>` : `<span class="badge badge-walk">人行道</span>`;
+}
+
+// ========== NAVIGATION ==========
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  const page = document.getElementById('page-' + id);
+  if (page) page.classList.add('active');
+  event.currentTarget.classList.add('active');
+  renderPage(id);
+}
+
+function renderPage(id) {
+  if (id === 'dashboard') renderDashboard();
+  else if (id === 'all-cases') renderAllCases();
+  else if (id === 'budget') renderBudget();
+  else if (id === 'schedule') renderSchedule();
+  else if (id === 'bizreport-c1') { renderC1(); }
+  else if (id.startsWith('dist-')) renderDistrict(id.replace('dist-',''));
+  else if (id.startsWith('report-')) renderReport(id.replace('report-',''));
+}
+
+// ========== DASHBOARD ==========
+function renderDashboard() {
+  const done = CASES.filter(c=>c.status==='已完成').length;
+  const wip = CASES.filter(c=>c.status==='施工中').length;
+  const todo = CASES.filter(c=>c.status==='尚未開始').length;
+  const totalAmt = CASES.reduce((s,c)=>s+c.amount,0);
+  const withDesign = CASES.filter(c=>c.designStatus==='有派設').length;
+
+  (document.getElementById('dash-stats')||document.createElement('div')).innerHTML = [
+    {label:'總案件數', val:CASES.length, sub:'件'},
+    {label:'施工中', val:wip, sub:'件', color:'var(--accent)'},
+    {label:'已完成', val:done, sub:'件', color:'var(--green)'},
+    {label:'尚未開始', val:todo, sub:'件', color:'var(--gray)'},
+    {label:'有派設案件', val:withDesign, sub:'件', color:'var(--purple)'},
+    {label:'已登錄金額', val:'NT$ '+Math.round(totalAmt/10000).toLocaleString(), sub:'萬元'},
+  ].map(s=>`<div class="stat-card">
+    <div class="stat-label">${s.label}</div>
+    <div class="stat-value" style="${s.color?'color:'+s.color:''}">${s.val}</div>
+    <div class="stat-sub">${s.sub||''}</div>
+  </div>`).join('');
+
+  // Budget
+  const used = DISPATCHED_TOTAL / CONTRACT_TOTAL * 100;
+  (document.getElementById('dash-budget')||document.createElement('div')).innerHTML = `
+    <div class="budget-bar-container">
+      <div class="budget-bar-label"><span>契約總金額</span><span>NT$ ${CONTRACT_TOTAL.toLocaleString()}</span></div>
+    </div>
+    <div class="budget-bar-container">
+      <div class="budget-bar-label"><span>已派錄案</span><span>${Math.round(used)}% ・ NT$ ${DISPATCHED_TOTAL.toLocaleString()}</span></div>
+      <div class="budget-bar"><div class="budget-fill" style="width:${used}%"></div></div>
+    </div>
+    <div class="budget-bar-container" style="margin-top:12px">
+      <div class="budget-bar-label"><span>剩餘可用</span><span>NT$ ${(CONTRACT_TOTAL-DISPATCHED_TOTAL).toLocaleString()}</span></div>
+    </div>`;
+
+  // Handlers
+  const handlers = {};
+  CASES.forEach(c=>{ if(c.handler){handlers[c.handler]=(handlers[c.handler]||[]);handlers[c.handler].push(c);} });
+  (document.getElementById('dash-handlers')||document.createElement('div')).innerHTML = Object.entries(handlers).map(([h,cs])=>`
+    <div style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+        <span style="font-weight:500">${h}</span>
+        <span style="color:var(--text2)">${cs.length} 件（${cs.filter(c=>c.status==='施工中').length} 施工中・${cs.filter(c=>c.status==='已完成').length} 完成）</span>
+      </div>
+      <div class="progress-bar"><div class="progress-fill" style="width:${cs.length/CASES.length*100}%"></div></div>
+    </div>`).join('');
+
+  // Districts
+  const distList = [...new Set(CASES.map(c=>c.district))];
+  (document.getElementById('dash-districts')||document.createElement('div')).innerHTML = `<table class="data-table">
+    <thead><tr><th>行政區</th><th>案件數</th><th>已完成</th><th>施工中</th><th>尚未開始</th><th>預估金額</th></tr></thead>
+    <tbody>${distList.map(d=>{
+      const dc=CASES.filter(c=>c.district===d);
+      const amt=dc.reduce((s,c)=>s+c.amount,0);
+      return `<tr>
+        <td style="font-weight:500">${d}</td>
+        <td>${dc.length}</td>
+        <td>${dc.filter(c=>c.status==='已完成').length}</td>
+        <td>${dc.filter(c=>c.status==='施工中').length}</td>
+        <td>${dc.filter(c=>c.status==='尚未開始').length}</td>
+        <td style="font-family:'DM Mono',monospace">${amt?'NT$ '+amt.toLocaleString():'-'}</td>
+      </tr>`;
+    }).join('')}</tbody>
+  </table>`;
+
+  // Update badges
+  (document.getElementById('badge-total')||document.createElement('span')).textContent = CASES.length;
+
+  // Zone badge counts
+  const ZONE_DISTRICTS = {
+    taoyuan: ['桃園區','龜山區'],
+    bade: ['八德區','大溪區','復興區'],
+    pingzhen2: ['平鎮區','龍潭區'],
+    zhongli2: ['中壢區','觀音區'],
+    luzhu2: ['蘆竹區','大園區'],
+    xinwu: ['新屋區','楊梅區'],
+    triangle: ['中壢區','平鎮區','八德區'],
+  };
+  Object.entries(ZONE_DISTRICTS).forEach(([zone, dists])=>{
+    const count = CASES.filter(c=>dists.includes(c.district)).length;
+    const el = document.getElementById('badge-'+zone);
+    if(el) el.textContent = count || '-';
+  });
+}
+
+function setCaseView(mode) {
+  caseViewMode = mode;
+  document.getElementById('vbtn-card').classList.toggle('active', mode==='card');
+  document.getElementById('vbtn-list').classList.toggle('active', mode==='list');
+  renderAllCases();
+}
+
+// ========== ALL CASES ==========
+function renderAllCases() {
+  const search = (document.getElementById('search-all')||{}).value?.toLowerCase()||'';
+  const fYear = (document.getElementById('filter-year')||{}).value||'';
+  const fDist = (document.getElementById('filter-district')||{}).value||'';
+  const fStatus = (document.getElementById('filter-status')||{}).value||'';
+  const fType = (document.getElementById('filter-type')||{}).value||'';
+  const fDesign = (document.getElementById('filter-design')||{}).value||'';
+
+  const filtered = CASES.filter(c=>{
+    if (fYear && String(c.year) !== fYear) return false;
+    if (fDist && c.district !== fDist) return false;
+    if (fStatus && c.status !== fStatus) return false;
+    if (fType && c.type !== fType) return false;
+    if (fDesign && c.designStatus !== fDesign) return false;
+    if (search && !(c.location+c.district+c.handler+c.source+c.description).toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const countEl = document.getElementById('case-count');
+  if (countEl) countEl.textContent = `共 ${filtered.length} 筆`;
+
+  // Sync toggle buttons
+  const vCard = document.getElementById('vbtn-card');
+  const vList = document.getElementById('vbtn-list');
+  if (vCard) vCard.classList.toggle('active', caseViewMode==='card');
+  if (vList) vList.classList.toggle('active', caseViewMode==='list');
+
+  const listEl = document.getElementById('all-cases-list');
+  if (!listEl) return;
+  if (caseViewMode === 'card') {
+    listEl.className = 'cards-grid';
+    listEl.innerHTML = filtered.map(c=>promoCardHTML(c)).join('');
+  } else {
+    listEl.className = '';
+    listEl.innerHTML = filtered.map(c=>caseItemHTML(c)).join('');
+  }
+}
+
+function caseItemHTML(c) {
+  return `<div class="case-item" id="case-${c.id}">
+    <div class="case-header">
+      <span class="case-num">${c.year}年 #${c.seq}</span>
+      <span class="case-title">${c.location}</span>
+      <span class="case-district">${c.district}</span>
+      ${typeBadge(c.type)}
+    </div>
+    <div class="case-meta">
+      ${statusBadge(c.status)}
+      ${designBadge(c.designStatus)}
+      ${c.amount?`<span class="case-amount">NT$ ${c.amount.toLocaleString()}</span>`:''}
+      ${c.handler?`<span class="case-handler">承辦：${c.handler}</span>`:''}
+      <span style="margin-left:auto;display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="event.stopPropagation();openEditModal(${c.id})">編輯</button>
+        <button class="btn btn-sm" onclick="event.stopPropagation();toggleDetail(${c.id})">詳情</button>
+      </span>
+    </div>
+    <div class="case-detail" id="detail-${c.id}">
+      <div class="detail-grid">
+        ${c.start?`<div class="detail-field"><div class="detail-label">起點</div><div class="detail-val">${c.start}</div></div>`:''}
+        ${c.end&&c.end!=='-'?`<div class="detail-field"><div class="detail-label">終點</div><div class="detail-val">${c.end}</div></div>`:''}
+        ${c.length?`<div class="detail-field"><div class="detail-label">長度</div><div class="detail-val">${c.length} m</div></div>`:''}
+        ${c.description?`<div class="detail-field"><div class="detail-label">施工概述</div><div class="detail-val">${c.description}</div></div>`:''}
+        ${c.source?`<div class="detail-field"><div class="detail-label">案件來源</div><div class="detail-val">${c.source}</div></div>`:''}
+        ${(c.scheduleStart||c.scheduleEnd)?`<div class="detail-field"><div class="detail-label">預計施作</div><div class="detail-val">${c.scheduleStart||'-'} ~ ${c.scheduleEnd||'-'}</div></div>`:''}
+        ${c.designDeadline&&c.designDeadline!=='-'?`<div class="detail-field"><div class="detail-label">設計提交期限</div><div class="detail-val">${c.designDeadline}</div></div>`:''}
+        ${c.designFirm&&c.designFirm!=='-'?`<div class="detail-field"><div class="detail-label">設計單位</div><div class="detail-val">${c.designFirm}</div></div>`:''}
+        <div class="detail-field"><div class="detail-label">監造單位</div><div class="detail-val">${c.superviseFirm}</div></div>
+        <div class="detail-field"><div class="detail-label">施工單位</div><div class="detail-val">${c.constructFirm}</div></div>
+        <div class="detail-field"><div class="detail-label">執行契約</div><div class="detail-val">${c.contract}</div></div>
+      </div>
+      ${c.notes?`<div class="detail-notes">備註：${c.notes}</div>`:''}
+    </div>
+  </div>`;
+}
+
+function toggleDetail(id) {
+  const el = document.getElementById('detail-'+id);
+  if (el) el.classList.toggle('open');
+}
+
+// ========== BUDGET ==========
+function renderBudget() {
+  const totalAmt = CASES.reduce((s,c)=>s+c.amount,0);
+  const remaining = CONTRACT_TOTAL - DISPATCHED_TOTAL;
+
+  (document.getElementById('budget-stats')||document.createElement('div')).innerHTML = [
+    {label:'契約總金額', val:'NT$ '+CONTRACT_TOTAL.toLocaleString(), color:'var(--accent)'},
+    {label:'已派錄案金額', val:'NT$ '+DISPATCHED_TOTAL.toLocaleString(), color:'var(--purple)'},
+    {label:'剩餘可用金額', val:'NT$ '+remaining.toLocaleString(), color:'var(--green)'},
+    {label:'已登錄預估金額', val:'NT$ '+totalAmt.toLocaleString(), color:'var(--orange)'},
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:18px;color:${s.color}">${s.val}</div></div>`).join('');
+
+  const used = DISPATCHED_TOTAL/CONTRACT_TOTAL*100;
+  const amtUsed = totalAmt/CONTRACT_TOTAL*100;
+  (document.getElementById('budget-overview')||document.createElement('div')).innerHTML = `
+    <div class="budget-bar-container">
+      <div class="budget-bar-label"><span>已派錄案 / 契約總額</span><span>${Math.round(used)}%</span></div>
+      <div class="budget-bar" style="height:12px"><div class="budget-fill" style="width:${Math.min(used,100)}%"></div></div>
+    </div>
+    <div class="budget-bar-container" style="margin-top:14px">
+      <div class="budget-bar-label"><span>已登錄預估金額 / 契約總額</span><span>${Math.round(amtUsed)}%</span></div>
+      <div class="budget-bar" style="height:12px"><div class="budget-fill green" style="width:${Math.min(amtUsed,100)}%"></div></div>
+    </div>`;
+
+  const sorted = [...CASES].filter(c=>c.amount>0).sort((a,b)=>b.amount-a.amount);
+  (document.getElementById('budget-table')||document.createElement('div')).innerHTML = `
+    <thead><tr><th>行政區</th><th>地點/位置</th><th>類型</th><th>狀態</th><th>預估金額</th></tr></thead>
+    <tbody>${sorted.map(c=>`<tr>
+      <td>${c.district}</td>
+      <td style="font-weight:500">${c.location}</td>
+      <td>${typeBadge(c.type)}</td>
+      <td>${statusBadge(c.status)}</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:600">NT$ ${c.amount.toLocaleString()}</td>
+    </tr>`).join('')}
+    <tr style="background:var(--surface2)">
+      <td colspan="4" style="font-weight:700;text-align:right">合計</td>
+      <td style="font-family:'DM Mono',monospace;font-weight:700">NT$ ${sorted.reduce((s,c)=>s+c.amount,0).toLocaleString()}</td>
+    </tr>
+    </tbody>`;
+}
+
+// ========== SCHEDULE ==========
+function renderSchedule() {
+  const groups = [
+    {title:'施工中案件', items:CASES.filter(c=>c.status==='施工中')},
+    {title:'即將施作（已有期程）', items:CASES.filter(c=>c.status==='尚未開始'&&c.scheduleStart)},
+    {title:'設計階段（有派設・未施作）', items:CASES.filter(c=>c.status==='尚未開始'&&c.designStatus==='有派設'&&!c.scheduleStart)},
+    {title:'待排程', items:CASES.filter(c=>c.status==='尚未開始'&&c.designStatus==='無派設'&&!c.scheduleStart)},
+    {title:'已完成', items:CASES.filter(c=>c.status==='已完成')},
+  ];
+
+  (document.getElementById('schedule-content')||document.createElement('div')).innerHTML = groups.filter(g=>g.items.length>0).map(g=>`
+    <div style="margin-bottom:24px">
+      <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;text-transform:uppercase;letter-spacing:.06em">${g.title} (${g.items.length})</div>
+      <table class="data-table" style="background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--border)">
+        <thead><tr><th>行政區</th><th>地點</th><th>施作期程</th><th>設計期限</th><th>承辦人</th><th>狀態</th></tr></thead>
+        <tbody>${g.items.map(c=>`<tr>
+          <td>${c.district}</td>
+          <td style="font-weight:500">${c.location}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px">${c.scheduleStart?c.scheduleStart+(c.scheduleEnd?' → '+c.scheduleEnd:''):'-'}</td>
+          <td style="${c.designDeadline&&c.designDeadline!=='-'?'color:var(--purple);font-weight:500':''}">${c.designDeadline||'-'}</td>
+          <td>${c.handler||'-'}</td>
+          <td>${statusBadge(c.status)}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+    </div>`).join('');
+}
+
+// ========== DISTRICT PAGE ==========
+const DIST_MAP = {
+  dayuan:'大園區', zhongli:'中壢區', luzhu:'蘆竹區', pingzhen:'平鎮區'
+};
+
+function renderDistrict(key) {
+  const distName = DIST_MAP[key];
+  if (!distName) return;
+  const dc = CASES.filter(c=>c.district===distName);
+  const done = dc.filter(c=>c.status==='已完成').length;
+  const wip = dc.filter(c=>c.status==='施工中').length;
+  const amt = dc.reduce((s,c)=>s+c.amount,0);
+
+  document.getElementById('hero-'+key).innerHTML = `
+    <div class="district-hero">
+      <div>
+        <div class="district-hero-name">${distName}</div>
+        <div class="district-hero-sub">115年度人行道・通學廊道工程</div>
+      </div>
+      <div class="district-hero-stats">
+        <div><div class="district-hero-num">${dc.length}</div><div class="district-hero-label">總案件</div></div>
+        <div><div class="district-hero-num">${wip}</div><div class="district-hero-label">施工中</div></div>
+        <div><div class="district-hero-num">${done}</div><div class="district-hero-label">已完成</div></div>
+      </div>
+    </div>`;
+
+  document.getElementById('stats-'+key).innerHTML = [
+    {label:'人行道案件', val:dc.filter(c=>c.type==='人行道').length},
+    {label:'通學廊道案件', val:dc.filter(c=>c.type==='通學').length},
+    {label:'有派設案件', val:dc.filter(c=>c.designStatus==='有派設').length},
+    {label:'預估總金額', val: amt?'NT$ '+Math.round(amt/10000)+'萬':'-'},
+  ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:20px">${s.val}</div></div>`).join('');
+
+  document.getElementById('list-'+key).innerHTML = dc.map(c=>caseItemHTML(c)).join('');
+}
+
+// ========== REPORT PAGE ==========
+const ZONE_META = {
+  taoyuan:   { num:'B1', title:'第一工區', sub:'桃園・龜山',      districts:['桃園區','龜山區'] },
+  bade:      { num:'B2', title:'第二工區', sub:'八德・大溪・復興', districts:['八德區','大溪區','復興區'] },
+  pingzhen2: { num:'B3', title:'第三工區', sub:'平鎮・龍潭',      districts:['平鎮區','龍潭區'] },
+  zhongli2:  { num:'B4', title:'第四工區', sub:'中壢・觀音',      districts:['中壢區','觀音區'] },
+  luzhu2:    { num:'B5', title:'第五工區', sub:'蘆竹・大園',      districts:['蘆竹區','大園區'] },
+  xinwu:     { num:'B6', title:'第六工區', sub:'新屋・楊梅',      districts:['新屋區','楊梅區'] },
+};
+
+// ========== 金三角資料 (gid=1608554557) ==========
+let TRIANGLE = [
+  {id:1, year:'115年', district:'桃園區', population:'約47萬人', pointType:'交通節點', pointName:'桃園火車站',    strategy:'站前通勤廊道', project:'1.桃園市桃園區人本示範道路-桃園火車站後站周邊道路多目標改善工程(養工處)/已於114年6月12日完工\n2.桃園市人本綠廊創新計劃-桃園區成功路(朝陽街至三民路)路廊委託設計及監造技術服務(工務局)/規劃設計中/預計116年底完工\n3.桃園市景福宮周邊道路及人行道改善工程(都發局)/已於114年1月26日完工\n4.桃園市桃園區中山路(民族路~朝陽街)道路多目標改善工程(養工處)/預計115年6月進場\n5.桃園區桃園國小『藝文生活通學步道』改善工程(民權路X成功路藝文生活通學步道計畫)(都發局)/已於114年12月26日完工', schedule:'', crossDept:'1.成功路二段-北科附工-工務局\n2.成功路三段-桃園高中-養工處', budget:'1.約3124萬\n2.約1億3700萬\n3.2485萬\n4.約1500萬\n5.3445萬', notes:'每日進出約5.6萬人次(全台第二)，通勤與轉乘需求極大，需改善站前步行環境。', handler:''},
+  {id:2, year:'115年', district:'桃園區', population:'約47萬人', pointType:'觀光/信仰', pointName:'景福宮',        strategy:'文化通學廊道', project:'1.中山路-養工處', schedule:'', crossDept:'', budget:'', notes:'舊城信仰中心，假日參拜人潮約5,000-8,000人次，多由車站步行前往，需串聯文化路徑。', handler:''},
+  {id:3, year:'115年', district:'桃園區', population:'約47萬人', pointType:'學校',     pointName:'桃園國小',      strategy:'文化通學廊道', project:'1.民權路-都發局', schedule:'', crossDept:'', budget:'', notes:'學生數約813人，位於市中心高車流區，家長接送與學童步行比例各半，通學安全急需改善。', handler:''},
+  {id:4, year:'115年', district:'中壢區', population:'約43萬人', pointType:'觀光/信仰', pointName:'仁海宮',        strategy:'站前通勤廊道', project:'桃園市中壢區延平路(環北路至元化路)道路多目標改善工程(養工處115開口)/設計中', schedule:'', crossDept:'1.延平路-養工處', budget:'約4154萬', notes:'地方信仰中心，對面還有天晟醫院，人潮眾多', handler:''},
+  {id:5, year:'115年', district:'中壢區', population:'約43萬人', pointType:'觀光/休憩', pointName:'中正公園',      strategy:'公園休憩廊道', project:'1.桃園市中壢區中正公園整體景觀改善工程(工務局)/施工中\n2.桃園市中壢區復興路人本環境改善計畫工程(都發局)/', schedule:'', crossDept:'1.復興路-都發局', budget:'1.約6500萬\n2.約7390萬', notes:'核心綠地，假日人潮約3,000-5,000人次，家庭親子與YouBike使用者眾多。', handler:''},
+  {id:6, year:'115年', district:'中壢區', population:'約43萬人', pointType:'學校',     pointName:'中壢國小',      strategy:'文化通學廊道', project:'中壢區中壢國小「藝文生活通學步道」改善工程(都發局)/預計115/3/31完工', schedule:'', crossDept:'1.都發局', budget:'約4800萬', notes:'學生數約512人，周邊住商混合密度高，步行通學比例約45%，需實體人行道保障。', handler:''},
+  {id:7, year:'115年', district:'蘆竹區', population:'約16萬人', pointType:'學校',     pointName:'南崁高中',      strategy:'文化通學廊道', project:'永續提升人行安全計畫-桃園市蘆竹區南崁高中暨南崁國中校園周邊暨行車安全道路改善計畫(航工處)/預計116年1月完成', schedule:'', crossDept:'仁愛路二段-航空處', budget:'約4107萬', notes:'學生數約1,428人，高度依賴公車轉乘步行，位於文教核心區。', handler:''},
+  {id:8, year:'115年', district:'蘆竹區', population:'約16萬人', pointType:'學校',     pointName:'南崁國中',      strategy:'雙校園通學廊道', project:'桃園市龜山區樂善國小及南美國小周邊通學廊道改善工程(路燈科)/已於113年12月26日完工', schedule:'', crossDept:'仁愛路二段-航空處', budget:'約1978萬', notes:'學生數約1,479人，與高中、國小相鄰，尖峰時段人車衝突嚴重。', handler:''},
+  {id:9, year:'115年', district:'蘆竹區', population:'約16萬人', pointType:'學校',     pointName:'南美國小',      strategy:'南崁文化廊道', project:'1.蘆竹區油管路一段(六福路~五福路)(養工處113開口)/道路考評-已於113年7月9日完工\n2.中山路(養工處115開口)', schedule:'', crossDept:'', budget:'約156萬 約150萬', notes:'學生數約1,400人，此區域三校合計近5,000名學生，改善效益最高。', handler:''},
+  {id:10, year:'116年', district:'大溪區', population:'約9.6萬人', pointType:'觀光/休憩', pointName:'埔頂公園',     strategy:'公園通學廊道', project:'工程名稱:桃園市大溪埔頂公園周邊人本環境多目標改善工程(養工處)', schedule:'', crossDept:'', budget:'決標金額:54,003,665元', notes:'假日吸引大量野餐家庭(約2,000人次)，需友善步行環境串聯重劃區。', handler:''},
+  {id:11, year:'116年', district:'大溪區', population:'約9.6萬人', pointType:'觀光/休憩', pointName:'大溪原民公園', strategy:'原民文化廊道', project:'1.工程名稱：大溪區國道三號埔頂綠廊道新建工程（原民二期）(113年完工)', schedule:'', crossDept:'', budget:'1.契約金額：$17,964,567', notes:'連結河階地形文化亮點，提供居民優質散步路徑。', handler:''},
+  {id:12, year:'116年', district:'大溪區', population:'約9.6萬人', pointType:'學校',    pointName:'仁善國小',      strategy:'雙公園通學廊道', project:'工程名稱：仁善街原民公園新建工程(公所114開口)', schedule:'', crossDept:'', budget:'結算金額:774萬1349元', notes:'學生數約779人，埔頂重劃區核心學校，家長接送車流大，需退縮空間。', handler:''},
+  {id:13, year:'116年', district:'龍潭區', population:'約12萬人', pointType:'觀光/休憩', pointName:'龍潭大池',     strategy:'歷史文化廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'全市級景點，假日觀光約5,000人次以上，需提升人行品質容納遊客。', handler:''},
+  {id:14, year:'116年', district:'龍潭區', population:'約12萬人', pointType:'觀光/信仰', pointName:'龍元宮',       strategy:'歷史文化廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'商圈核心與信仰中心，改善廟口商圈人車爭道問題。', handler:''},
+  {id:15, year:'116年', district:'龍潭區', population:'約12萬人', pointType:'學校',     pointName:'龍潭國小',     strategy:'文化通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約981人，位於市中心，學童動線與觀光客重疊，需分流或保護。', handler:''},
+  {id:16, year:'116年', district:'新屋區', population:'約5萬人',  pointType:'觀光/文化', pointName:'范姜祖堂',     strategy:'歷史通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'主要客家景點，假日遊客約500-1,000人，需與市區人行道串接。', handler:''},
+  {id:17, year:'116年', district:'新屋區', population:'約5萬人',  pointType:'學校',     pointName:'新屋國小',     strategy:'歷史通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約1,295人，市區主要學校，需提供學童獨立安全的步行空間。', handler:''},
+  {id:18, year:'116年', district:'新屋區', population:'約5萬人',  pointType:'行政中心', pointName:'新屋區公所',   strategy:'行政文化廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'高齡人口洽公需求大，需打造無障礙友善示範區。', handler:''},
+  {id:19, year:'117年', district:'楊梅區', population:'約18萬人', pointType:'學校',     pointName:'治平高中',     strategy:'文化通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約4,491人，放學時段步行至車站人流龐大，常佔據車道，風險極高。', handler:''},
+  {id:20, year:'117年', district:'楊梅區', population:'約18萬人', pointType:'交通節點', pointName:'埔心火車站',   strategy:'站前通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'每日進出約1-1.2萬人次，為楊梅重要通勤節點，站前空間需優化。', handler:''},
+  {id:21, year:'117年', district:'楊梅區', population:'約18萬人', pointType:'學校',     pointName:'瑞埔國小',     strategy:'站前通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約673人，緊鄰車站與高中，需串聯至車站的安心步道。', handler:''},
+  {id:22, year:'117年', district:'龜山區', population:'約18萬人', pointType:'交通節點', pointName:'捷運A7站',     strategy:'公園通勤廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'每日進出約2萬人次且持續增長，通勤族群龐大，連接住宅區之步道需求高。', handler:''},
+  {id:23, year:'117年', district:'龜山區', population:'約18萬人', pointType:'觀光/休憩', pointName:'長樂公園',    strategy:'公園通勤廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'A7重劃區指標公園，假日親子使用率極高，為新興社區散步核心。', handler:''},
+  {id:24, year:'117年', district:'龜山區', population:'約18萬人', pointType:'學校',     pointName:'樂善國小',     strategy:'文化通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約815人(快速成長中)，需應對重劃區人口激增，建立安全通學路。', handler:''},
+  {id:25, year:'117年', district:'觀音區', population:'約7萬人',  pointType:'觀光/休憩', pointName:'草漯棒壘球場', strategy:'運動休閒廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'草漯重劃區重要運動設施，假日運動人口多，需串聯至學校。', handler:''},
+  {id:26, year:'117年', district:'觀音區', population:'約7萬人',  pointType:'學校',     pointName:'草漯國小',     strategy:'雙校園通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約1,454人，隨重劃區人口移入快速成長，既有步道不足。', handler:''},
+  {id:27, year:'117年', district:'觀音區', population:'約7萬人',  pointType:'學校',     pointName:'草漯國中',     strategy:'運動通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約480人，與國小及球場形成三角核心，需整體改善。', handler:''},
+  {id:28, year:'118年', district:'平鎮區', population:'約23萬人', pointType:'觀光/休憩', pointName:'乙未保台紀念公園', strategy:'公園文化廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'年度遊客約15萬人次，具地標性，需強化周邊社區步行連結至公園。', handler:''},
+  {id:29, year:'118年', district:'平鎮區', population:'約23萬人', pointType:'學校',     pointName:'平鎮高中',     strategy:'文化通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約1,654人，約70%學生依賴大眾運輸後步行到校，通學路徑長。', handler:''},
+  {id:30, year:'118年', district:'平鎮區', population:'約23萬人', pointType:'學校',     pointName:'育達高中',     strategy:'雙校園通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數高達約4,991人(全市私校前列)，上下學時段人潮溢出路面，改善急迫性極高。', handler:''},
+  {id:31, year:'118年', district:'大園區', population:'約9萬人',  pointType:'觀光/休憩', pointName:'大園公園',     strategy:'公園通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'市區休憩核心，提供長者與學童安全的活動空間。', handler:''},
+  {id:32, year:'118年', district:'大園區', population:'約9萬人',  pointType:'學校',     pointName:'大興高中',     strategy:'公園通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約1,206人(國際雙語學校)，需打造航空城周邊示範通學廊道。', handler:''},
+  {id:33, year:'118年', district:'大園區', population:'約9萬人',  pointType:'觀光/休憩', pointName:'華興池',       strategy:'水岸休閒廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'新興水岸景點，配合公園化改造，需設置環湖與連結市區之步道。', handler:''},
+  {id:34, year:'118年', district:'復興區', population:'約1.3萬人', pointType:'觀光/休憩', pointName:'角板山公園',  strategy:'公園通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'年遊客約10萬人次，假日觀光車潮多，需人車分流以保障遊客安全。', handler:''},
+  {id:35, year:'118年', district:'復興區', population:'約1.3萬人', pointType:'學校',     pointName:'介壽國小',    strategy:'公園通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約70人，位於山區行政中心，需保障學童免於觀光車流威脅。', handler:''},
+  {id:36, year:'118年', district:'復興區', population:'約1.3萬人', pointType:'行政中心', pointName:'復興區公所',  strategy:'行政休憩廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'行政核心，需整合周邊散亂的停車與步行空間。', handler:''},
+  {id:37, year:'119年', district:'八德區', population:'約21萬人', pointType:'交通節點(未來)', pointName:'捷運G01站', strategy:'市政通勤廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'未來綠線起點，預估日運量數千人，需預先建構TOD人本路網。', handler:''},
+  {id:38, year:'119年', district:'八德區', population:'約21萬人', pointType:'行政中心', pointName:'八德區公所',   strategy:'行政通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'行政中心洽公人流穩定，應作為無障礙人行道示範區。', handler:''},
+  {id:39, year:'119年', district:'八德區', population:'約21萬人', pointType:'學校',     pointName:'八德國小',     strategy:'行政通學廊道', project:'', schedule:'', crossDept:'', budget:'', notes:'學生數約1,888人，鄰近區公所與捷運站，需確保學童通學動線連續無斷點。', handler:''},
+];
+
+function renderReport(key) {
+  // 金三角走專屬渲染
+  if (key === 'triangle') { renderTriangle(); return; }
+
+  const contentId = 'report-'+key+'-content';
+  const el = document.getElementById(contentId);
+  if (!el) return;
+
+  const meta = ZONE_META[key] || { num:'?', title:key, districts:[] };
+  const zoneCases = CASES.filter(c => meta.districts.includes(c.district));
+
+  const done = zoneCases.filter(c=>c.status==='已完成').length;
+  const wip = zoneCases.filter(c=>c.status==='施工中').length;
+  const todo = zoneCases.filter(c=>c.status==='尚未開始').length;
+  const amt = zoneCases.reduce((s,c)=>s+c.amount,0);
+
+  const savedReport = REPORTS[key] || {};
+  const notes = savedReport.notes || '';
+
+  // Update page title
+  const pageEl = document.getElementById('page-report-'+key);
+  if(pageEl){
+    const titleEl = pageEl.querySelector('.page-title');
+    const subEl = pageEl.querySelector('.page-sub');
+    if(titleEl) titleEl.textContent = `[${meta.num}] ${meta.title}（${meta.sub}）工作報告`;
+    if(subEl) subEl.textContent = `涵蓋行政區：${meta.districts.join('、')}`;
+  }
+
+  el.innerHTML = `
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px">
+      ${meta.districts.map(d=>{
+        const n = CASES.filter(c=>c.district===d).length;
+        return `<span style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-size:12px">
+          <span style="font-weight:600">${d}</span>
+          <span style="color:var(--text3);margin-left:6px">${n} 件</span>
+        </span>`;
+      }).join('')}
+    </div>
+
+    <div class="stats-row">
+      ${[
+        {label:'轄區案件',val:zoneCases.length},
+        {label:'施工中',val:wip,color:'var(--accent)'},
+        {label:'已完成',val:done,color:'var(--green)'},
+        {label:'尚未開始',val:todo},
+        {label:'有派設',val:zoneCases.filter(c=>c.designStatus==='有派設').length,color:'var(--purple)'},
+        {label:'預估金額',val:amt?'NT$'+Math.round(amt/10000)+'萬':'-'},
+      ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:18px;${s.color?'color:'+s.color:''}">${s.val}</div></div>`).join('')}
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">工作報告備註 / 會議記錄</div>
+      <textarea id="report-notes-${key}" style="width:100%;min-height:100px;border:1px solid var(--border);border-radius:8px;padding:10px;font-family:inherit;font-size:13px"
+        oninput="if(!REPORTS['${key}'])REPORTS['${key}']={};REPORTS['${key}'].notes=this.value">${notes}</textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button class="btn btn-primary btn-sm" onclick="saveData()">儲存備註</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
+      <div class="card-title">工作追蹤項目</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="form-field"><label>工作事項</label><input type="text" id="rt-item-${key}" placeholder="輸入工作事項…"></div>
+        <div class="form-field"><label>負責人</label><input type="text" id="rt-handler-${key}" placeholder="承辦人"></div>
+        <div class="form-field"><label>期限</label><input type="text" id="rt-deadline-${key}" placeholder="5月31日"></div>
+        <div class="form-field"><label>狀態</label>
+          <select id="rt-status-${key}"><option>待辦</option><option>進行中</option><option>已完成</option></select>
+        </div>
+      </div>
+      <button class="btn btn-sm" onclick="addReportItem('${key}')">＋ 新增項目</button>
+      <div id="report-items-${key}" style="margin-top:12px">${renderReportItems(key)}</div>
+    </div>
+
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div class="card-title" style="margin-bottom:0">案件宣傳卡片</div>
+        <button class="btn btn-primary btn-sm" onclick="openAddModal()">＋ 新增案件</button>
+      </div>
+      ${zoneCases.length
+        ? `<div class="cards-grid">${zoneCases.map(c=>promoCardHTML(c)).join('')}</div>`
+        : `<div style="color:var(--text3);padding:32px;text-align:center;font-size:13px">此區域目前無案件資料<br><span style="font-size:11px">可透過「新增案件」並選擇對應行政區新增</span></div>`
+      }
+    </div>`;
+}
+
+// ========== 金三角專屬渲染 ==========
+function renderTriangle() {
+  const el = document.getElementById('report-triangle-content');
+  if (!el) return;
+
+  const fYear = (document.getElementById('tri-year')||{}).value || '';
+  const fDist = (document.getElementById('tri-dist')||{}).value || '';
+  const fType = (document.getElementById('tri-type')||{}).value || '';
+
+  const filtered = TRIANGLE.filter(t => {
+    if (fYear && t.year !== fYear) return false;
+    if (fDist && t.district !== fDist) return false;
+    if (fType && t.pointType !== fType) return false;
+    return true;
+  });
+
+  const years = [...new Set(TRIANGLE.map(t=>t.year))];
+  const districts = [...new Set(TRIANGLE.map(t=>t.district))];
+  const types = [...new Set(TRIANGLE.map(t=>t.pointType))];
+
+  const POINT_COLOR = {
+    '學校':'badge-school', '交通節點':'badge-wip', '觀光/信仰':'badge-design',
+    '觀光/休憩':'badge-done', '觀光/文化':'badge-done', '行政中心':'badge-todo',
+    '交通節點(未來)':'badge-warning',
+  };
+  const YEAR_BG = { '115年':'#EBF0FA','116年':'#E6F4EC','117年':'#FDF0E5','118年':'#EFEBFA','119年':'#FAEAEA' };
+  const YEAR_TX = { '115年':'#185FA5','116年':'#1E7D45','117年':'#C4620A','118年':'#5B3FA8','119年':'#B22E2E' };
+
+  // 統計
+  const byYear = {};
+  years.forEach(y=>{ byYear[y]=TRIANGLE.filter(t=>t.year===y).length; });
+  const withProject = TRIANGLE.filter(t=>t.project).length;
+
+  el.innerHTML = `
+    <!-- 統計列 -->
+    <div class="stats-row" style="margin-bottom:20px">
+      <div class="stat-card"><div class="stat-label">總廊道點位</div><div class="stat-value">${TRIANGLE.length}</div><div class="stat-sub">跨13行政區</div></div>
+      <div class="stat-card"><div class="stat-label">規劃年期</div><div class="stat-value">5年</div><div class="stat-sub">115～119年</div></div>
+      <div class="stat-card"><div class="stat-label">已有計畫名稱</div><div class="stat-value" style="color:var(--green)">${withProject}</div><div class="stat-sub">筆</div></div>
+      <div class="stat-card"><div class="stat-label">各年度點位數</div>
+        <div style="margin-top:6px">${years.map(y=>`
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+            <span style="background:${YEAR_BG[y]};color:${YEAR_TX[y]};padding:1px 7px;border-radius:4px;font-weight:600">${y}</span>
+            <span style="font-family:'DM Mono',monospace;font-weight:600">${byYear[y]} 點</span>
+          </div>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- 篩選列 -->
+    <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap">
+      <select id="tri-year" onchange="renderTriangle()" style="font-size:12px;padding:6px 10px">
+        <option value="">年度：全部</option>
+        ${years.map(y=>`<option ${fYear===y?'selected':''}>${y}</option>`).join('')}
+      </select>
+      <select id="tri-dist" onchange="renderTriangle()" style="font-size:12px;padding:6px 10px">
+        <option value="">行政區：全部</option>
+        ${districts.map(d=>`<option ${fDist===d?'selected':''}>${d}</option>`).join('')}
+      </select>
+      <select id="tri-type" onchange="renderTriangle()" style="font-size:12px;padding:6px 10px">
+        <option value="">點位屬性：全部</option>
+        ${types.map(t=>`<option ${fType===t?'selected':''}>${t}</option>`).join('')}
+      </select>
+      <span style="font-size:12px;color:var(--text3);align-self:center">共 ${filtered.length} 筆</span>
+    </div>
+
+    <!-- 按年度分組 -->
+    ${years.filter(y=> !fYear || y===fYear).map(y=>{
+      const items = filtered.filter(t=>t.year===y);
+      if (!items.length) return '';
+      return `
+        <div style="margin-bottom:24px">
+          <div style="display:inline-flex;align-items:center;gap:10px;margin-bottom:12px">
+            <span style="background:${YEAR_BG[y]};color:${YEAR_TX[y]};font-size:13px;font-weight:700;padding:4px 14px;border-radius:8px">${y}</span>
+            <span style="font-size:12px;color:var(--text3)">${items.length} 個廊道點位</span>
+          </div>
+          <div class="cards-grid">
+            ${items.map(t=>{
+              const mapsUrl = 'https://maps.google.com/maps?q='+encodeURIComponent('桃園市'+t.district+t.pointName);
+              return `<div class="promo-card">
+                <div class="card-map-area ${t.pointType.includes('學校')?'school-bg':t.pointType.includes('交通')?'wip-bg':t.pointType.includes('行政')?'todo-bg':'done-bg'}" style="height:90px">
+                  <div class="map-grid"></div>
+                  <div class="map-road-h"></div>
+                  <div class="map-road-v"></div>
+                  <div class="map-pin ${t.pointType.includes('學校')?'school-pin':t.pointType.includes('交通')?'wip-pin':t.pointType.includes('行政')?'todo-pin':'done-pin'}"></div>
+                  <span class="card-zone-badge">${t.district} · ${t.population}</span>
+                  <a class="card-map-link" href="${mapsUrl}" target="_blank">◎ Google Maps</a>
+                </div>
+                <div class="card-body" style="padding:12px 16px">
+                  <div class="card-top" style="margin-bottom:6px">
+                    <div>
+                      <div class="card-location" style="font-size:14px">${t.pointName}</div>
+                      <div class="card-district-tag">${t.district}</div>
+                    </div>
+                    <span class="badge ${POINT_COLOR[t.pointType]||'badge-todo'}" style="font-size:10px;white-space:nowrap">${t.pointType}</span>
+                  </div>
+                  <div style="font-size:11px;color:var(--accent);font-weight:500;margin-bottom:6px">${t.strategy}</div>
+                  ${t.notes?`<div style="font-size:11px;color:var(--text2);line-height:1.5">${t.notes}</div>`:''}
+                  ${t.project?`<div style="margin-top:8px;background:var(--surface2);border-radius:6px;padding:7px 10px;font-size:11px;color:var(--text2);border-left:3px solid var(--accent)"><div style="font-weight:600;color:var(--text);margin-bottom:3px">計畫內容</div>${t.project.replace(/\n/g,'<br>')}</div>`:''}
+                  ${t.budget?`<div style="margin-top:6px;font-size:11px"><span style="color:var(--text3)">經費：</span><span style="color:var(--green);font-weight:600">${t.budget.replace(/\n/g,' / ')}</span></div>`:''}
+                  ${t.crossDept?`<div style="font-size:11px;margin-top:4px"><span style="color:var(--text3)">跨局處：</span>${t.crossDept.replace(/\n/g,' · ')}</div>`:''}
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }).join('')}
+  `;
+}
+
+function renderReportItems(key) {
+  const items = (REPORTS[key]||{}).items||[];
+  if (!items.length) return '';
+  return `<table class="data-table">
+    <thead><tr><th>工作事項</th><th>負責人</th><th>期限</th><th>狀態</th><th>操作</th></tr></thead>
+    <tbody>${items.map((item,i)=>`<tr>
+      <td>${item.text}</td><td>${item.handler}</td><td>${item.deadline}</td>
+      <td>${statusBadge(item.status==='已完成'?'已完成':item.status==='進行中'?'施工中':'尚未開始')}</td>
+      <td><button class="btn btn-sm" onclick="removeReportItem('${key}',${i})">刪除</button></td>
+    </tr>`).join('')}</tbody>
+  </table>`;
+}
+
+function addReportItem(key) {
+  const text = document.getElementById('rt-item-'+key).value.trim();
+  if (!text) return;
+  if (!REPORTS[key]) REPORTS[key]={title:'',cases:[],notes:'',items:[]};
+  if (!REPORTS[key].items) REPORTS[key].items=[];
+  REPORTS[key].items.push({
+    text,
+    handler: document.getElementById('rt-handler-'+key).value,
+    deadline: document.getElementById('rt-deadline-'+key).value,
+    status: document.getElementById('rt-status-'+key).value,
+  });
+  saveData();
+  document.getElementById('report-items-'+key).innerHTML = renderReportItems(key);
+  document.getElementById('rt-item-'+key).value='';
+}
+
+function removeReportItem(key, idx) {
+  REPORTS[key].items.splice(idx,1);
+  saveData();
+  document.getElementById('report-items-'+key).innerHTML = renderReportItems(key);
+}
+
+// ========== MODAL ==========
+const FIELDS = ['year','district','type','location','contract','start','end','length','amount','status','description','source','scheduleStart','scheduleEnd','handler','designStatus','designDeadline','designFirm','superviseFirm','constructFirm','notes'];
+
+function openAddModal() {
+  editingId = null;
+  (document.getElementById('modal-title')||document.createElement('span')).textContent = '新增案件';
+  document.getElementById('f-year').value = 115;
+  document.getElementById('f-district').value = '大園區';
+  document.getElementById('f-type').value = '人行道';
+  document.getElementById('f-status').value = '尚未開始';
+  document.getElementById('f-designStatus').value = '無派設';
+  ['location','address','contract','start','end','description','source','scheduleStart','scheduleEnd','designDeadline','notes'].forEach(f=>{ document.getElementById('f-'+f).value=''; });
+  document.getElementById('f-contract').value = '115人行道5區';
+  document.getElementById('f-length').value = 0;
+  document.getElementById('f-amount').value = 0;
+  document.getElementById('modal').classList.add('open');
+}
+
+function openEditModal(id) {
+  const c = CASES.find(x=>x.id===id);
+  if (!c) return;
+  editingId = id;
+  (document.getElementById('modal-title')||document.createElement('span')).textContent = '編輯案件 — ' + c.location;
+  document.getElementById('f-year').value = c.year;
+  document.getElementById('f-district').value = c.district;
+  document.getElementById('f-type').value = c.type;
+  document.getElementById('f-location').value = c.location;
+  document.getElementById('f-address').value = c.address||'';
+  document.getElementById('f-contract').value = c.contract;
+  document.getElementById('f-start').value = c.start;
+  document.getElementById('f-end').value = c.end;
+  document.getElementById('f-length').value = c.length;
+  document.getElementById('f-amount').value = c.amount;
+  document.getElementById('f-status').value = c.status;
+  document.getElementById('f-description').value = c.description;
+  document.getElementById('f-source').value = c.source;
+  document.getElementById('f-scheduleStart').value = c.scheduleStart;
+  document.getElementById('f-scheduleEnd').value = c.scheduleEnd;
+  document.getElementById('f-handler').value = c.handler;
+  document.getElementById('f-designStatus').value = c.designStatus;
+  document.getElementById('f-designDeadline').value = c.designDeadline||'';
+  document.getElementById('f-designFirm').value = c.designFirm;
+  document.getElementById('f-superviseFirm').value = c.superviseFirm;
+  document.getElementById('f-constructFirm').value = c.constructFirm;
+  document.getElementById('f-notes').value = c.notes;
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+
+function saveCase() {
+  const data = {
+    year: parseInt(document.getElementById('f-year').value),
+    district: document.getElementById('f-district').value,
+    type: document.getElementById('f-type').value,
+    location: document.getElementById('f-location').value,
+    address: document.getElementById('f-address').value,
+    contract: document.getElementById('f-contract').value,
+    start: document.getElementById('f-start').value,
+    end: document.getElementById('f-end').value,
+    length: parseInt(document.getElementById('f-length').value)||0,
+    amount: parseInt(document.getElementById('f-amount').value)||0,
+    status: document.getElementById('f-status').value,
+    description: document.getElementById('f-description').value,
+    source: document.getElementById('f-source').value,
+    scheduleStart: document.getElementById('f-scheduleStart').value,
+    scheduleEnd: document.getElementById('f-scheduleEnd').value,
+    handler: document.getElementById('f-handler').value,
+    designStatus: document.getElementById('f-designStatus').value,
+    designDeadline: document.getElementById('f-designDeadline').value,
+    designFirm: document.getElementById('f-designFirm').value,
+    superviseFirm: document.getElementById('f-superviseFirm').value,
+    constructFirm: document.getElementById('f-constructFirm').value,
+    notes: document.getElementById('f-notes').value,
+  };
+  if (editingId) {
+    const idx = CASES.findIndex(c=>c.id===editingId);
+    if (idx>=0) CASES[idx] = {...CASES[idx], ...data};
+  } else {
+    const maxId = Math.max(...CASES.map(c=>c.id), 0);
+    const maxSeq = Math.max(...CASES.filter(c=>c.year===data.year).map(c=>c.seq),0);
+    CASES.push({id:maxId+1, seq:maxSeq+1, ...data});
+  }
+  saveData();
+  closeModal();
+  // re-render current page
+  const activePage = document.querySelector('.page.active');
+  if (activePage) {
+    const id = activePage.id.replace('page-','');
+    renderPage(id);
+  }
+}
+
+// Click outside to close modal
+document.getElementById('modal').addEventListener('click', function(e){
+  if (e.target === this) closeModal();
+});
+
+// ========== TOAST ==========
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2000);
+}
+
+// ========== 業務報告 C1：115年人行道預計改善路段-總表 ==========
+let BIZREPORT = [
+  {id:1,  seq:1,  district:'桃園區', road:'永安路(雙號側)',       length:260,  budgetSrc:'市府預算', start:'忠文路',         end:'溫州街',             cost:390,          costNote:'',    source:'里長及地方民意員'},
+  {id:2,  seq:2,  district:'桃園區', road:'裕仁二街',             length:220,  budgetSrc:'市府預算', start:'裕仁二街175號對面', end:'大厚路',            cost:330,          costNote:'',    source:'新鄰和福里長'},
+  {id:3,  seq:3,  district:'桃園區', road:'林森路69巷',           length:200,  budgetSrc:'市府預算', start:'林森路69巷',      end:'林森路',             cost:300,          costNote:'',    source:'永環里議員'},
+  {id:4,  seq:4,  district:'桃園區', road:'進行路',               length:500,  budgetSrc:'中央補助', start:'台4線',           end:'進行126巷',          cost:2000,         costNote:'未納入', source:'水楊第二匯'},
+  {id:5,  seq:5,  district:'桃園區', road:'成功路三段',           length:1000, budgetSrc:'中央補助', start:'桃林鐵路',        end:'忠烈祠',             cost:0,            costNote:'',    source:'水楊第二匯'},
+  {id:6,  seq:6,  district:'桃園區', road:'中山路',               length:250,  budgetSrc:'市府預算', start:'民權路',          end:'民生路',             cost:7500,         costNote:'未納入', source:'配合設計展・李欽永'},
+  {id:7,  seq:7,  district:'桃園區', road:'中正路',               length:220,  budgetSrc:'市府預算', start:'同德十一街',      end:'中華街',             cost:3893,         costNote:'',    source:'縣議員'},
+  {id:8,  seq:8,  district:'桃園區', road:'撿英路',               length:600,  budgetSrc:'市府預算', start:'撿英路1089巷',    end:'撿英路1197巷',       cost:900,          costNote:'',    source:'李宜豪議員'},
+  {id:9,  seq:9,  district:'龜山區', road:'撿英路',               length:520,  budgetSrc:'市府預算', start:'長善路',          end:'東方球場',           cost:800,          costNote:'',    source:'張偉倫議員'},
+  {id:10, seq:10, district:'龜山區', road:'文學路',               length:350,  budgetSrc:'市府預算', start:'文善二路',        end:'文善一路',           cost:500,          costNote:'',    source:'民意代表'},
+  {id:11, seq:11, district:'龜山區', road:'過嶺中路(單號側)',     length:550,  budgetSrc:'市府預算', start:'索雲一街',        end:'福甲路',             cost:825,          costNote:'',    source:'謝美英・張偉秀議員'},
+  {id:12, seq:12, district:'中壢區', road:'中正路一段(人行環境及路口改善)', length:1600, budgetSrc:'市府預算', start:'興南路',    end:'延平三路一段',       cost:2300,         costNote:'',    source:'劉智豐立法委員'},
+  {id:13, seq:13, district:'中壢區', road:'龍東路',               length:1000, budgetSrc:'中央補助', start:'龍興路三段',      end:'龍安三街',           cost:3500,         costNote:'未納入', source:'水楊第二層'},
+  {id:14, seq:14, district:'中壢區', road:'延平路',               length:380,  budgetSrc:'中央補助', start:'環北路',          end:'元化路',             cost:2000,         costNote:'未納入', source:'配合設計展'},
+  {id:15, seq:15, district:'中壢區', road:'裕成南路',             length:500,  budgetSrc:'市府預算', start:'裕親路',          end:'裕成南路197巷',      cost:600,          costNote:'',    source:'水楊第二層'},
+  {id:16, seq:16, district:'楊梅區', road:'仁愛路',               length:130,  budgetSrc:'市府預算', start:'博仁車站',        end:'楊梅路',             cost:196,          costNote:'',    source:'里長'},
+  {id:17, seq:17, district:'楊梅區', road:'中興路',               length:900,  budgetSrc:'市府預算', start:'水美路',          end:'五字街',             cost:5000,         costNote:'未納入', source:'水楊・民意代表'},
+  {id:18, seq:18, district:'蘆竹區', road:'南崁高中周邊(仁愛路二段・五福一路・福祿五街・福祿三街・五福六路)', length:1000, budgetSrc:'中央補助', start:'中山路', end:'海岸路一段', cost:4108, costNote:'未納入', source:'水楊第一層'},
+  {id:19, seq:19, district:'蘆竹區', road:'海港路',               length:200,  budgetSrc:'市府預算', start:'西濱路一段',      end:'港山路三段',         cost:300,          costNote:'',    source:'鐵雞議員'},
+  {id:20, seq:20, district:'蘆竹區', road:'中興路',               length:650,  budgetSrc:'市府預算', start:'中興路100巷',     end:'興仁路',             cost:975,          costNote:'',    source:'里長'},
+  {id:21, seq:21, district:'平鎮區', road:'中壢路',               length:50,   budgetSrc:'市府預算', start:'中壢路301巷',     end:'中壢路327巷',        cost:80,           costNote:'',    source:'延續三明鎖鏈・公路段'},
+  {id:22, seq:22, district:'平鎮區', road:'環南路二段',           length:1500, budgetSrc:'中央補助', start:'環中東路',        end:'中壢路',             cost:5600,         costNote:'未納入', source:'保安議員'},
+  {id:23, seq:23, district:'大園區', road:'大豐二段(郡政路)',     length:240,  budgetSrc:'市府預算', start:'大仁路',          end:'領航北路',           cost:250,          costNote:'',    source:'延續後英議員'},
+  {id:24, seq:24, district:'大園區', road:'料三街',               length:180,  budgetSrc:'市府預算', start:'料一街',          end:'園科路',             cost:270,          costNote:'',    source:'延續後英議員'},
+  {id:25, seq:25, district:'大溪區', road:'埔頂公園周邊(埔頂路二段・公園路・攔仁路)', length:1200, budgetSrc:'中央補助', start:'仁善路', end:'仁善路', cost:4987, costNote:'未納入', source:''},
+  {id:26, seq:26, district:'八德區', road:'東勇街',               length:832,  budgetSrc:'市府預算', start:'和平路口',        end:'和福路口',           cost:950,          costNote:'',    source:'呂林小風議員'},
+  {id:27, seq:27, district:'鶯歌區', road:'新鶯路',               length:450,  budgetSrc:'市府預算', start:'五鶯路',          end:'新鶯路450巷46弄',    cost:675,          costNote:'',    source:''},
+  {id:28, seq:28, district:'鶯歌區', road:'大為路',               length:278,  budgetSrc:'市府預算', start:'九如街',          end:'五福街',             cost:560,          costNote:'',    source:'吳達嘉議員'},
+  {id:29, seq:29, district:'新屋區', road:'中山東路二段',         length:450,  budgetSrc:'市府預算', start:'新州六街',        end:'中山東路二段941號',  cost:675,          costNote:'',    source:''},
+];
+
+// ========== C1 渲染 ==========
+let c1ViewMode = 'card';
+
+function setC1View(mode) {
+  c1ViewMode = mode;
+  document.getElementById('c1-vbtn-card').classList.toggle('active', mode==='card');
+  document.getElementById('c1-vbtn-table').classList.toggle('active', mode==='table');
+  renderC1();
+}
+
+function renderC1() {
+  const fDist   = (document.getElementById('c1-district')||{}).value || '';
+  const fBudget = (document.getElementById('c1-budget')||{}).value || '';
+
+  // 填充行政區下拉選單（只填一次）
+  const distSel = document.getElementById('c1-district');
+  if (distSel && distSel.options.length <= 1) {
+    [...new Set(BIZREPORT.map(r=>r.district))].forEach(d => {
+      const o = document.createElement('option'); o.value = o.text = d; distSel.add(o);
+    });
+  }
+
+  const filtered = BIZREPORT.filter(r => {
+    if (fDist   && r.district   !== fDist)   return false;
+    if (fBudget && r.budgetSrc  !== fBudget) return false;
+    return true;
+  });
+
+  // 統計列
+  const totalLen  = BIZREPORT.reduce((s,r)=>s+r.length,0);
+  const totalCost = BIZREPORT.filter(r=>!r.costNote).reduce((s,r)=>s+r.cost,0);
+  const central   = BIZREPORT.filter(r=>r.budgetSrc==='中央補助').length;
+  const districts = [...new Set(BIZREPORT.map(r=>r.district))].length;
+  (document.getElementById('c1-stats')||document.createElement('div')).innerHTML = [
+    {label:'總路段數',    val:BIZREPORT.length, sub:'條'},
+    {label:'總長度',      val:totalLen.toLocaleString(), sub:'公尺'},
+    {label:'市府預算路段', val:BIZREPORT.length - central, sub:'條'},
+    {label:'中央補助路段', val:central, sub:'條', color:'var(--purple)'},
+    {label:'涵蓋行政區',  val:districts, sub:'區'},
+    {label:'市府預算金額(估)', val:'NT$'+Math.round(totalCost/10000*100)/100+'億', sub:'（未含未納入）'},
+  ].map(s=>`<div class="stat-card">
+    <div class="stat-label">${s.label}</div>
+    <div class="stat-value" style="font-size:20px;${s.color?'color:'+s.color:''}">${s.val}</div>
+    <div class="stat-sub">${s.sub}</div>
+  </div>`).join('');
+
+  const countEl = document.getElementById('c1-count');
+  if(countEl) countEl.textContent = `共 ${filtered.length} 筆`;
+
+  const DIST_COLOR = {
+    '桃園區':'wip','龜山區':'wip','中壢區':'design','楊梅區':'school',
+    '蘆竹區':'done','平鎮區':'school','大園區':'done','大溪區':'todo',
+    '八德區':'todo','鶯歌區':'warning','新屋區':'school',
+  };
+
+  const content = document.getElementById('c1-content');
+  if (!content) return;
+
+  if (c1ViewMode === 'table') {
+    // ── 表格模式 ──
+    const byDist = {};
+    filtered.forEach(r=>{ if(!byDist[r.district])byDist[r.district]=[]; byDist[r.district].push(r); });
+    content.innerHTML = Object.entries(byDist).map(([dist, rows])=>`
+      <div style="margin-bottom:20px">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:8px;
+          display:flex;align-items:center;gap:8px">
+          <span style="background:var(--surface2);border:1px solid var(--border);
+            border-radius:6px;padding:3px 12px">${dist}</span>
+          <span style="font-size:11px;color:var(--text3)">${rows.length} 條路段・${rows.reduce((s,r)=>s+r.length,0).toLocaleString()} m</span>
+        </div>
+        <table class="data-table" style="background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--border)">
+          <thead><tr>
+            <th>#</th><th>路名</th><th>長度(m)</th><th>預算來源</th>
+            <th>起點</th><th>迄點</th><th>概估經費(萬)</th><th>案件來源</th>
+          </tr></thead>
+          <tbody>${rows.map(r=>`<tr>
+            <td style="font-family:'DM Mono',monospace;color:var(--text3)">${r.seq}</td>
+            <td style="font-weight:600">${r.road}</td>
+            <td style="font-family:'DM Mono',monospace">${r.length.toLocaleString()}</td>
+            <td><span class="badge ${r.budgetSrc==='中央補助'?'badge-design':'badge-wip'}">${r.budgetSrc}</span></td>
+            <td>${r.start}</td>
+            <td>${r.end}</td>
+            <td style="font-family:'DM Mono',monospace">${r.cost?r.cost.toLocaleString()+(r.costNote?'<span style="font-size:10px;color:var(--orange);margin-left:3px">('+r.costNote+')</span>':''):'-'}</td>
+            <td style="font-size:11px;color:var(--text2)">${r.source||'-'}</td>
+          </tr>`).join('')}</tbody>
+        </table>
+      </div>`).join('');
+  } else {
+    // ── 卡片模式，依行政區分組 ──
+    const byDist = {};
+    filtered.forEach(r=>{ if(!byDist[r.district])byDist[r.district]=[]; byDist[r.district].push(r); });
+    content.innerHTML = Object.entries(byDist).map(([dist, rows])=>`
+      <div style="margin-bottom:28px">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
+          <span style="background:var(--text);color:#fff;font-size:12px;font-weight:700;
+            padding:4px 14px;border-radius:8px">${dist}</span>
+          <span style="font-size:12px;color:var(--text3)">${rows.length} 條路段・共 ${rows.reduce((s,r)=>s+r.length,0).toLocaleString()} m</span>
+        </div>
+        <div class="cards-grid">
+          ${rows.map(r=>{
+            const mapsUrl = 'https://maps.google.com/maps?q='+encodeURIComponent('桃園市'+dist+r.road);
+            const bgCls = DIST_COLOR[dist]||'todo';
+            const costStr = r.cost ? (r.cost.toLocaleString()+(r.costNote?' ('+r.costNote+')':'')+'萬') : '-';
+            return `<div class="promo-card">
+              <div class="card-map-area ${bgCls}-bg" style="height:90px">
+                <div class="map-grid"></div>
+                <div class="map-road-h"></div>
+                <div class="map-road-v"></div>
+                <div class="map-pin ${bgCls}-pin"></div>
+                <span class="card-zone-badge">C1 · ${dist}</span>
+                <span class="card-year-tag">#${r.seq}</span>
+                <a class="card-map-link" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation()">◎ Google Maps</a>
+              </div>
+              <div class="card-body" style="padding:12px 16px">
+                <div class="card-top" style="margin-bottom:6px">
+                  <div>
+                    <div class="card-location" style="font-size:14px">${r.road}</div>
+                    <div class="card-district-tag">${dist}</div>
+                  </div>
+                  <span class="badge ${r.budgetSrc==='中央補助'?'badge-design':'badge-wip'}">${r.budgetSrc}</span>
+                </div>
+                <div style="font-size:11px;color:var(--text3);margin-bottom:8px">
+                  <span style="font-weight:500">起：</span>${r.start} <span style="margin:0 4px">→</span>
+                  <span style="font-weight:500">迄：</span>${r.end}
+                </div>
+                <div class="card-stats">
+                  <div class="card-stat">
+                    <div class="card-stat-num">${r.length.toLocaleString()}</div>
+                    <div class="card-stat-lbl">長度(m)</div>
+                  </div>
+                  <div class="card-stat">
+                    <div class="card-stat-num" style="font-size:13px;${r.costNote?'color:var(--orange)':''}">${r.cost?r.cost.toLocaleString():'-'}</div>
+                    <div class="card-stat-lbl">${r.costNote?'萬('+r.costNote+')':'概估萬元'}</div>
+                  </div>
+                </div>
+                ${r.source?`<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">案件來源：${r.source}</div>`:''}
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>`).join('');
+  }
+}
+
+// ========== INIT ==========
+loadData();
+renderDashboard();
+</script>
+
+<!-- SheetJS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+// ========== EXCEL 欄位對應 ==========
+const COL_MAP = [
+  { key:'year',          label:'年度' },
+  { key:'seq',           label:'項次' },
+  { key:'district',      label:'行政區' },
+  { key:'type',          label:'類型' },
+  { key:'location',      label:'地點/位置' },
+  { key:'address',       label:'Google地址' },
+  { key:'start',         label:'起點' },
+  { key:'end',           label:'終點' },
+  { key:'length',        label:'長度(m)' },
+  { key:'contract',      label:'執行契約' },
+  { key:'description',   label:'施工概述' },
+  { key:'amount',        label:'預估金額' },
+  { key:'status',        label:'案件執行狀態' },
+  { key:'source',        label:'案件來源' },
+  { key:'scheduleStart', label:'預計施作起' },
+  { key:'scheduleEnd',   label:'預計施作迄' },
+  { key:'designStatus',  label:'派設提送' },
+  { key:'designDeadline',label:'預計設計提交期程' },
+  { key:'handler',       label:'承辦人' },
+  { key:'designFirm',    label:'設計單位' },
+  { key:'superviseFirm', label:'監造單位' },
+  { key:'constructFirm', label:'施工單位' },
+  { key:'notes',         label:'備註' },
+];
+
+// ========== 匯出 EXCEL ==========
+function exportExcel() {
+  if (typeof XLSX === 'undefined') { showToast('⚠ 函式庫載入中，請稍後再試'); return; }
+
+  const wb = XLSX.utils.book_new();
+
+  // ── 分頁1：全部案件 ──
+  const allHeaders = COL_MAP.map(c => c.label);
+  const allRows = CASES.map(c => COL_MAP.map(col => c[col.key] ?? ''));
+  const wsAll = XLSX.utils.aoa_to_sheet([allHeaders, ...allRows]);
+  styleSheet(wsAll, allHeaders.length, allRows.length);
+  XLSX.utils.book_append_sheet(wb, wsAll, '全部案件');
+
+  // ── 分頁2～8：各工區 ──
+  Object.entries(ZONE_META).forEach(([key, meta]) => {
+    const zoneCases = CASES.filter(c => meta.districts.includes(c.district));
+    const rows = zoneCases.map(c => COL_MAP.map(col => c[col.key] ?? ''));
+    const ws = XLSX.utils.aoa_to_sheet([allHeaders, ...rows]);
+    styleSheet(ws, allHeaders.length, rows.length);
+    const sheetName = `${meta.num} ${meta.title}`;
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+  });
+
+  // ── 分頁9：金三角廊道策略規劃 ──
+  const triHeaders = ['年度','行政區','生活圈人口','點位屬性','點位名稱','串聯策略','計畫名稱','期程','跨局處計畫','經費','其他/說明','承辦人'];
+  const triRows = TRIANGLE.map(t=>[t.year,t.district,t.population,t.pointType,t.pointName,t.strategy,t.project,t.schedule,t.crossDept,t.budget,t.notes,t.handler]);
+  const wsTri = XLSX.utils.aoa_to_sheet([triHeaders,...triRows]);
+  wsTri['!cols'] = [8,10,10,12,14,16,60,12,20,18,40,8].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, wsTri, 'B7 金三角廊道規劃');
+
+  // ── 分頁10：預算彙整 ──
+  const budgetHeaders = ['行政區','地點/位置','類型','狀態','預估金額'];
+  const budgetRows = [...CASES]
+    .filter(c => c.amount > 0)
+    .sort((a,b) => b.amount - a.amount)
+    .map(c => [c.district, c.location, c.type, c.status, c.amount]);
+  const totalRow = ['', '', '', '合計', budgetRows.reduce((s,r)=>s+r[4],0)];
+  const wsBudget = XLSX.utils.aoa_to_sheet([budgetHeaders, ...budgetRows, totalRow]);
+  styleSheet(wsBudget, budgetHeaders.length, budgetRows.length + 1);
+  XLSX.utils.book_append_sheet(wb, wsBudget, '預算彙整');
+
+  // ── 分頁11：C1 業務報告 ──
+  const bizHeaders = ['項次','行政區','路名','長度(公尺)','預算來源','起點','迄點','概估經費(萬元)','經費備註','案件來源'];
+  const bizRows = BIZREPORT.map(r=>[r.seq,r.district,r.road,r.length,r.budgetSrc,r.start,r.end,r.cost||'',r.costNote,r.source]);
+  const wsBiz = XLSX.utils.aoa_to_sheet([bizHeaders,...bizRows]);
+  wsBiz['!cols'] = [6,10,36,10,10,18,18,12,8,20].map(w=>({wch:w}));
+  XLSX.utils.book_append_sheet(wb, wsBiz, 'C1 115年改善路段總表');
+
+  const date = new Date();
+  const ds = `${date.getFullYear()}${String(date.getMonth()+1).padStart(2,'0')}${String(date.getDate()).padStart(2,'0')}`;
+  XLSX.writeFile(wb, `人行道通學廊道工程管理_${ds}.xlsx`);
+  showToast('✓ Excel 已匯出');
+}
+
+function styleSheet(ws, cols, dataRows) {
+  // 欄寬
+  const widths = [8,6,10,8,22,28,18,18,10,14,22,12,10,18,10,10,10,14,8,8,8,8,30];
+  ws['!cols'] = widths.slice(0, cols).map(w => ({ wch: w }));
+  // 凍結首行
+  ws['!freeze'] = { xSplit: 0, ySplit: 1, topLeftCell: 'A2', activePane: 'bottomLeft', state: 'frozen' };
+}
+
+// ========== 匯入 EXCEL ==========
+function triggerImport() {
+  document.getElementById('excel-import-input').click();
+}
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (typeof XLSX === 'undefined') { showToast('⚠ 函式庫載入中，請稍後再試'); return; }
+
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    try {
+      const wb = XLSX.read(ev.target.result, { type: 'binary' });
+
+      // 優先讀「全部案件」分頁，找不到就讀第一個分頁
+      const sheetName = wb.SheetNames.includes('全部案件') ? '全部案件' : wb.SheetNames[0];
+      const ws = wb.Sheets[sheetName];
+      const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: '' });
+
+      if (rows.length < 2) { showToast('⚠ 檔案內容為空'); return; }
+
+      // 建立欄位索引：label → index
+      const headerRow = rows[0].map(h => String(h).trim());
+      const colIdx = {};
+      COL_MAP.forEach(col => {
+        const i = headerRow.indexOf(col.label);
+        if (i >= 0) colIdx[col.key] = i;
+      });
+
+      const imported = [];
+      for (let i = 1; i < rows.length; i++) {
+        const row = rows[i];
+        if (row.every(v => v === '' || v === null || v === undefined)) continue; // 空行跳過
+
+        const c = { id: i };
+        COL_MAP.forEach(col => {
+          const idx = colIdx[col.key];
+          const val = idx !== undefined ? row[idx] : '';
+          // 數字欄位轉型
+          if (col.key === 'year' || col.key === 'seq' || col.key === 'length' || col.key === 'amount') {
+            c[col.key] = Number(val) || 0;
+          } else {
+            c[col.key] = String(val ?? '');
+          }
+        });
+
+        // 必填欄位防呆
+        if (!c.district || !c.location) continue;
+        imported.push(c);
+      }
+
+      if (imported.length === 0) { showToast('⚠ 未讀取到有效資料，請確認欄位標題'); return; }
+
+      // 重新指派 id
+      imported.forEach((c, i) => { c.id = i + 1; });
+
+      // 跳出確認
+      const proceed = confirm(
+        `確認匯入？\n\n讀取到 ${imported.length} 筆案件（來源分頁：${sheetName}）\n\n⚠ 匯入後將取代現有 ${CASES.length} 筆資料。`
+      );
+      if (!proceed) { e.target.value = ''; return; }
+
+      CASES = imported;
+      saveData();
+      renderDashboard();
+      showToast(`✓ 成功匯入 ${imported.length} 筆案件`);
+
+    } catch(err) {
+      showToast('⚠ 匯入失敗：' + err.message);
+      console.error(err);
+    }
+    e.target.value = ''; // 重置 input 讓同一個檔案可以重新匯入
+  };
+  reader.readAsBinaryString(file);
+}
+</script>
+</body>
+</html>
