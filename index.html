@@ -8,27 +8,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Noto+Serif+TC:wght@400;600&display=swap');
 
 :root {
-  --bg: #E8EFF7;
+  --bg: #EBF2FB;
   --surface: #FFFFFF;
-  --surface2: #EEF4FB;
-  --border: #CDDAED;
-  --border2: #A8BFDB;
-  --text: #0A2744;
-  --text2: #3A5A7A;
-  --text3: #6A8AAA;
-  --accent: #1057A8;
-  --accent-bg: #DDEAF8;
-  --green: #0F6B3A;
-  --green-bg: #D6F0E4;
-  --orange: #B5530A;
-  --orange-bg: #FDECD8;
-  --gray: #4A6070;
-  --gray-bg: #DDE4EC;
-  --purple: #4A30A0;
-  --purple-bg: #E5DEFA;
-  --red: #A82828;
-  --red-bg: #FAE0E0;
-  --sidebar-w: 240px;
+  --surface2: #F0F6FF;
+  --border: #C5D8F0;
+  --border2: #9BBDE0;
+  --text: #0D2545;
+  --text2: #2E547A;
+  --text3: #6080A0;
+  --accent: #1565C0;
+  --accent-bg: #E3F0FF;
+  --green: #1B6B3A;
+  --green-bg: #D4F0E0;
+  --orange: #C45A00;
+  --orange-bg: #FFF0DC;
+  --gray: #4A5E70;
+  --gray-bg: #DDE6EE;
+  --purple: #4527A0;
+  --purple-bg: #EDE7FF;
+  --red: #B71C1C;
+  --red-bg: #FFEBEE;
+  --sidebar-w: 248px;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,8 +48,8 @@ body {
 /* Sidebar */
 .sidebar {
   width: var(--sidebar-w);
-  background: #062040;
-  color: #C8D8EC;
+  background: #0A1929;
+  color: #B8D0E8;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -59,9 +59,9 @@ body {
 }
 
 .sidebar-header {
-  padding: 24px 20px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-  background: #041830;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  background: #050E1A;
 }
 
 .sidebar-logo {
@@ -94,7 +94,7 @@ body {
 .nav-label {
   font-size: 10px;
   letter-spacing: 0.1em;
-  color: #4EA8F0;
+  color: #42A5F5;
   padding: 0 20px;
   margin-bottom: 4px;
   text-transform: uppercase;
@@ -115,8 +115,8 @@ body {
   line-height: 1.4;
 }
 
-.nav-item:hover { background: rgba(30,90,180,0.2); color: #DDEAF8; }
-.nav-item.active { background: rgba(30,90,180,0.35); color: #fff; border-left-color: #4EA8F0; }
+.nav-item:hover { background: rgba(21,101,192,0.18); color: #E3F2FD; }
+.nav-item.active { background: rgba(21,101,192,0.3); color: #fff; border-left-color: #42A5F5; }
 
 .nav-icon { width: 16px; font-size: 14px; text-align: center; flex-shrink: 0; }
 
@@ -146,11 +146,11 @@ body {
 
 .sidebar-footer {
   margin-top: auto;
-  padding: 16px 20px;
-  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 14px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
   font-size: 11px;
-  color: rgba(200,220,240,0.5);
-  background: #041830;
+  color: rgba(150,190,230,0.5);
+  background: #050E1A;
 }
 
 /* Main content */
@@ -158,7 +158,7 @@ body {
   margin-left: var(--sidebar-w);
   flex: 1;
   min-height: 100vh;
-  border-top: 3px solid #1057A8;
+  border-top: 4px solid #1565C0;
 }
 
 /* Page */
@@ -172,7 +172,7 @@ body {
   margin-bottom: 28px;
 }
 
-.page-title { font-size: 22px; font-weight: 700; color: #062040; letter-spacing: -0.02em; }
+.page-title { font-size: 22px; font-weight: 700; color: #0D2545; letter-spacing: -0.02em; }
 .page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
 
 /* Buttons */
@@ -192,8 +192,8 @@ body {
   font-weight: 500;
 }
 .btn:hover { background: var(--surface2); }
-.btn-primary { background: #1057A8; color: #fff; border-color: #1057A8; box-shadow: 0 1px 3px rgba(16,87,168,0.25); }
-.btn-primary:hover { background: #0D4A96; }
+.btn-primary { background: #1565C0; color: #fff; border-color: #1565C0; box-shadow: 0 2px 6px rgba(21,101,192,0.3); }
+.btn-primary:hover { background: #1255A8; }
 .btn-sm { padding: 5px 10px; font-size: 12px; }
 
 /* Stats row */
@@ -207,9 +207,9 @@ body {
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 16px 18px;
-  border-left: 4px solid #1057A8;
+  border-left: 4px solid #1565C0;
 }
 
 .stat-label { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; margin-bottom: 6px; }
@@ -220,10 +220,10 @@ body {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 20px 24px;
   margin-bottom: 16px;
-  border-top: 3px solid #1057A8;
+  border-top: 3px solid #1565C0;
 }
 
 .card-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: #0A2744; letter-spacing: 0.02em; }
@@ -430,7 +430,7 @@ textarea { resize: vertical; min-height: 70px; }
 .data-table th {
   text-align: left;
   padding: 9px 12px;
-  background: #1057A8;
+  background: #1565C0;
   color: #fff;
   border-bottom: none;
   font-size: 11px;
@@ -448,7 +448,7 @@ textarea { resize: vertical; min-height: 70px; }
 
 /* District page header */
 .district-hero {
-  background: linear-gradient(135deg, #062040 0%, #1057A8 100%);
+  background: linear-gradient(135deg, #0A1929 0%, #1565C0 100%);
   color: #fff;
   border-radius: 14px;
   padding: 24px 28px;
@@ -482,8 +482,8 @@ textarea { resize: vertical; min-height: 70px; }
 #toast {
   position: fixed;
   bottom: 24px; right: 24px;
-  background: #062040;
-  color: #DDEAF8;
+  background: #0A1929;
+  color: #E3F2FD;
   padding: 10px 18px;
   border-radius: 10px;
   font-size: 13px;
@@ -504,13 +504,13 @@ textarea { resize: vertical; min-height: 70px; }
 
 .promo-card {
   background: var(--surface);
-  border-radius: 6px;
+  border-radius: 10px;
   overflow: hidden;
   border: 1px solid var(--border);
-  border-top: 3px solid #1057A8;
+  border-top: 3px solid #1565C0;
   transition: box-shadow 0.2s, transform 0.2s;
 }
-.promo-card:hover { box-shadow: 0 4px 16px rgba(16,87,168,0.12); transform: translateY(-1px); }
+.promo-card:hover { box-shadow: 0 6px 20px rgba(21,101,192,0.14); transform: translateY(-2px); }
 
 .card-map-area {
   height: 120px;
@@ -718,6 +718,35 @@ textarea { resize: vertical; min-height: 70px; }
   color: var(--text);
   box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
+
+/* ===== 城市插圖 ===== */
+.city-illust {
+  display: block;
+  width: 100%;
+  height: 52px;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.page-hero {
+  background: linear-gradient(135deg, #0A1929 0%, #1565C0 80%, #1E88E5 100%);
+  border-radius: 12px;
+  padding: 20px 28px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  overflow: hidden;
+  position: relative;
+}
+.page-hero-text h1 { font-size: 20px; font-weight: 700; color: #fff; }
+.page-hero-text p  { font-size: 13px; color: rgba(255,255,255,0.6); margin-top: 3px; }
+.page-hero-illust { flex-shrink: 0; opacity: 0.9; }
+.case-item { border-radius: 10px; }
+.nav-city-art {
+  padding: 6px 12px 0;
+}
+
 </style>
 </head>
 <body>
@@ -729,6 +758,69 @@ textarea { resize: vertical; min-height: 70px; }
     <div class="sidebar-logo">桃園市養護工程處</div>
     <div class="sidebar-title">人行道・通學廊道<br>工程管理系統</div>
     <div class="sidebar-sub">115年度・115人行道5區</div>
+  </div>
+  <div class="nav-city-art">
+    <svg width="100%" height="44" viewBox="0 0 224 44" xmlns="http://www.w3.org/2000/svg">
+      <!-- 建築群 -->
+      <rect x="0" y="14" width="20" height="30" fill="#1565C0" opacity=".7"/>
+      <rect x="2" y="17" width="5" height="5" fill="#90CAF9" opacity=".7"/>
+      <rect x="10" y="17" width="5" height="5" fill="#90CAF9" opacity=".7"/>
+      <rect x="2" y="26" width="5" height="5" fill="#90CAF9" opacity=".7"/>
+      <rect x="10" y="26" width="5" height="5" fill="#90CAF9" opacity=".7"/>
+      <rect x="22" y="22" width="16" height="22" fill="#0D47A1" opacity=".8"/>
+      <rect x="24" y="25" width="4" height="4" fill="#90CAF9" opacity=".6"/>
+      <rect x="31" y="25" width="4" height="4" fill="#90CAF9" opacity=".6"/>
+      <rect x="24" y="33" width="4" height="4" fill="#90CAF9" opacity=".6"/>
+      <rect x="31" y="33" width="4" height="4" fill="#90CAF9" opacity=".6"/>
+      <!-- 高樓 -->
+      <rect x="40" y="6" width="22" height="38" fill="#1976D2" opacity=".75"/>
+      <rect x="43" y="10" width="6" height="6" fill="#E3F2FD" opacity=".7"/>
+      <rect x="52" y="10" width="6" height="6" fill="#E3F2FD" opacity=".7"/>
+      <rect x="43" y="20" width="6" height="6" fill="#E3F2FD" opacity=".7"/>
+      <rect x="52" y="20" width="6" height="6" fill="#E3F2FD" opacity=".7"/>
+      <rect x="43" y="30" width="6" height="6" fill="#E3F2FD" opacity=".7"/>
+      <rect x="52" y="30" width="6" height="6" fill="#E3F2FD" opacity=".7"/>
+      <!-- 中樓 -->
+      <rect x="65" y="16" width="18" height="28" fill="#1565C0" opacity=".7"/>
+      <rect x="67" y="20" width="5" height="5" fill="#90CAF9" opacity=".6"/>
+      <rect x="75" y="20" width="5" height="5" fill="#90CAF9" opacity=".6"/>
+      <rect x="67" y="29" width="5" height="5" fill="#90CAF9" opacity=".6"/>
+      <rect x="75" y="29" width="5" height="5" fill="#90CAF9" opacity=".6"/>
+      <!-- 地面 -->
+      <rect x="0" y="42" width="224" height="2" fill="#42A5F5" opacity=".5"/>
+      <!-- 路燈 -->
+      <rect x="87" y="24" width="3" height="20" fill="#5590C8" opacity=".8"/>
+      <path d="M90 24 Q97 20 101 24" stroke="#5590C8" stroke-width="2" fill="none"/>
+      <circle cx="101" cy="24" r="3" fill="#FFE57F" opacity=".9"/>
+      <!-- 右側建築 -->
+      <rect x="140" y="10" width="28" height="34" fill="#0D47A1" opacity=".8"/>
+      <rect x="143" y="14" width="7" height="7" fill="#BBDEFB" opacity=".7"/>
+      <rect x="154" y="14" width="7" height="7" fill="#BBDEFB" opacity=".7"/>
+      <rect x="143" y="25" width="7" height="7" fill="#BBDEFB" opacity=".7"/>
+      <rect x="154" y="25" width="7" height="7" fill="#BBDEFB" opacity=".7"/>
+      <rect x="143" y="36" width="7" height="7" fill="#BBDEFB" opacity=".7"/>
+      <rect x="154" y="36" width="7" height="7" fill="#BBDEFB" opacity=".7"/>
+      <rect x="172" y="18" width="22" height="26" fill="#1976D2" opacity=".7"/>
+      <rect x="175" y="22" width="6" height="5" fill="#90CAF9" opacity=".6"/>
+      <rect x="184" y="22" width="6" height="5" fill="#90CAF9" opacity=".6"/>
+      <rect x="175" y="31" width="6" height="5" fill="#90CAF9" opacity=".6"/>
+      <rect x="184" y="31" width="6" height="5" fill="#90CAF9" opacity=".6"/>
+      <rect x="198" y="24" width="16" height="20" fill="#1565C0" opacity=".65"/>
+      <rect x="200" y="27" width="5" height="5" fill="#90CAF9" opacity=".5"/>
+      <rect x="208" y="27" width="5" height="5" fill="#90CAF9" opacity=".5"/>
+      <rect x="200" y="36" width="5" height="5" fill="#90CAF9" opacity=".5"/>
+      <rect x="208" y="36" width="5" height="5" fill="#90CAF9" opacity=".5"/>
+      <!-- 行人 -->
+      <circle cx="115" cy="28" r="4" fill="#FF7043" opacity=".9"/>
+      <line x1="115" y1="32" x2="115" y2="40" stroke="#FF7043" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+      <line x1="115" y1="35" x2="110" y2="38" stroke="#FF7043" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>
+      <line x1="115" y1="35" x2="120" y2="38" stroke="#FF7043" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>
+      <!-- 腳踏車 -->
+      <circle cx="130" cy="38" r="4" fill="none" stroke="#4FC3F7" stroke-width="1.5" opacity=".8"/>
+      <circle cx="141" cy="38" r="4" fill="none" stroke="#4FC3F7" stroke-width="1.5" opacity=".8"/>
+      <line x1="130" y1="38" x2="136" y2="33" stroke="#4FC3F7" stroke-width="1.5" opacity=".8"/>
+      <line x1="136" y1="33" x2="141" y2="38" stroke="#4FC3F7" stroke-width="1.5" opacity=".8"/>
+    </svg>
   </div>
 
   <div class="nav-section">
@@ -806,15 +898,95 @@ textarea { resize: vertical; min-height: 70px; }
 
 <!-- ====== DASHBOARD ====== -->
 <div class="page active" id="page-dashboard">
-  <div class="page-header">
-    <div>
-      <div class="page-title">[A1] 總覽儀表板</div>
-      <div class="page-sub">115年度人行道・通學廊道工程執行進度</div>
+  <!-- 城市插圖橫幅 -->
+  <div class="page-hero">
+    <div class="page-hero-text">
+      <h1>115年度人行道・通學廊道工程</h1>
+      <p>桃園市養護工程處・115人行道五區・總覽儀表板</p>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn" onclick="triggerImport()" style="background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.25);font-size:12px;padding:6px 12px">↑ 匯入</button>
+        <button class="btn" onclick="exportExcel()" style="background:rgba(255,255,255,0.12);color:#fff;border-color:rgba(255,255,255,0.25);font-size:12px;padding:6px 12px">↓ 匯出</button>
+        <button class="btn btn-primary" onclick="openAddModal()" style="font-size:12px;padding:6px 14px">＋ 新增案件</button>
+      </div>
     </div>
-    <div style="display:flex;gap:8px">
-      <button class="btn" onclick="triggerImport()">↑ 匯入 Excel</button>
-      <button class="btn" onclick="exportExcel()">↓ 匯出 Excel</button>
-      <button class="btn btn-primary" onclick="openAddModal()">＋ 新增案件</button>
+    <div class="page-hero-illust">
+      <svg width="200" height="90" viewBox="0 0 200 90" xmlns="http://www.w3.org/2000/svg">
+        <!-- 天空漸層感 -->
+        <rect width="200" height="90" fill="none"/>
+        <!-- 建築群 -->
+        <rect x="0" y="20" width="28" height="70" fill="#1976D2" opacity=".55"/>
+        <rect x="2" y="25" width="8" height="8" fill="#E3F2FD" opacity=".6"/>
+        <rect x="14" y="25" width="8" height="8" fill="#E3F2FD" opacity=".6"/>
+        <rect x="2" y="38" width="8" height="8" fill="#E3F2FD" opacity=".6"/>
+        <rect x="14" y="38" width="8" height="8" fill="#E3F2FD" opacity=".6"/>
+        <rect x="2" y="51" width="8" height="8" fill="#E3F2FD" opacity=".6"/>
+        <rect x="14" y="51" width="8" height="8" fill="#E3F2FD" opacity=".6"/>
+        <!-- 高塔 -->
+        <rect x="32" y="5" width="32" height="85" fill="#0D47A1" opacity=".6"/>
+        <rect x="35" y="10" width="10" height="10" fill="#90CAF9" opacity=".7"/>
+        <rect x="50" y="10" width="10" height="10" fill="#90CAF9" opacity=".7"/>
+        <rect x="35" y="26" width="10" height="10" fill="#90CAF9" opacity=".7"/>
+        <rect x="50" y="26" width="10" height="10" fill="#90CAF9" opacity=".7"/>
+        <rect x="35" y="42" width="10" height="10" fill="#90CAF9" opacity=".7"/>
+        <rect x="50" y="42" width="10" height="10" fill="#90CAF9" opacity=".7"/>
+        <rect x="35" y="58" width="10" height="10" fill="#90CAF9" opacity=".7"/>
+        <rect x="50" y="58" width="10" height="10" fill="#90CAF9" opacity=".7"/>
+        <!-- 中建築 -->
+        <rect x="68" y="28" width="26" height="62" fill="#1565C0" opacity=".55"/>
+        <rect x="71" y="33" width="8" height="7" fill="#BBDEFB" opacity=".65"/>
+        <rect x="82" y="33" width="8" height="7" fill="#BBDEFB" opacity=".65"/>
+        <rect x="71" y="45" width="8" height="7" fill="#BBDEFB" opacity=".65"/>
+        <rect x="82" y="45" width="8" height="7" fill="#BBDEFB" opacity=".65"/>
+        <rect x="71" y="57" width="8" height="7" fill="#BBDEFB" opacity=".65"/>
+        <rect x="82" y="57" width="8" height="7" fill="#BBDEFB" opacity=".65"/>
+        <!-- 右側 -->
+        <rect x="100" y="15" width="30" height="75" fill="#0D47A1" opacity=".55"/>
+        <rect x="103" y="20" width="9" height="9" fill="#E3F2FD" opacity=".6"/>
+        <rect x="116" y="20" width="9" height="9" fill="#E3F2FD" opacity=".6"/>
+        <rect x="103" y="34" width="9" height="9" fill="#E3F2FD" opacity=".6"/>
+        <rect x="116" y="34" width="9" height="9" fill="#E3F2FD" opacity=".6"/>
+        <rect x="103" y="48" width="9" height="9" fill="#E3F2FD" opacity=".6"/>
+        <rect x="116" y="48" width="9" height="9" fill="#E3F2FD" opacity=".6"/>
+        <rect x="103" y="62" width="9" height="9" fill="#E3F2FD" opacity=".6"/>
+        <rect x="116" y="62" width="9" height="9" fill="#E3F2FD" opacity=".6"/>
+        <rect x="135" y="30" width="22" height="60" fill="#1976D2" opacity=".5"/>
+        <rect x="138" y="35" width="7" height="7" fill="#90CAF9" opacity=".6"/>
+        <rect x="148" y="35" width="7" height="7" fill="#90CAF9" opacity=".6"/>
+        <rect x="138" y="47" width="7" height="7" fill="#90CAF9" opacity=".6"/>
+        <rect x="148" y="47" width="7" height="7" fill="#90CAF9" opacity=".6"/>
+        <rect x="138" y="59" width="7" height="7" fill="#90CAF9" opacity=".6"/>
+        <rect x="148" y="59" width="7" height="7" fill="#90CAF9" opacity=".6"/>
+        <rect x="162" y="22" width="38" height="68" fill="#1565C0" opacity=".5"/>
+        <rect x="165" y="27" width="11" height="10" fill="#E3F2FD" opacity=".55"/>
+        <rect x="180" y="27" width="11" height="10" fill="#E3F2FD" opacity=".55"/>
+        <rect x="165" y="42" width="11" height="10" fill="#E3F2FD" opacity=".55"/>
+        <rect x="180" y="42" width="11" height="10" fill="#E3F2FD" opacity=".55"/>
+        <rect x="165" y="57" width="11" height="10" fill="#E3F2FD" opacity=".55"/>
+        <rect x="180" y="57" width="11" height="10" fill="#E3F2FD" opacity=".55"/>
+        <!-- 地面 -->
+        <rect x="0" y="82" width="200" height="8" fill="#1E88E5" opacity=".35"/>
+        <!-- 行人 -->
+        <circle cx="82" cy="70" r="5" fill="#FF7043"/>
+        <line x1="82" y1="75" x2="82" y2="83" stroke="#FF7043" stroke-width="2" stroke-linecap="round"/>
+        <line x1="82" y1="78" x2="77" y2="82" stroke="#FF7043" stroke-width="1.5" stroke-linecap="round"/>
+        <line x1="82" y1="78" x2="87" y2="82" stroke="#FF7043" stroke-width="1.5" stroke-linecap="round"/>
+        <!-- 路燈 -->
+        <rect x="56" y="52" width="3" height="36" fill="#5C9CD0" opacity=".7"/>
+        <path d="M59 52 Q67 47 72 52" stroke="#5C9CD0" stroke-width="2" fill="none" opacity=".7"/>
+        <circle cx="72" cy="52" r="4" fill="#FFE57F" opacity=".85"/>
+        <!-- 腳踏車 -->
+        <circle cx="153" cy="82" r="5" fill="none" stroke="#4FC3F7" stroke-width="1.5" opacity=".8"/>
+        <circle cx="164" cy="82" r="5" fill="none" stroke="#4FC3F7" stroke-width="1.5" opacity=".8"/>
+        <line x1="153" y1="82" x2="159" y2="76" stroke="#4FC3F7" stroke-width="1.5" opacity=".8"/>
+        <line x1="159" y1="76" x2="164" y2="82" stroke="#4FC3F7" stroke-width="1.5" opacity=".8"/>
+        <circle cx="159" cy="76" r="2" fill="#4FC3F7" opacity=".8"/>
+        <!-- 月亮 / 星 -->
+        <circle cx="185" cy="12" r="8" fill="#E3F2FD" opacity=".4"/>
+        <circle cx="189" cy="9" r="6" fill="#0A1929" opacity=".6"/>
+        <circle cx="168" cy="8" r="1.5" fill="#FFE57F" opacity=".7"/>
+        <circle cx="176" cy="4" r="1" fill="#FFE57F" opacity=".6"/>
+        <circle cx="155" cy="10" r="1" fill="#FFE57F" opacity=".5"/>
+      </svg>
     </div>
   </div>
 
@@ -1101,30 +1273,79 @@ const CONTRACT_TOTAL = 39367867;
 const DISPATCHED_TOTAL = 39346099;
 
 let CASES = [
-  {id:1,year:115,seq:1,district:"大園區",type:"人行道",location:"聖德北路",address:"桃園市大園區聖德北路",start:"溪海休閒農業區遊客中心",end:"聖德北路970巷",length:340,contract:"115人行道5區",description:"局部修復",amount:1200000,status:"已完成",source:"徐其萬議員",scheduleStart:"3月16日",scheduleEnd:"3月25日",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
-  {id:2,year:115,seq:2,district:"中壢區",type:"人行道",location:"延平路",address:"桃園市中壢區延平路",start:"仁海宮",end:"元化路",length:170,contract:"115人行道5區",description:"人行道改善工程",amount:8296099,status:"施工中",source:"2026台灣設計展",scheduleStart:"3月23日",scheduleEnd:"5月31日",designStatus:"有派設",designDeadline:"已核定",handler:"游智翔",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:"電箱及寬頻手孔要請管線單位遷移"},
-  {id:3,year:115,seq:3,district:"大園區",type:"人行道",location:"致善路一段",address:"桃園市大園區致善路一段",start:"領航南路一段",end:"高鐵南路一段",length:800,contract:"115人行道5區",description:"局部修復",amount:500000,status:"施工中",source:"隊長派案",scheduleStart:"4月1日",scheduleEnd:"4月30日",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"4月底前完成巡查，有破損嚴重處、容易跌倒直接錄案修復"},
-  {id:4,year:115,seq:7,district:"大園區",type:"人行道",location:"園科路",address:"桃園市大園區園科路",start:"園學路",end:"大園國中門口前(靠埤塘側)",length:350,contract:"115人行道5區",description:"鋪面更新(混凝土拉毛)",amount:1200000,status:"施工中",source:"徐其萬議員 游吾和議員",scheduleStart:"4月1日",scheduleEnd:"4月17日",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
-  {id:5,year:115,seq:8,district:"大園區",type:"人行道",location:"環區南路",address:"桃園市大園區環區南路",start:"環區西路",end:"環區東路",length:600,contract:"115人行道5區",description:"鋪面更新(混凝土拉毛)",amount:1700000,status:"尚未開始",source:"徐其萬議員 游吾和議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
-  {id:6,year:115,seq:9,district:"大園區",type:"人行道",location:"環區北路",address:"桃園市大園區環區北路",start:"環區東路",end:"大觀路",length:950,contract:"115人行道5區",description:"局部修復",amount:1000000,status:"尚未開始",source:"徐其萬議員 游吾和議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
-  {id:7,year:115,seq:4,district:"大園區",type:"人行道",location:"大豐二街",address:"桃園市大園區大豐二街",start:"大仁路",end:"高鐵北路二段",length:250,contract:"115人行道5區",description:"鋪面更新(噴花)",amount:3750000,status:"尚未開始",source:"里長及校方(大園高中)",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"預計暑假施作，路側灌木移除，先行跟大園高中辦會勘"},
-  {id:8,year:115,seq:5,district:"大園區",type:"人行道",location:"中山南路二段(青山里)",address:"桃園市大園區中山南路二段",start:"興德路",end:"永園路二段",length:130,contract:"115人行道5區",description:"人行道改善工程",amount:3300000,status:"尚未開始",source:"徐其萬議員",scheduleStart:"8月1日",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
-  {id:9,year:115,seq:6,district:"蘆竹區",type:"人行道",location:"南竹路二段",address:"桃園市蘆竹區南竹路二段",start:"中正北路",end:"南竹路二段2巷(橋)",length:350,contract:"115人行道5區",description:"標線型人行道+溝蓋翻新",amount:0,status:"尚未開始",source:"錢龍議員",scheduleStart:"8月1日",scheduleEnd:"11月15日",designStatus:"有派設",designDeadline:"7月15日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"路口行人保護措施、車道寬及標線調整、溝蓋更新等"},
-  {id:10,year:115,seq:10,district:"蘆竹區",type:"通學",location:"大竹國小",address:"桃園市蘆竹區大竹國小",start:"大竹國小外",end:"-",length:24,contract:"115人行道5區",description:"新設遮雨棚+噴花地坪",amount:2900000,status:"尚未開始",source:"延續114年度通學",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"已核定",handler:"劉秀霞",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:"目前校方已提出需求，設計費用增加討論中"},
-  {id:11,year:115,seq:11,district:"蘆竹區",type:"人行道",location:"新南路一段(單號側)",address:"桃園市蘆竹區新南路一段",start:"新南路一段11號",end:"忠孝東路",length:130,contract:"115人行道5區",description:"人行道改善工程",amount:3500000,status:"尚未開始",source:"邱顯助里長",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"5月31日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
-  {id:12,year:115,seq:12,district:"蘆竹區",type:"人行道",location:"新南路一段(單號側)",address:"桃園市蘆竹區新南路一段",start:"忠孝東路",end:"南華一街",length:200,contract:"115人行道5區",description:"人行道改善工程",amount:5000000,status:"尚未開始",source:"邱顯助里長",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"5月31日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
-  {id:13,year:115,seq:13,district:"蘆竹區",type:"人行道",location:"海港路",address:"桃園市蘆竹區海港路",start:"西濱路一段",end:"防汛道路",length:200,contract:"115人行道5區",description:"人行道改善工程",amount:3500000,status:"尚未開始",source:"錢龍議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"8月15日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
-  {id:14,year:115,seq:14,district:"蘆竹區",type:"人行道",location:"南工路",address:"桃園市蘆竹區南工路",start:"",end:"",length:0,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"蘆竹里蔡清雲里長",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"劉秀霞",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"請承辦人邀集里長辦會勘確認施作範圍"},
-  {id:15,year:115,seq:15,district:"蘆竹區",type:"人行道",location:"中興路(雙號側)",address:"桃園市蘆竹區中興路",start:"中興路100巷",end:"興仁路",length:350,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"10月1日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
-  {id:16,year:115,seq:16,district:"平鎮區",type:"通學",location:"北勢國小",address:"桃園市平鎮區北勢國小",start:"北勢國小前門、後門",end:"-",length:80,contract:"115人行道5區",description:"前門高壓磚換新+後門摩托車出入口加大",amount:3500000,status:"尚未開始",source:"王珮毓議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"4/2(四)與校方討論形式確認，紀錄已彙整完成"},
-  {id:17,year:116,seq:1,district:"蘆竹區",type:"人行道",location:"新南路一段(雙號側)",address:"桃園市蘆竹區新南路一段",start:"106號(廣信五金)",end:"158號(自助洗衣店)",length:140,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"立法委員 牛煦庭",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"5月31日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
-  {id:18,year:116,seq:2,district:"蘆竹區",type:"人行道",location:"六福路",address:"桃園市蘆竹區六福路",start:"五福一路50巷",end:"五福一路口",length:200,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"許清順議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
-  {id:19,year:116,seq:3,district:"蘆竹區",type:"人行道",location:"大新路",address:"桃園市蘆竹區大新路",start:"大新路1號",end:"大新一街",length:150,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"張桂綿議員、劉勝全議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"大新路5號至9號私設斜坡下方有自來水及瓦斯管，施工請注意"},
-  {id:20,year:116,seq:4,district:"蘆竹區",type:"通學",location:"外社國小",address:"桃園市蘆竹區外社國小",start:"外社國小",end:"",length:85,contract:"115人行道5區",description:"新設避車彎+溝蓋翻新",amount:3000000,status:"尚未開始",source:"劉勝全議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"劉秀霞",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:"已於114年8月6日設計核定"},
-  {id:21,year:116,seq:5,district:"蘆竹區",type:"人行道",location:"機捷路二段",address:"桃園市蘆竹區機捷路二段",start:"機捷路二段978號",end:"機捷路二段898號",length:80,contract:"115人行道5區",description:"人行道延伸及增設斜坡",amount:0,status:"尚未開始",source:"錢龍議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"劉秀霞",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
-  {id:22,year:116,seq:6,district:"大園區",type:"人行道",location:"中山南路二段",address:"桃園市大園區中山南路二段",start:"明德街",end:"領航北路三段",length:100,contract:"115人行道5區",description:"人行道改善工程(混凝土刷毛)",amount:0,status:"尚未開始",source:"自行巡查",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"7-11前路緣及舖面高低差至少20公分以上"},
-  {id:23,year:116,seq:7,district:"蘆竹區",type:"人行道",location:"長榮路",address:"桃園市蘆竹區長榮路",start:"榮安路",end:"南山路二段",length:550,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"自行巡查",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"劉秀霞",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
-  {id:24,year:116,seq:8,district:"蘆竹區",type:"通學",location:"大華國小",address:"桃園市蘆竹區大華國小",start:"",end:"",length:0,contract:"115人行道5區",description:"細節工務會議討論",amount:0,status:"尚未開始",source:"1999市政信箱",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"劉秀霞",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"已於113、114年皆錄案，但學校不同意施作實體人行道，爰取消設計"},
+  {id:1,year:115,seq:1,district:"桃園區",type:"人行道",location:"中山路",address:"桃園市桃園區中山路",start:"民族路",end:"中正路",length:300,contract:"115人行道1區",description:"新設人行道",amount:14910000,status:"尚未開始",source:"",scheduleStart:"115/4",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"韻慈",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:2,year:115,seq:2,district:"桃園區",type:"人行道",location:"永安路(雙號側)",address:"桃園市桃園區永安路(雙號側)",start:"慈文路",end:"溫州街",length:260,contract:"115人行道1區",description:"新設人行道",amount:3900000,status:"尚未開始",source:"議員關心",scheduleStart:"115/4",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"韻慈",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:3,year:115,seq:3,district:"桃園區",type:"人行道",location:"龍安街",address:"桃園市桃園區龍安街",start:"國強一街",end:"文中路",length:0,contract:"115人行道1區",description:"化妝蓋板更換/導盲磚改善",amount:2000000,status:"尚未開始",source:"萬美玲議員",scheduleStart:"115/4",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"韻慈",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:4,year:115,seq:4,district:"桃園區",type:"騎樓整平",location:"中正路X成功路",address:"桃園市桃園區中正路X成功路",start:"朝陽街一段",end:"成功路一段41巷",length:0,contract:"115人行道1區",description:"",amount:0,status:"尚未開始",source:"",scheduleStart:"115/6",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"奉廷",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:5,year:115,seq:5,district:"桃園區",type:"通學",location:"青溪國小",address:"桃園市桃園區青溪國小",start:"自強路",end:"校門",length:40,contract:"115人行道1區",description:"接送區雨遮/人行道改善",amount:5000000,status:"尚未開始",source:"于北成議員",scheduleStart:"115/7",scheduleEnd:"",designStatus:"有派設",designDeadline:"設計期限:115/5",handler:"韻慈",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:6,year:115,seq:6,district:"桃園區",type:"通學",location:"建國國小",address:"桃園市桃園區建國國小",start:"金門二街",end:"後門",length:49,contract:"115人行道1區",description:"接送區雨遮/人行道改善/新設避車彎",amount:0,status:"尚未開始",source:"黃婉如議員",scheduleStart:"115/7",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"韻慈",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:7,year:115,seq:7,district:"桃園區",type:"人行道",location:"林森路6巷(單號側)",address:"桃園市桃園區林森路6巷(單號側)",start:"林森路68巷",end:"林森路",length:200,contract:"115人行道1區",description:"新設人行道",amount:3000000,status:"尚未開始",source:"黃瓊慧議員",scheduleStart:"115/12",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"韻慈",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:8,year:115,seq:8,district:"桃園區",type:"人行道",location:"樹仁二街(單號側)",address:"桃園市桃園區樹仁二街(單號側)",start:"樹仁二街176號對面",end:"大原路",length:220,contract:"115人行道1區",description:"新設人行道",amount:3300000,status:"尚未開始",source:"市政信箱",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"韻慈",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:9,year:115,seq:9,district:"桃園區",type:"人行道",location:"國際路",address:"桃園市桃園區國際路",start:"國際路一段216號對向人行道",end:"",length:150,contract:"115人行道1區",description:"新設人行道",amount:3000000,status:"尚未開始",source:"于北成議員",scheduleStart:"115/12",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"韻慈",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:10,year:115,seq:10,district:"桃園區",type:"人行道",location:"育樂街",address:"桃園市桃園區育樂街",start:"育樂街38號至四維街",end:"",length:0,contract:"115人行道1區",description:"無障礙斜坡與人行道改善",amount:0,status:"尚未開始",source:"黃婉如議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"韻慈",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:11,year:115,seq:11,district:"龜山區",type:"通學",location:"文欣國小",address:"桃園市龜山區文欣國小",start:"校門口",end:"",length:150,contract:"115人行道1區",description:"花台敲除/人行道改善",amount:4000000,status:"尚未開始",source:"",scheduleStart:"115/4",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"羿蒔",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:12,year:115,seq:12,district:"龜山區",type:"人行道",location:"振興路",address:"桃園市龜山區振興路",start:"振興路1089巷",end:"振興路1197巷",length:600,contract:"115人行道1區",description:"新設人行道",amount:9000000,status:"尚未開始",source:"李宗豪議員關心",scheduleStart:"115/11",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"羿蒔",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:13,year:115,seq:13,district:"龜山區",type:"人行道",location:"振興路",address:"桃園市龜山區振興路",start:"東舊路街",end:"東方球場路",length:520,contract:"115人行道1區",description:"新設人行道",amount:8000000,status:"尚未開始",source:"陳雅倫議員關心",scheduleStart:"115/12",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"羿蒔",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:14,year:115,seq:14,district:"龜山區",type:"人行道",location:"文青路",address:"桃園市龜山區文青路",start:"文青二路",end:"文青一路",length:350,contract:"115人行道1區",description:"新設人行道",amount:5000000,status:"尚未開始",source:"民眾陳情",scheduleStart:"115/12",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"羿蒔",designFirm:"九鼎",superviseFirm:"九鼎",constructFirm:"泰普",notes:""},
+  {id:15,year:115,seq:1,district:"大園區",type:"人行道",location:"聖德北路",address:"桃園市大園區聖德北路",start:"溪海休閒農業區遊客中心",end:"聖德北路970巷",length:340,contract:"115人行道5區",description:"局部修復",amount:1200000,status:"已完成",source:"徐其萬議員",scheduleStart:"3月16日",scheduleEnd:"3月25日",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:16,year:115,seq:2,district:"中壢區",type:"人行道",location:"延平路",address:"桃園市中壢區延平路",start:"仁海宮",end:"元化路",length:170,contract:"115人行道5區",description:"人行道改善工程",amount:8296099,status:"施工中",source:"2026台灣設計展",scheduleStart:"3月23日",scheduleEnd:"5月31日",designStatus:"有派設",designDeadline:"已核定",handler:"游智翔",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:"電箱及寬頻手孔要請管線單位遷移"},
+  {id:17,year:115,seq:3,district:"大園區",type:"人行道",location:"致善路一段",address:"桃園市大園區致善路一段",start:"領航南路一段",end:"高鐵南路一段",length:800,contract:"115人行道5區",description:"局部修復",amount:500000,status:"施工中",source:"隊長派案",scheduleStart:"4月1日",scheduleEnd:"4月30日",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"4月底前完成巡查，有破損嚴重處、容易跌倒直接錄案修復"},
+  {id:18,year:115,seq:7,district:"大園區",type:"人行道",location:"園科路",address:"桃園市大園區園科路",start:"園學路",end:"大園國中門口前(靠埤塘側)",length:350,contract:"115人行道5區",description:"鋪面更新(混凝土拉毛)",amount:1200000,status:"施工中",source:"徐其萬議員 游吾和議員",scheduleStart:"4月1日",scheduleEnd:"4月17日",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:19,year:115,seq:8,district:"大園區",type:"人行道",location:"環區南路",address:"桃園市大園區環區南路",start:"環區西路",end:"環區東路",length:600,contract:"115人行道5區",description:"鋪面更新(混凝土拉毛)",amount:1700000,status:"尚未開始",source:"徐其萬議員 游吾和議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:20,year:115,seq:9,district:"大園區",type:"人行道",location:"環區北路",address:"桃園市大園區環區北路",start:"環區東路",end:"大觀路",length:950,contract:"115人行道5區",description:"局部修復",amount:1000000,status:"尚未開始",source:"徐其萬議員 游吾和議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:21,year:115,seq:4,district:"大園區",type:"人行道",location:"大豐二街",address:"桃園市大園區大豐二街",start:"大仁路",end:"高鐵北路二段",length:250,contract:"115人行道5區",description:"鋪面更新(噴花)",amount:3750000,status:"尚未開始",source:"里長及校方(大園高中)",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"預計暑假施作，路側灌木移除，先行跟大園高中辦會勘"},
+  {id:22,year:115,seq:5,district:"大園區",type:"人行道",location:"中山南路二段(青山里桂冠社區前)",address:"桃園市大園區中山南路二段(青山里桂冠社區前)",start:"興德路",end:"永園路二段",length:130,contract:"115人行道5區",description:"人行道改善工程",amount:3300000,status:"尚未開始",source:"徐其萬議員",scheduleStart:"8月1日",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:23,year:115,seq:6,district:"蘆竹區",type:"人行道",location:"南竹路二段",address:"桃園市蘆竹區南竹路二段",start:"中正北路",end:"南竹路二段2巷(橋)",length:350,contract:"115人行道5區",description:"標線型人行道+溝蓋翻新",amount:0,status:"尚未開始",source:"錢龍議員",scheduleStart:"8月1日",scheduleEnd:"11月15日",designStatus:"有派設",designDeadline:"7月15日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"路口行人保護措施、車道寬及標線調整、溝蓋更新等"},
+  {id:24,year:115,seq:10,district:"蘆竹區",type:"通學",location:"大竹國小",address:"桃園市蘆竹區大竹國小",start:"大竹國小外",end:"-",length:24,contract:"115人行道5區",description:"新設遮雨棚+噴花地坪",amount:2900000,status:"尚未開始",source:"延續114年度通學",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"已核定",handler:"劉秀霞",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:"目前校方已提出需求，設計費用增加討論中"},
+  {id:25,year:115,seq:11,district:"蘆竹區",type:"人行道",location:"新南路一段(單號側)",address:"桃園市蘆竹區新南路一段(單號側)",start:"新南路一段11號",end:"忠孝東路",length:130,contract:"115人行道5區",description:"人行道改善工程",amount:3500000,status:"尚未開始",source:"邱顯助里長",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"5月31日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
+  {id:26,year:115,seq:12,district:"蘆竹區",type:"人行道",location:"新南路一段(單號側)",address:"桃園市蘆竹區新南路一段(單號側)",start:"忠孝東路",end:"南華一街",length:200,contract:"115人行道5區",description:"人行道改善工程",amount:5000000,status:"尚未開始",source:"邱顯助里長",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"5月31日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
+  {id:27,year:115,seq:13,district:"蘆竹區",type:"人行道",location:"海港路",address:"桃園市蘆竹區海港路",start:"西濱路一段",end:"防汛道路",length:200,contract:"115人行道5區",description:"人行道改善工程",amount:3500000,status:"尚未開始",source:"錢龍議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"8月15日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
+  {id:28,year:115,seq:14,district:"蘆竹區",type:"人行道",location:"南工路",address:"桃園市蘆竹區南工路",start:"",end:"",length:0,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"蘆竹里蔡清雲里長",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"劉秀霞",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"請承辦人邀集里長辦會勘確認施作範圍"},
+  {id:29,year:115,seq:15,district:"蘆竹區",type:"人行道",location:"中興路(雙號側)",address:"桃園市蘆竹區中興路(雙號側)",start:"中興路100巷",end:"興仁路",length:350,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"10月1日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"設計完成後，先行辦會勘確認"},
+  {id:30,year:115,seq:16,district:"平鎮區",type:"通學",location:"北勢國小",address:"桃園市平鎮區北勢國小",start:"北勢國小前門、後門",end:"-",length:80,contract:"115人行道5區",description:"前門高壓磚換新+後門摩托車出入口加大",amount:3500000,status:"尚未開始",source:"王珮毓議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"-",handler:"",designFirm:"- ",superviseFirm:"開巨",constructFirm:"東鈺",notes:"4/2(四)與校方討論形式確認，紀錄已彙整完成"},
+  {id:31,year:116,seq:1,district:"蘆竹區",type:"人行道",location:"新南路一段(雙號側)",address:"桃園市蘆竹區新南路一段(雙號側)",start:"106號(廣信五金)",end:"158號(自助洗衣店)",length:140,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"立法委員 牛煦庭",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"5月31日",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:32,year:116,seq:2,district:"蘆竹區",type:"人行道",location:"六福路",address:"桃園市蘆竹區六福路",start:"五福一路50巷",end:"五福一路口",length:200,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"許清順議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:33,year:116,seq:3,district:"蘆竹區",type:"人行道",location:"大新路",address:"桃園市蘆竹區大新路",start:"大新路1號",end:"大新一街",length:150,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"張桂綿議員、劉勝全議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"劉秀霞",designFirm:"開巨",superviseFirm:"開巨",constructFirm:"東鈺",notes:"大新路5號至9號私設斜坡下方有自來水及瓦斯管，施工請注意"},
+  {id:34,year:116,seq:4,district:"蘆竹區",type:"通學",location:"外社國小",address:"桃園市蘆竹區外社國小",start:"外社國小",end:"",length:85,contract:"115人行道5區",description:"新設避車彎+溝蓋翻新",amount:3000000,status:"尚未開始",source:"劉勝全議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"劉秀霞",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:"已於114年8月6日設計核定"},
+  {id:35,year:116,seq:5,district:"蘆竹區",type:"人行道",location:"機捷路二段",address:"桃園市蘆竹區機捷路二段",start:"蘆竹區機捷路二段978號",end:"至機捷路二段898號",length:80,contract:"115人行道5區",description:"人行道延伸及增設斜坡",amount:0,status:"尚未開始",source:"錢龍議員",scheduleStart:"",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"劉秀霞",designFirm:"邑菖",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:36,year:116,seq:6,district:"大園區",type:"人行道",location:"中山南路二段",address:"桃園市大園區中山南路二段",start:"明德街",end:"領航北路三段",length:100,contract:"115人行道5區",description:"人行道改善工程(混凝土刷毛)",amount:0,status:"尚未開始",source:"自行巡查",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"游智翔",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"7-11前路緣及舖面高低差至少20公分以上"},
+  {id:37,year:116,seq:7,district:"蘆竹區",type:"人行道",location:"長榮路",address:"桃園市蘆竹區長榮路",start:"榮安路",end:"南山路二段",length:550,contract:"115人行道5區",description:"人行道改善工程",amount:0,status:"尚未開始",source:"自行巡查",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"劉秀霞",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:""},
+  {id:38,year:116,seq:8,district:"蘆竹區",type:"通學",location:"大華國小",address:"桃園市蘆竹區大華國小",start:"",end:"",length:0,contract:"115人行道5區",description:"細節工務會議討論",amount:0,status:"尚未開始",source:"1999市政信箱",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"劉秀霞",designFirm:"-",superviseFirm:"開巨",constructFirm:"東鈺",notes:"已於113、114年皆錄案，但學校不同意施作實體人行道，爰取消設計"},
+  {id:39,year:115,seq:1,district:"八德區",type:"人行道",location:"東勇北路143號",address:"桃園市八德區東勇北路143號",start:"(忠勇街424巷",end:"東勇北路22巷)單雙號側",length:360,contract:"115人行道2區",description:"15個樹穴隆起改善",amount:300000,status:"尚未開始",source:"呂林小鳳議員",scheduleStart:"115/4",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"偉豪",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"待開第一次工務會議確認"},
+  {id:40,year:115,seq:2,district:"八德區",type:"人行道",location:"(和強路口-東勇街133號)單號側",address:"桃園市八德區(和強路口-東勇街133號)單號側",start:"(和強路口",end:"東勇街133號)單號側",length:71,contract:"115人行道2區",description:"人行道鋪面改善",amount:1100000,status:"尚未開始",source:"許家睿議員",scheduleStart:"115/11",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"偉豪",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"待辦會勘和鑑界後確認施作內容"},
+  {id:41,year:115,seq:3,district:"八德區",type:"人行道",location:"和平路",address:"桃園市八德區和平路",start:"(大忠路口",end:"忠勇街口)",length:420,contract:"115人行道2區",description:"路面積水人行道排水口調整",amount:5000000,status:"尚未開始",source:"朱珍瑤議員",scheduleStart:"115/9",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"偉豪",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"待開第一次工務會議確認"},
+  {id:42,year:115,seq:4,district:"八德區",type:"人行道",location:"大智路",address:"桃園市八德區大智路",start:"(介壽路一段",end:"大智路75號)",length:223,contract:"115人行道2區",description:"人行道鋪面改善",amount:3000000,status:"尚未開始",source:"朱珍瑤議員",scheduleStart:"115/7",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"偉豪",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"待開第一次工務會議確認"},
+  {id:43,year:115,seq:5,district:"八德區",type:"人行道",location:"東勇街2號-248號",address:"桃園市八德區東勇街2號-248號",start:"(和平路口",end:"和強路口)單雙號側",length:832,contract:"115人行道2區",description:"人行道鋪面改善",amount:9500000,status:"尚未開始",source:"呂林小鳳議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"偉豪",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"待開第一次工務會議確認"},
+  {id:44,year:115,seq:6,district:"八德區",type:"人行道",location:"和強路",address:"桃園市八德區和強路",start:"(和強路461號",end:"客運轉運站)單號側",length:1000,contract:"115人行道2區",description:"人行道鋪面改善",amount:13000000,status:"尚未開始",source:"朱珍瑤議員",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"偉豪",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"待開第一次工務會議確認"},
+  {id:45,year:115,seq:7,district:"大溪區",type:"通學",location:"大溪高中",address:"桃園市大溪區大溪高中",start:"大溪高中門口兩側及對向",end:"",length:240,contract:"115人行道2區",description:"人行道鋪面改善、新增標線型人行道",amount:3600000,status:"尚未開始",source:"里長",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"德烈",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"若採以提案永續的話，應該今年無法施作，所以未排定預計工期"},
+  {id:46,year:115,seq:8,district:"大溪區",type:"人行道",location:"埔頂路500號前",address:"桃園市大溪區埔頂路500號前",start:"(埔頂八街口",end:"慈光街口)",length:150,contract:"115人行道2區",description:"人行道鋪面改善",amount:2000000,status:"尚未開始",source:"里長",scheduleStart:"115/4",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"德烈",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"待開第一次工務會議確認"},
+  {id:47,year:115,seq:9,district:"大溪區",type:"人行道",location:"埔仁路",address:"桃園市大溪區埔仁路",start:"(埔頂一街口",end:"埔頂五街口)",length:170,contract:"115人行道2區",description:"人行道鋪面改善",amount:2000000,status:"尚未開始",source:"",scheduleStart:"",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"德烈",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"待開第一次工務會議確認"},
+  {id:48,year:115,seq:10,district:"中壢區",type:"人行道",location:"延平路",address:"桃園市中壢區延平路",start:"仁海宮",end:"延平路",length:170,contract:"115人行道2區",description:"人行道拓寬",amount:4500000,status:"尚未開始",source:"支援",scheduleStart:"115/5",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"待開第一次工務會議確認"},
+  {id:49,year:115,seq:11,district:"桃園區",type:"人行道",location:"成功路三段",address:"桃園市桃園區成功路三段",start:"桃園高中門口",end:"公園路口",length:160,contract:"115人行道2區",description:"人行道欄杆等附屬設施",amount:2500000,status:"尚未開始",source:"支援",scheduleStart:"115/7",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"",designFirm:"台創",superviseFirm:"台創",constructFirm:"傑瀚",notes:"人行道欄杆形式待確認"},
+  {id:50,year:115,seq:1,district:"平鎮區",type:"騎樓整平",location:"南豐路",address:"桃園市平鎮區南豐路",start:"南豐路28",end:"2號",length:0,contract:"115人行道3區",description:"騎樓整平工程",amount:275990,status:"尚未開始",source:"劉仁照議員",scheduleStart:"115/3-115/4",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"林奉廷",designFirm:"-",superviseFirm:"萇圓",constructFirm:"遠城",notes:"已完工"},
+  {id:51,year:115,seq:2,district:"平鎮區",type:"人行道",location:"高雙路(雙側)",address:"桃園市平鎮區高雙路(雙側)",start:"高民路",end:"高雙路95巷口",length:240,contract:"115人行道3區",description:"人行道改善工程",amount:4800000,status:"尚未開始",source:"陳韋曄議員",scheduleStart:"115/4-115/6",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"郭恩慶",designFirm:"-",superviseFirm:"萇圓",constructFirm:"遠城",notes:"已提送派工單，待簽核完進場施工"},
+  {id:52,year:115,seq:3,district:"平鎮區",type:"人行道",location:"育達路(雙號側)",address:"桃園市平鎮區育達路(雙號側)",start:"環南路",end:"廣德街",length:123,contract:"115人行道3區",description:"人行道改善工程",amount:2460000,status:"尚未開始",source:"王珮毓議員",scheduleStart:"115/4-115/6",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"郭恩慶",designFirm:"-",superviseFirm:"萇圓",constructFirm:"遠城",notes:"已提送派工單，待簽核完進場施工"},
+  {id:53,year:115,seq:4,district:"平鎮區",type:"人行道",location:"中豐路山頂段(雙號側)",address:"桃園市平鎮區中豐路山頂段(雙號側)",start:"中豐路山頂段336巷",end:"中豐路山頂段469巷",length:370,contract:"115人行道3區",description:"人行道改善工程+溝蓋更新",amount:7400000,status:"尚未開始",source:"陳韋曄議員",scheduleStart:"115/6",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"郭恩慶",designFirm:"萇圓",superviseFirm:"萇圓",constructFirm:"遠城",notes:"設計中"},
+  {id:54,year:115,seq:5,district:"平鎮區",type:"人行道",location:"中豐路(單號側)",address:"桃園市平鎮區中豐路(單號側)",start:"中豐路301巷",end:"中豐路327巷",length:63,contract:"115人行道3區",description:"人行道改善工程",amount:1260000,status:"尚未開始",source:"陳韋曄議員",scheduleStart:"115/6-115/8",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"郭恩慶",designFirm:"-",superviseFirm:"萇圓",constructFirm:"遠城",notes:"已提送派工單，待簽核完進場施工"},
+  {id:55,year:115,seq:7,district:"平鎮區",type:"通學",location:"平南國中(雙號側)",address:"桃園市平鎮區平南國中(雙號側)",start:"中豐路南勢二段457巷",end:"天津街",length:85,contract:"115人行道3區",description:"人行道改善工程+新設遮雨棚",amount:2550000,status:"尚未開始",source:"王珮毓議員",scheduleStart:"115/8",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"郭恩慶",designFirm:"萇圓",superviseFirm:"萇圓",constructFirm:"遠城",notes:"設計中，預計暑假施作"},
+  {id:56,year:115,seq:8,district:"桃園區",type:"人行道",location:"中山路",address:"桃園市桃園區中山路",start:"中正路",end:"東園街",length:221,contract:"115人行道3區",description:"人行道改善工程",amount:10990000,status:"尚未開始",source:"-",scheduleStart:"-",scheduleEnd:"",designStatus:"有派設",designDeadline:"",handler:"-",designFirm:"邑菖",superviseFirm:"萇圓",constructFirm:"遠城",notes:"預計4/13號進場"},
+  {id:57,year:115,seq:9,district:"龍潭區",type:"人行道",location:"龍星路(單號側)",address:"桃園市龍潭區龍星路(單號側)",start:"中豐路至菱潭橋前",end:"",length:200,contract:"115人行道3區",description:"人行道改善工程+欄杆更新",amount:5000000,status:"尚未開始",source:"呂玉玲議員",scheduleStart:"-",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"蔡旻諭",designFirm:"-",superviseFirm:"萇圓",constructFirm:"遠城",notes:""},
+  {id:58,year:115,seq:1,district:"中壢區",type:"人行道",location:"環中東路",address:"桃園市中壢區環中東路",start:"榮安一街",end:"榮安二街",length:300,contract:"115人行道4區",description:"人行道改善",amount:5000000,status:"尚未開始",source:"謝美英服務處",scheduleStart:"115/8~10",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"瓊虹",designFirm:"和建",superviseFirm:"和建",constructFirm:"將泰",notes:""},
+  {id:59,year:115,seq:2,district:"中壢區",type:"人行道",location:"延平路",address:"桃園市中壢區延平路",start:"173號",end:"元化路",length:230,contract:"115人行道4區",description:"人行道改善",amount:11000000,status:"尚未開始",source:"桃園市設計展",scheduleStart:"115/5~115/8",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"智翔",designFirm:"邑菖",superviseFirm:"和建",constructFirm:"將泰",notes:""},
+  {id:60,year:115,seq:3,district:"中壢區",type:"人行道",location:"民族路二段",address:"桃園市中壢區民族路二段",start:"正大街",end:"232巷",length:300,contract:"115人行道4區",description:"鋪面改善",amount:10000000,status:"尚未開始",source:"彭俊豪",scheduleStart:"115/9~115/11",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"瓊虹",designFirm:"-",superviseFirm:"和建",constructFirm:"將泰",notes:""},
+  {id:61,year:115,seq:4,district:"中壢區",type:"人行道",location:"領航北路二段",address:"桃園市中壢區領航北路二段",start:"永順一街",end:"永信路",length:160,contract:"115人行道4區",description:"分隔島敲除， 道路配置調整",amount:5000000,status:"尚未開始",source:"市府交通局",scheduleStart:"-",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"瓊虹",designFirm:"-",superviseFirm:"和建",constructFirm:"將泰",notes:"待確認有無補助款"},
+  {id:62,year:115,seq:5,district:"中壢區",type:"人行道",location:"中豐路",address:"桃園市中壢區中豐路",start:"中美路二段",end:"156號",length:180,contract:"115人行道4區",description:"人行道改善",amount:3000000,status:"尚未開始",source:"",scheduleStart:"115/7~115/9",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"瓊虹",designFirm:"開巨",superviseFirm:"和建",constructFirm:"將泰",notes:""},
+  {id:63,year:115,seq:6,district:"觀音區",type:"人行道",location:"草漯國小",address:"桃園市觀音區草漯國小",start:"",end:"",length:0,contract:"115人行道4區",description:"通學廊道改善",amount:0,status:"尚未開始",source:"許更生",scheduleStart:"115/10~11",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"瓊虹",designFirm:"和建",superviseFirm:"和建",constructFirm:"將泰",notes:""},
+  {id:64,year:115,seq:7,district:"中壢區",type:"人行道",location:"A20",address:"桃園市中壢區A20",start:"重劃區範圍",end:"",length:0,contract:"115人行道4區",description:"區塊修復",amount:3000000,status:"尚未開始",source:"新工處",scheduleStart:"115/10~11",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"瓊虹",designFirm:"-",superviseFirm:"和建",constructFirm:"將泰",notes:""},
+  {id:65,year:115,seq:1,district:"新屋區",type:"人行道",location:"中山東路二段",address:"桃園市新屋區中山東路二段",start:"中山東路二段770號新洲六街口至中山東路二段941號對面",end:"",length:257,contract:"115人行道6區",description:"人行道改善",amount:3500000,status:"尚未開始",source:"里長",scheduleStart:"115/04",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"呂聖輝",designFirm:"無設計",superviseFirm:"邑菖",constructFirm:"昱盛",notes:"雙號側"},
+  {id:66,year:115,seq:2,district:"新屋區",type:"人行道",location:"中山東路二段",address:"桃園市新屋區中山東路二段",start:"中山東路二段775號與福州路口至中山東路二段831號",end:"",length:150,contract:"115人行道6區",description:"人行道改善",amount:0,status:"尚未開始",source:"里長",scheduleStart:"115/05",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"呂聖輝",designFirm:"無設計",superviseFirm:"邑菖",constructFirm:"昱盛",notes:"單號側"},
+  {id:67,year:115,seq:3,district:"楊梅區",type:"人行道",location:"裕成南路",address:"桃園市楊梅區裕成南路",start:"裕誠路",end:"裕成南路197巷",length:500,contract:"115人行道6區",description:"人行道改善",amount:0,status:"尚未開始",source:"里長",scheduleStart:"115/10",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"呂聖輝",designFirm:"邑菖",superviseFirm:"邑菖",constructFirm:"昱盛",notes:""},
+  {id:68,year:115,seq:4,district:"楊梅區",type:"人行道",location:"仁平路",address:"桃園市楊梅區仁平路",start:"埔心車站",end:"梅獅路",length:130,contract:"115人行道6區",description:"人行道改善",amount:0,status:"尚未開始",source:"里長",scheduleStart:"115/11",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"呂聖輝",designFirm:"邑菖",superviseFirm:"邑菖",constructFirm:"昱盛",notes:"待確認里長需求"},
+  {id:69,year:115,seq:5,district:"楊梅區",type:"人行道",location:"中興路",address:"桃園市楊梅區中興路",start:"永美路",end:"五守街",length:900,contract:"115人行道6區",description:"人行道改善",amount:0,status:"尚未開始",source:"永續+民眾票選",scheduleStart:"115/07",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"呂聖輝",designFirm:"無設計",superviseFirm:"邑菖",constructFirm:"昱盛",notes:""},
+  {id:70,year:115,seq:6,district:"楊梅區",type:"人行道",location:"幼獅路一段",address:"桃園市楊梅區幼獅路一段",start:"高速公路",end:"青山一街",length:620,contract:"115人行道6區",description:"人行道改善",amount:0,status:"尚未開始",source:"里長",scheduleStart:"115/09",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"呂聖輝",designFirm:"無設計",superviseFirm:"邑菖",constructFirm:"昱盛",notes:""},
+  {id:71,year:115,seq:7,district:"新屋區",type:"人行道",location:"陽明國小",address:"桃園市新屋區陽明國小",start:"",end:"",length:0,contract:"115人行道6區",description:"待與校方確認",amount:0,status:"尚未開始",source:"陽明國小",scheduleStart:"115/07",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"呂聖輝",designFirm:"暫無設計",superviseFirm:"邑菖",constructFirm:"昱盛",notes:"待確認校方需求確認是否派設"},
+  {id:72,year:115,seq:8,district:"楊梅區",type:"人行道",location:"梅獅路二段",address:"桃園市楊梅區梅獅路二段",start:"省道  瑞溪路",end:"",length:470,contract:"115人行道6區",description:"人行道改善",amount:0,status:"尚未開始",source:"里長",scheduleStart:"115/08",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"呂聖輝",designFirm:"無設計",superviseFirm:"邑菖",constructFirm:"昱盛",notes:"雙側，依契約金額使用情形，可分段施作"},
+  {id:73,year:115,seq:9,district:"新屋區",type:"人行道",location:"民族路六段",address:"桃園市新屋區民族路六段",start:"高州路",end:"高州五街",length:55,contract:"115人行道6區",description:"人行道改善",amount:0,status:"尚未開始",source:"里長",scheduleStart:"115/06",scheduleEnd:"",designStatus:"無派設",designDeadline:"",handler:"呂聖輝",designFirm:"無設計",superviseFirm:"邑菖",constructFirm:"昱盛",notes:""},
 ];
 
 // Work reports per zone (editable)
@@ -1565,6 +1786,34 @@ function renderDistrict(key) {
         <div class="district-hero-name">${distName}</div>
         <div class="district-hero-sub">115年度人行道・通學廊道工程</div>
       </div>
+      <svg width="90" height="52" viewBox="0 0 90 52" style="opacity:.7;flex-shrink:0">
+        <rect x="0" y="16" width="14" height="36" fill="#42A5F5" opacity=".7"/>
+        <rect x="2" y="20" width="4" height="4" fill="#E3F2FD" opacity=".7"/>
+        <rect x="8" y="20" width="4" height="4" fill="#E3F2FD" opacity=".7"/>
+        <rect x="2" y="28" width="4" height="4" fill="#E3F2FD" opacity=".7"/>
+        <rect x="8" y="28" width="4" height="4" fill="#E3F2FD" opacity=".7"/>
+        <rect x="17" y="8" width="20" height="44" fill="#1E88E5" opacity=".65"/>
+        <rect x="19" y="13" width="6" height="6" fill="#fff" opacity=".6"/>
+        <rect x="29" y="13" width="6" height="6" fill="#fff" opacity=".6"/>
+        <rect x="19" y="24" width="6" height="6" fill="#fff" opacity=".6"/>
+        <rect x="29" y="24" width="6" height="6" fill="#fff" opacity=".6"/>
+        <rect x="19" y="35" width="6" height="6" fill="#fff" opacity=".6"/>
+        <rect x="29" y="35" width="6" height="6" fill="#fff" opacity=".6"/>
+        <rect x="41" y="20" width="14" height="32" fill="#42A5F5" opacity=".6"/>
+        <rect x="43" y="24" width="4" height="4" fill="#E3F2FD" opacity=".6"/>
+        <rect x="50" y="24" width="4" height="4" fill="#E3F2FD" opacity=".6"/>
+        <rect x="43" y="33" width="4" height="4" fill="#E3F2FD" opacity=".6"/>
+        <rect x="50" y="33" width="4" height="4" fill="#E3F2FD" opacity=".6"/>
+        <rect x="58" y="24" width="18" height="28" fill="#1565C0" opacity=".65"/>
+        <rect x="60" y="28" width="5" height="5" fill="#BBDEFB" opacity=".65"/>
+        <rect x="69" y="28" width="5" height="5" fill="#BBDEFB" opacity=".65"/>
+        <rect x="60" y="38" width="5" height="5" fill="#BBDEFB" opacity=".65"/>
+        <rect x="69" y="38" width="5" height="5" fill="#BBDEFB" opacity=".65"/>
+        <rect x="79" y="28" width="11" height="24" fill="#42A5F5" opacity=".5"/>
+        <rect x="0" y="50" width="90" height="2" fill="#90CAF9" opacity=".5"/>
+        <circle cx="46" cy="40" r="3" fill="#FF7043" opacity=".9"/>
+        <line x1="46" y1="43" x2="46" y2="50" stroke="#FF7043" stroke-width="1.5" stroke-linecap="round" opacity=".9"/>
+      </svg>
       <div class="district-hero-stats">
         <div><div class="district-hero-num">${dc.length}</div><div class="district-hero-label">總案件</div></div>
         <div><div class="district-hero-num">${wip}</div><div class="district-hero-label">施工中</div></div>
