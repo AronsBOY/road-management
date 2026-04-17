@@ -5,29 +5,29 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人行道・通學廊道工程管理系統</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Noto+Serif+TC:wght@400;600&display=swap');
 
 :root {
-  --bg: #F5F3EE;
+  --bg: #E8EFF7;
   --surface: #FFFFFF;
-  --surface2: #F0EDE8;
-  --border: #E0DBD3;
-  --border2: #C8C2B8;
-  --text: #1A1814;
-  --text2: #6B6560;
-  --text3: #9B958E;
-  --accent: #2B5BA8;
-  --accent-bg: #EBF0FA;
-  --green: #1E7D45;
-  --green-bg: #E6F4EC;
-  --orange: #C4620A;
-  --orange-bg: #FDF0E5;
-  --gray: #5C5650;
-  --gray-bg: #EEEBE7;
-  --purple: #5B3FA8;
-  --purple-bg: #EFEBFA;
-  --red: #B22E2E;
-  --red-bg: #FAEAEA;
+  --surface2: #EEF4FB;
+  --border: #CDDAED;
+  --border2: #A8BFDB;
+  --text: #0A2744;
+  --text2: #3A5A7A;
+  --text3: #6A8AAA;
+  --accent: #1057A8;
+  --accent-bg: #DDEAF8;
+  --green: #0F6B3A;
+  --green-bg: #D6F0E4;
+  --orange: #B5530A;
+  --orange-bg: #FDECD8;
+  --gray: #4A6070;
+  --gray-bg: #DDE4EC;
+  --purple: #4A30A0;
+  --purple-bg: #E5DEFA;
+  --red: #A82828;
+  --red-bg: #FAE0E0;
   --sidebar-w: 240px;
 }
 
@@ -48,8 +48,8 @@ body {
 /* Sidebar */
 .sidebar {
   width: var(--sidebar-w);
-  background: var(--text);
-  color: #E8E4DE;
+  background: #062040;
+  color: #C8D8EC;
   display: flex;
   flex-direction: column;
   position: fixed;
@@ -60,27 +60,30 @@ body {
 
 .sidebar-header {
   padding: 24px 20px 20px;
-  border-bottom: 1px solid rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  background: #041830;
 }
 
 .sidebar-logo {
   font-size: 11px;
   letter-spacing: 0.08em;
-  color: rgba(255,255,255,0.45);
+  color: #4EA8F0;
   text-transform: uppercase;
   margin-bottom: 6px;
+  font-weight: 600;
 }
 
 .sidebar-title {
   font-size: 15px;
   font-weight: 700;
-  color: #fff;
+  color: #DDEAF8;
   line-height: 1.4;
+  letter-spacing: -0.01em;
 }
 
 .sidebar-sub {
   font-size: 11px;
-  color: rgba(255,255,255,0.35);
+  color: #5A8AB0;
   margin-top: 4px;
 }
 
@@ -91,10 +94,11 @@ body {
 .nav-label {
   font-size: 10px;
   letter-spacing: 0.1em;
-  color: rgba(255,255,255,0.3);
+  color: #4EA8F0;
   padding: 0 20px;
   margin-bottom: 4px;
   text-transform: uppercase;
+  font-weight: 600;
 }
 
 .nav-item {
@@ -111,8 +115,8 @@ body {
   line-height: 1.4;
 }
 
-.nav-item:hover { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.9); }
-.nav-item.active { background: rgba(255,255,255,0.08); color: #fff; border-left-color: #5B8DD9; }
+.nav-item:hover { background: rgba(30,90,180,0.2); color: #DDEAF8; }
+.nav-item.active { background: rgba(30,90,180,0.35); color: #fff; border-left-color: #4EA8F0; }
 
 .nav-icon { width: 16px; font-size: 14px; text-align: center; flex-shrink: 0; }
 
@@ -130,22 +134,23 @@ body {
   display: inline-block;
   font-family: 'DM Mono', monospace;
   font-size: 10px;
-  color: rgba(255,255,255,0.35);
-  background: rgba(255,255,255,0.07);
+  color: #5A8AB0;
+  background: rgba(30,90,180,0.2);
   border-radius: 4px;
   padding: 1px 5px;
   min-width: 26px;
   text-align: center;
   flex-shrink: 0;
 }
-.nav-item.active .nav-num { color: rgba(255,255,255,0.7); background: rgba(255,255,255,0.12); }
+.nav-item.active .nav-num { color: #fff; background: rgba(78,168,240,0.3); }
 
 .sidebar-footer {
   margin-top: auto;
   padding: 16px 20px;
-  border-top: 1px solid rgba(255,255,255,0.08);
+  border-top: 1px solid rgba(255,255,255,0.1);
   font-size: 11px;
-  color: rgba(255,255,255,0.25);
+  color: rgba(200,220,240,0.5);
+  background: #041830;
 }
 
 /* Main content */
@@ -153,10 +158,11 @@ body {
   margin-left: var(--sidebar-w);
   flex: 1;
   min-height: 100vh;
+  border-top: 3px solid #1057A8;
 }
 
 /* Page */
-.page { display: none; padding: 32px 36px; max-width: 1200px; }
+.page { display: none; padding: 28px 36px; max-width: 1200px; }
 .page.active { display: block; }
 
 .page-header {
@@ -166,7 +172,7 @@ body {
   margin-bottom: 28px;
 }
 
-.page-title { font-size: 22px; font-weight: 700; color: var(--text); }
+.page-title { font-size: 22px; font-weight: 700; color: #062040; letter-spacing: -0.02em; }
 .page-sub { font-size: 13px; color: var(--text2); margin-top: 3px; }
 
 /* Buttons */
@@ -186,8 +192,8 @@ body {
   font-weight: 500;
 }
 .btn:hover { background: var(--surface2); }
-.btn-primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-.btn-primary:hover { background: #2050A0; }
+.btn-primary { background: #1057A8; color: #fff; border-color: #1057A8; box-shadow: 0 1px 3px rgba(16,87,168,0.25); }
+.btn-primary:hover { background: #0D4A96; }
 .btn-sm { padding: 5px 10px; font-size: 12px; }
 
 /* Stats row */
@@ -201,8 +207,9 @@ body {
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 16px 18px;
+  border-left: 4px solid #1057A8;
 }
 
 .stat-label { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; margin-bottom: 6px; }
@@ -213,12 +220,13 @@ body {
 .card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 8px;
   padding: 20px 24px;
   margin-bottom: 16px;
+  border-top: 3px solid #1057A8;
 }
 
-.card-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: var(--text); }
+.card-title { font-size: 14px; font-weight: 700; margin-bottom: 16px; color: #0A2744; letter-spacing: 0.02em; }
 
 /* Badges */
 .badge {
@@ -259,7 +267,7 @@ body {
   color: var(--text);
   outline: none;
 }
-.filter-input:focus { border-color: var(--accent); }
+.filter-input:focus { border-color: #1057A8; box-shadow: 0 0 0 3px rgba(16,87,168,0.1); }
 
 select {
   padding: 8px 12px;
@@ -272,7 +280,7 @@ select {
   outline: none;
   cursor: pointer;
 }
-select:focus { border-color: var(--accent); }
+select:focus { border-color: #1057A8; }
 
 /* Cases list */
 .case-item {
@@ -284,7 +292,7 @@ select:focus { border-color: var(--accent); }
   cursor: pointer;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
-.case-item:hover { border-color: var(--border2); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+.case-item:hover { border-color: #1057A8; box-shadow: 0 2px 8px rgba(16,87,168,0.08); }
 
 .case-header { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
 .case-num { font-size: 11px; color: var(--text3); font-family: 'DM Mono', monospace; }
@@ -391,7 +399,7 @@ input[type="text"], input[type="number"], textarea {
   outline: none;
   width: 100%;
 }
-input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+input:focus, textarea:focus, select:focus { border-color: #1057A8; }
 textarea { resize: vertical; min-height: 70px; }
 
 .modal-footer { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
@@ -407,11 +415,11 @@ textarea { resize: vertical; min-height: 70px; }
 .progress-fill {
   height: 100%;
   border-radius: 3px;
-  background: var(--accent);
+  background: #1057A8;
   transition: width 0.4s ease;
 }
-.progress-fill.green { background: var(--green); }
-.progress-fill.orange { background: var(--orange); }
+.progress-fill.green { background: #0F6B3A; }
+.progress-fill.orange { background: #B5530A; }
 
 /* Table */
 .data-table {
@@ -421,12 +429,12 @@ textarea { resize: vertical; min-height: 70px; }
 }
 .data-table th {
   text-align: left;
-  padding: 8px 12px;
-  background: var(--surface2);
-  border-bottom: 2px solid var(--border);
+  padding: 9px 12px;
+  background: #1057A8;
+  color: #fff;
+  border-bottom: none;
   font-size: 11px;
-  letter-spacing: 0.04em;
-  color: var(--text2);
+  letter-spacing: 0.05em;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -440,7 +448,7 @@ textarea { resize: vertical; min-height: 70px; }
 
 /* District page header */
 .district-hero {
-  background: var(--text);
+  background: linear-gradient(135deg, #062040 0%, #1057A8 100%);
   color: #fff;
   border-radius: 14px;
   padding: 24px 28px;
@@ -458,15 +466,15 @@ textarea { resize: vertical; min-height: 70px; }
 /* Budget */
 .budget-bar-container { margin-bottom: 20px; }
 .budget-bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 6px; }
-.budget-bar { height: 10px; background: var(--surface2); border-radius: 5px; overflow: hidden; }
-.budget-fill { height: 100%; border-radius: 5px; background: var(--accent); }
+.budget-bar { height: 10px; background: #CDDAED; border-radius: 5px; overflow: hidden; }
+.budget-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #1057A8, #2B7FD4); }
 
 /* Sync indicator */
 .sync-dot {
   display: inline-block;
   width: 7px; height: 7px;
   border-radius: 50%;
-  background: #3DAF6E;
+  background: #4EA8F0;
   margin-right: 5px;
 }
 
@@ -474,8 +482,8 @@ textarea { resize: vertical; min-height: 70px; }
 #toast {
   position: fixed;
   bottom: 24px; right: 24px;
-  background: var(--text);
-  color: #fff;
+  background: #062040;
+  color: #DDEAF8;
   padding: 10px 18px;
   border-radius: 10px;
   font-size: 13px;
@@ -496,12 +504,13 @@ textarea { resize: vertical; min-height: 70px; }
 
 .promo-card {
   background: var(--surface);
-  border-radius: 16px;
+  border-radius: 6px;
   overflow: hidden;
   border: 1px solid var(--border);
+  border-top: 3px solid #1057A8;
   transition: box-shadow 0.2s, transform 0.2s;
 }
-.promo-card:hover { box-shadow: 0 6px 24px rgba(0,0,0,0.08); transform: translateY(-2px); }
+.promo-card:hover { box-shadow: 0 4px 16px rgba(16,87,168,0.12); transform: translateY(-1px); }
 
 .card-map-area {
   height: 120px;
@@ -513,8 +522,8 @@ textarea { resize: vertical; min-height: 70px; }
   justify-content: center;
 }
 
-.card-map-area.done-bg   { background: linear-gradient(135deg, #d4f0e0 0%, #b8e8cc 100%); }
-.card-map-area.wip-bg    { background: linear-gradient(135deg, #dce8ff 0%, #c8d8f8 100%); }
+.card-map-area.done-bg   { background: linear-gradient(135deg, #C8E8D8 0%, #A0D8BC 100%); }
+.card-map-area.wip-bg    { background: linear-gradient(135deg, #C8DDF5 0%, #A8C5E8 100%); }
 .card-map-area.todo-bg   { background: linear-gradient(135deg, #eeeae4 0%, #e2ddd7 100%); }
 .card-map-area.school-bg { background: linear-gradient(135deg, #fdf0e0 0%, #f8e4c8 100%); }
 
@@ -544,7 +553,7 @@ textarea { resize: vertical; min-height: 70px; }
 .map-pin {
   position: absolute;
   width: 24px; height: 24px;
-  background: var(--accent);
+  background: #1057A8;
   border-radius: 50% 50% 50% 0;
   transform: rotate(-45deg);
   top: 50%; left: 50%;
@@ -561,7 +570,7 @@ textarea { resize: vertical; min-height: 70px; }
   transform: rotate(45deg);
 }
 .map-pin.done-pin { background: var(--green); }
-.map-pin.wip-pin  { background: var(--accent); }
+.map-pin.wip-pin  { background: #1057A8; }
 .map-pin.todo-pin { background: var(--gray); }
 .map-pin.school-pin { background: var(--orange); }
 
@@ -719,7 +728,7 @@ textarea { resize: vertical; min-height: 70px; }
   <div class="sidebar-header">
     <div class="sidebar-logo">桃園市養護工程處</div>
     <div class="sidebar-title">人行道・通學廊道<br>工程管理系統</div>
-    <div class="sidebar-sub">115年度 115人行道5區</div>
+    <div class="sidebar-sub">115年度・115人行道5區</div>
   </div>
 
   <div class="nav-section">
