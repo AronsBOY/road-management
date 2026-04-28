@@ -901,6 +901,10 @@ textarea { resize: vertical; min-height: 70px; }
       <span>115年改善路段總表<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">12行政區・29路段</span></span>
       <span class="nav-badge">29</span>
     </div>
+    <div class="nav-item" onclick="showPage('page-7methods')" data-num="D1">
+      <span class="nav-num">D1</span>
+      <span>七大手法動畫<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">人行道改善策略</span></span>
+    </div>
   </div>
 
   <div class="sidebar-footer">
@@ -1293,7 +1297,160 @@ textarea { resize: vertical; min-height: 70px; }
 
 <div id="toast">✓ 已儲存</div>
 
-<!-- 隱藏的匯入 input -->
+<!-- ====== 七大手法動畫 D1 ====== -->
+<div class="page" id="page-page-7methods">
+  <div class="page-header">
+    <div>
+      <div class="page-title">[D1] 人行道改善七大手法</div>
+      <div class="page-sub">通學廊道改善策略圖解動畫</div>
+    </div>
+  </div>
+  <div class="card" style="padding:24px">
+    <div id="seven-methods-anim" style="width:100%;background:#F0F6FF;border-radius:12px;overflow:hidden;position:relative;height:440px;font-family:'Noto Sans TC',sans-serif">
+
+      <!-- 道路場景 SVG -->
+      <svg id="scene-svg" width="100%" height="440" viewBox="0 0 900 440" xmlns="http://www.w3.org/2000/svg">
+        <!-- 天空 -->
+        <rect x="0" y="0" width="900" height="200" fill="#D6EAFF"/>
+        <!-- 雲 -->
+        <ellipse cx="120" cy="50" rx="50" ry="20" fill="white" opacity=".8"/>
+        <ellipse cx="150" cy="40" rx="40" ry="18" fill="white" opacity=".8"/>
+        <ellipse cx="700" cy="60" rx="55" ry="22" fill="white" opacity=".7"/>
+        <ellipse cx="740" cy="48" rx="40" ry="18" fill="white" opacity=".7"/>
+        <!-- 地面 -->
+        <rect x="0" y="200" width="900" height="240" fill="#C8D8A8"/>
+        <!-- 道路 -->
+        <rect x="0" y="230" width="900" height="130" fill="#8A9070"/>
+        <!-- 標線 -->
+        <rect x="0" y="290" width="900" height="4" fill="#F5F5A0" opacity=".6"/>
+        <rect x="100" y="230" width="40" height="8" fill="white" opacity=".5"/>
+        <rect x="250" y="230" width="40" height="8" fill="white" opacity=".5"/>
+        <rect x="400" y="230" width="40" height="8" fill="white" opacity=".5"/>
+        <rect x="550" y="230" width="40" height="8" fill="white" opacity=".5"/>
+        <rect x="700" y="230" width="40" height="8" fill="white" opacity=".5"/>
+        <!-- 人行道（地面） -->
+        <rect x="0" y="360" width="900" height="60" fill="#B8C4A0"/>
+        <!-- 學校建築 -->
+        <rect x="680" y="100" width="180" height="130" fill="#F5E6C8"/>
+        <rect x="700" y="80" width="140" height="30" fill="#E8B84B"/>
+        <rect x="730" y="110" width="40" height="50" fill="#8BBAD0" rx="4"/>
+        <rect x="790" y="110" width="40" height="50" fill="#8BBAD0" rx="4"/>
+        <rect x="750" y="170" width="60" height="60" fill="#6B8F58" rx="2"/><!-- 校門 -->
+        <text x="755" y="210" font-size="11" fill="white" font-weight="bold">校門</text>
+        <!-- 校名 -->
+        <text x="730" y="100" font-size="13" fill="#5A3A10" font-weight="bold">（學校）</text>
+
+        <!-- ① 實體人行道 - 初始為標線型，動畫後變實體 -->
+        <rect id="sidewalk-base" x="0" y="360" width="660" height="50" fill="#C0C8A8"/>
+        <rect id="sidewalk-real" x="0" y="360" width="0" height="50" fill="#E8D4A0" rx="0"/>
+        <text x="10" y="352" font-size="11" fill="#666">標線型</text>
+        <text id="txt-sidewalk" x="10" y="395" font-size="11" fill="#444" opacity="0">✅ 改建實體人行道</text>
+
+        <!-- ② 候車亭 -->
+        <g id="g-busstop" opacity="0" transform="translate(200,230)">
+          <rect x="0" y="-60" width="50" height="60" fill="#4A90D9" rx="4" opacity=".85"/>
+          <rect x="-5" y="-65" width="60" height="8" fill="#2C5F8A" rx="2"/>
+          <text x="10" y="-35" font-size="10" fill="white" font-weight="bold">候車亭</text>
+          <text x="5" y="-20" font-size="9" fill="#D0E8FF">新設</text>
+        </g>
+
+        <!-- ③ 路緣斜坡 -->
+        <g id="g-ramp" opacity="0">
+          <polygon points="350,360 390,360 390,370" fill="#D4A84B"/>
+          <polygon points="420,360 460,360 420,370" fill="#D4A84B"/>
+          <polygon points="490,360 530,360 530,370" fill="#D4A84B"/>
+          <text x="380" y="350" font-size="10" fill="#B8860B" font-weight="bold">▲ 路緣斜坡</text>
+        </g>
+
+        <!-- ④ 電箱移設 -->
+        <g id="g-elec-old" transform="translate(300,340)">
+          <rect x="0" y="-30" width="20" height="30" fill="#888" rx="2"/>
+          <text x="-5" y="-35" font-size="9" fill="#666">電箱</text>
+        </g>
+        <g id="g-elec-new" opacity="0" transform="translate(300,340)">
+          <rect x="0" y="-30" width="20" height="30" fill="#4CAF50" rx="2"/>
+          <text x="-10" y="-35" font-size="9" fill="#2E7D32">已移設✓</text>
+        </g>
+
+        <!-- ⑤ 停等空間 -->
+        <g id="g-wait" opacity="0">
+          <rect x="580" y="230" width="80" height="40" fill="#FF8C42" opacity=".5" rx="4"/>
+          <text x="590" y="255" font-size="10" fill="#5C2A00" font-weight="bold">停等空間</text>
+        </g>
+
+        <!-- ⑥ 通學巷 -->
+        <g id="g-lane" opacity="0">
+          <rect x="0" y="170" width="60" height="60" fill="#FF6B6B" opacity=".3" rx="4"/>
+          <text x="5" y="195" font-size="9" fill="#C00" font-weight="bold">通學巷</text>
+          <circle cx="30" cy="220" r="12" fill="#CC0000"/>
+          <text x="25" y="225" font-size="12" fill="white" font-weight="bold">⊘</text>
+          <text x="2" y="245" font-size="8" fill="#C00">時段禁入</text>
+        </g>
+
+        <!-- ⑦ 雙色溫路燈 -->
+        <g id="g-lamp" opacity="0">
+          <line x1="500" y1="230" x2="500" y2="150" stroke="#888" stroke-width="4"/>
+          <ellipse cx="500" cy="148" rx="18" ry="8" fill="#FFE066"/>
+          <ellipse cx="500" cy="145" rx="12" ry="5" fill="#FFF0A0"/>
+          <text x="510" y="145" font-size="9" fill="#B8860B" font-weight="bold">雙色溫燈</text>
+        </g>
+
+        <!-- 行人動畫 -->
+        <g id="g-walker" transform="translate(50,370)">
+          <circle cx="0" cy="-30" r="8" fill="#FFB74D"/>
+          <line x1="0" y1="-22" x2="0" y2="-5" stroke="#5D4037" stroke-width="3"/>
+          <line x1="0" y1="-18" x2="-8" y2="-10" stroke="#5D4037" stroke-width="2"/>
+          <line x1="0" y1="-18" x2="8" y2="-10" stroke="#5D4037" stroke-width="2"/>
+          <line x1="0" y1="-5" x2="-6" y2="5" stroke="#5D4037" stroke-width="2"/>
+          <line x1="0" y1="-5" x2="6" y2="5" stroke="#5D4037" stroke-width="2"/>
+        </g>
+      </svg>
+
+      <!-- 手法說明卡 -->
+      <div id="method-card" style="position:absolute;top:16px;left:16px;background:white;border-radius:10px;padding:12px 16px;box-shadow:0 4px 16px rgba(0,0,0,0.15);max-width:260px;transition:all 0.4s ease;border-left:4px solid #1565C0">
+        <div id="method-num" style="font-size:20px;font-weight:700;color:#1565C0">①</div>
+        <div id="method-name" style="font-size:15px;font-weight:600;color:#0D2545;margin:4px 0">建立實體人行道</div>
+        <div id="method-desc" style="font-size:12px;color:#608080;line-height:1.6">將標線型人行道改建為實體人行道，提供行人安全的步行空間，與車道明確分隔。</div>
+      </div>
+
+      <!-- 進度點 -->
+      <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px">
+        ${[1,2,3,4,5,6,7].map(i=>`<div class="method-dot" id="dot-${i}" onclick="goMethod(${i})" style="width:10px;height:10px;border-radius:50%;background:${i===1?'#1565C0':'#CBD5E0'};cursor:pointer;transition:all 0.3s"></div>`).join('')}
+      </div>
+
+      <!-- 控制按鈕 -->
+      <div style="position:absolute;bottom:8px;right:16px;display:flex;gap:8px">
+        <button onclick="prevMethod()" style="background:white;border:1px solid #CBD5E0;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer">◀ 上一個</button>
+        <button id="auto-btn" onclick="toggleAuto()" style="background:#1565C0;color:white;border:none;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer">▶ 自動播放</button>
+        <button onclick="nextMethod()" style="background:white;border:1px solid #CBD5E0;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer">下一個 ▶</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 新聞稿生成 Modal ====== -->
+<div id="news-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center">
+  <div style="background:white;border-radius:16px;width:700px;max-width:95vw;max-height:90vh;overflow:auto;padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:18px;font-weight:700;color:#0D2545">📰 新聞稿生成</div>
+      <button onclick="document.getElementById('news-modal').style.display='none'" style="border:none;background:none;font-size:20px;cursor:pointer;color:#608080">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="form-field"><label>工區 / 路段</label><input id="news-zone" type="text" placeholder="例：第一工區・桃園區"></div>
+      <div class="form-field"><label>工程名稱</label><input id="news-project" type="text" placeholder="例：中山路人行道改善工程"></div>
+      <div class="form-field"><label>預計效益</label><input id="news-benefit" type="text" placeholder="例：改善長度300公尺，嘉惠居民約5,000人"></div>
+      <div class="form-field"><label>完工時程</label><input id="news-schedule" type="text" placeholder="例：115年12月"></div>
+    </div>
+    <button onclick="generateNews()" style="background:#1565C0;color:white;border:none;border-radius:8px;padding:10px 20px;font-size:14px;cursor:pointer;width:100%;margin-bottom:16px">✨ AI 生成新聞稿</button>
+    <div id="news-loading" style="display:none;text-align:center;color:#608080;padding:20px">⏳ 生成中...</div>
+    <div id="news-result" style="display:none">
+      <textarea id="news-text" style="width:100%;min-height:300px;border:1px solid #C5D8F0;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;font-family:inherit"></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button onclick="copyNews()" style="background:white;border:1px solid #C5D8F0;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer">📋 複製</button>
+      </div>
+    </div>
+  </div>
+</div>
 <input type="file" id="excel-import-input" accept=".xlsx,.xls" style="display:none" onchange="handleImport(event)">
 
 <script>
@@ -1506,6 +1663,8 @@ function promoCardHTML(c) {
       <span class="card-handler">${c.handler?'承辦：'+c.handler:'未指派'}</span>
       <span class="card-schedule">${schedule}</span>
       <div style="display:flex;gap:4px">
+        <button class="btn btn-sm" onclick="openNewsModal()" style="padding:3px 8px;font-size:11px;background:var(--accent);color:white">📰</button>
+        <button class="btn btn-sm" onclick="exportCardAsJPG(${c.id})" style="padding:3px 8px;font-size:11px;color:var(--green)">🖼 JPG</button>
         <button class="btn btn-sm" onclick="openEditModal(${c.id})" style="padding:3px 8px;font-size:11px">編輯</button>
         <button class="btn btn-sm" onclick="deleteCase(${c.id})" style="padding:3px 8px;font-size:11px;color:var(--red)">🗑</button>
       </div>
@@ -1635,19 +1794,38 @@ function renderDashboard() {
     <div class="stat-sub">${s.sub||''}</div>
   </div>`).join('');
 
-  // Budget
-  const used = DISPATCHED_TOTAL / CONTRACT_TOTAL * 100;
-  (document.getElementById('dash-budget')||document.createElement('div')).innerHTML = `
+  // Budget - 從六個工區 REPORTS 加總
+  const zoneKeys = ['taoyuan','bade','pingzhen2','zhongli2','luzhu2','xinwu'];
+  const aggA1 = zoneKeys.reduce((s,k)=>s+(Number((REPORTS[k]||{}).a1)||0),0);
+  const aggA2 = zoneKeys.reduce((s,k)=>s+(Number((REPORTS[k]||{}).a2)||0),0);
+  const aggB  = zoneKeys.reduce((s,k)=>s+(Number((REPORTS[k]||{}).b)||0),0);
+  const aggC  = zoneKeys.reduce((s,k)=>s+(Number((REPORTS[k]||{}).c)||0),0);
+  const aggD  = zoneKeys.reduce((s,k)=>s+((REPORTS[k]||{}).estimations||[]).reduce((ss,e)=>ss+(Number(e.amount)||0),0),0);
+  const total = aggA1+aggA2;
+  const usedPct = total>0 ? (aggC/total*100) : 0;
+  const ratePct = total>0 ? (aggD/total*100) : 0;
+  const remain = total - aggC;
+  const budgetEl = document.getElementById('dash-budget');
+  if (budgetEl) budgetEl.innerHTML = total>0 ? `
     <div class="budget-bar-container">
-      <div class="budget-bar-label"><span>契約總金額</span><span>NT$ ${CONTRACT_TOTAL.toLocaleString()}</span></div>
+      <div class="budget-bar-label"><span>契約總額（A1+A2）</span><span>NT$ ${total.toLocaleString('zh-TW')}</span></div>
     </div>
     <div class="budget-bar-container">
-      <div class="budget-bar-label"><span>已派錄案</span><span>${Math.round(used)}% ・ NT$ ${DISPATCHED_TOTAL.toLocaleString()}</span></div>
-      <div class="budget-bar"><div class="budget-fill" style="width:${used}%"></div></div>
+      <div class="budget-bar-label"><span>已派錄案（B）</span><span>NT$ ${aggB.toLocaleString('zh-TW')}</span></div>
     </div>
-    <div class="budget-bar-container" style="margin-top:12px">
-      <div class="budget-bar-label"><span>剩餘可用</span><span>NT$ ${(CONTRACT_TOTAL-DISPATCHED_TOTAL).toLocaleString()}</span></div>
-    </div>`;
+    <div class="budget-bar-container">
+      <div class="budget-bar-label"><span>已派工（C）</span><span>${Math.round(usedPct)}% ・ NT$ ${aggC.toLocaleString('zh-TW')}</span></div>
+      <div class="budget-bar"><div class="budget-fill" style="width:${Math.min(usedPct,100)}%"></div></div>
+    </div>
+    <div class="budget-bar-container">
+      <div class="budget-bar-label"><span>累計估驗（D）</span><span>${Math.round(ratePct)}% ・ NT$ ${aggD.toLocaleString('zh-TW')}</span></div>
+      <div class="budget-bar"><div class="budget-fill" style="width:${Math.min(ratePct,100)}%;background:var(--green)"></div></div>
+    </div>
+    <div class="budget-bar-container" style="margin-top:8px">
+      <div class="budget-bar-label"><span style="color:var(--accent);font-weight:600">剩餘金額（A1+A2-C）</span><span style="color:var(--accent);font-weight:700">NT$ ${remain.toLocaleString('zh-TW')}</span></div>
+    </div>
+    <div style="font-size:11px;color:var(--text3);margin-top:8px">※ 資料來源：各工區契約資訊（需先至B1~B6填寫）</div>
+  ` : `<div style="color:var(--text3);font-size:13px;padding:16px 0">尚未填寫工區契約資訊<br><span style="font-size:11px">請至 B1～B6 各工區頁面填寫「契約金額 A1/A2」</span></div>`;
 
   // Handlers
   const handlers = {};
@@ -2675,6 +2853,126 @@ function renderC1() {
         </div>
       </div>`).join('');
   }
+}
+
+// ========== 七大手法動畫 ==========
+const METHODS = [
+  { num:'①', name:'建立實體人行道', color:'#1565C0', desc:'將標線型人行道改建為實體人行道，提供行人安全的步行空間，與車道明確分隔。', fn: ()=>{
+    if(!window.anime)return;
+    anime({targets:'#sidewalk-real',width:[0,660],duration:1200,easing:'easeOutQuart'});
+    anime({targets:'#txt-sidewalk',opacity:[0,1],duration:600,delay:800});
+  }},
+  { num:'②', name:'新設候車亭', color:'#4A90D9', desc:'於公車站牌處新設候車亭，改善行人等候環境，提升大眾運輸服務品質。', fn: ()=>{
+    if(!window.anime)return;
+    anime({targets:'#g-busstop',opacity:[0,1],translateY:[20,0],duration:800,easing:'easeOutBack'});
+  }},
+  { num:'③', name:'建立無障礙路緣斜坡', color:'#D4A84B', desc:'於路口設置符合規範的路緣斜坡（坡度1:12），確保輪椅、娃娃車等無障礙通行。', fn: ()=>{
+    if(!window.anime)return;
+    anime({targets:'#g-ramp',opacity:[0,1],duration:700,easing:'easeOutQuart'});
+  }},
+  { num:'④', name:'障礙物移除或移設', color:'#888', desc:'將佔用人行道的電箱、電桿等設施移至設施帶，還原完整連續的行走空間。', fn: ()=>{
+    if(!window.anime)return;
+    anime({targets:'#g-elec-old',opacity:[1,0],duration:500});
+    anime({targets:'#g-elec-new',opacity:[0,1],duration:600,delay:400,easing:'easeOutBack'});
+  }},
+  { num:'⑤', name:'擴大過路停等空間', color:'#FF8C42', desc:'於路口行人穿越道兩端擴大停等空間，提升行人等候安全性並縮短穿越距離。', fn: ()=>{
+    if(!window.anime)return;
+    anime({targets:'#g-wait',opacity:[0,1],scaleX:[0.5,1],duration:800,easing:'easeOutBack'});
+  }},
+  { num:'⑥', name:'周邊巷弄→通學巷', color:'#FF6B6B', desc:'對學校周邊過窄巷弄實施時段性禁止進入（07~08、12~13、15~16時，例假日除外），保障學童通學安全。', fn: ()=>{
+    if(!window.anime)return;
+    anime({targets:'#g-lane',opacity:[0,1],duration:700,easing:'easeOutQuart'});
+  }},
+  { num:'⑦', name:'路口雙色溫路燈', color:'#B8860B', desc:'於學校路口設置雙色溫路燈，夜間提升照明亮度，白天以暖色調提示行人注意，改善夜間通學安全。', fn: ()=>{
+    if(!window.anime)return;
+    anime({targets:'#g-lamp',opacity:[0,1],translateY:[20,0],duration:800,easing:'easeOutBack'});
+  }},
+];
+let currentMethod = 0, autoTimer = null;
+
+function initSevenMethods() {
+  if (!document.getElementById('scene-svg')) return;
+  if (!window.anime) {
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js';
+    s.onload = ()=>{ goMethod(1); startWalker(); };
+    document.head.appendChild(s);
+  } else { goMethod(1); startWalker(); }
+}
+
+function goMethod(n) {
+  currentMethod = n;
+  const m = METHODS[n-1];
+  const card = document.getElementById('method-card');
+  if (!card) return;
+  document.getElementById('method-num').textContent = m.num;
+  document.getElementById('method-name').textContent = m.name;
+  document.getElementById('method-desc').textContent = m.desc;
+  card.style.borderLeftColor = m.color;
+  document.getElementById('method-num').style.color = m.color;
+  document.getElementById('method-name').style.color = m.color;
+  document.querySelectorAll('.method-dot').forEach((d,i)=>{
+    d.style.background = (i+1)===n ? m.color : '#CBD5E0';
+    d.style.transform = (i+1)===n ? 'scale(1.4)' : 'scale(1)';
+  });
+  m.fn();
+}
+function nextMethod(){ goMethod(currentMethod<7?currentMethod+1:1); }
+function prevMethod(){ goMethod(currentMethod>1?currentMethod-1:7); }
+function toggleAuto(){
+  const btn=document.getElementById('auto-btn');
+  if(autoTimer){ clearInterval(autoTimer);autoTimer=null;btn.textContent='▶ 自動播放';btn.style.background='#1565C0'; }
+  else{ autoTimer=setInterval(nextMethod,3000);btn.textContent='⏸ 暫停';btn.style.background='#C0392B'; }
+}
+function startWalker(){
+  if(!window.anime)return;
+  anime({targets:'#g-walker',translateX:[0,580],duration:8000,easing:'linear',loop:true});
+}
+
+// ========== 新聞稿 Modal ==========
+function openNewsModal(){
+  document.getElementById('news-modal').style.display='flex';
+  document.getElementById('news-result').style.display='none';
+}
+async function generateNews(){
+  const zone=document.getElementById('news-zone').value||'桃園市養護工程處';
+  const project=document.getElementById('news-project').value||'人行道改善工程';
+  const benefit=document.getElementById('news-benefit').value||'';
+  const schedule=document.getElementById('news-schedule').value||'';
+  document.getElementById('news-loading').style.display='block';
+  document.getElementById('news-result').style.display='none';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+        messages:[{role:'user',content:`請以桃園市養護工程處名義，用繁體中文寫一篇正式新聞稿。\n工程地點/工區：${zone}\n工程名稱：${project}\n預計效益：${benefit}\n完工時程：${schedule}\n格式：標題、日期、引言、工程詳情、市府說明、聯絡資訊。請正式且有溫度，強調改善行人安全和通學環境。`}]})
+    });
+    const data=await res.json();
+    document.getElementById('news-text').value=(data.content||[]).map(b=>b.text||'').join('');
+    document.getElementById('news-result').style.display='block';
+  }catch(e){
+    document.getElementById('news-text').value='生成失敗，請稍後再試。';
+    document.getElementById('news-result').style.display='block';
+  }
+  document.getElementById('news-loading').style.display='none';
+}
+function copyNews(){ document.getElementById('news-text').select();document.execCommand('copy');showToast('✓ 新聞稿已複製'); }
+
+// ========== JPG 匯出 ==========
+function exportCardAsJPG(caseId){
+  const cards=document.querySelectorAll('.promo-card');
+  let target=null;
+  cards.forEach(c=>{ if(c.innerHTML.includes('openEditModal('+caseId+')')) target=c; });
+  if(!target){showToast('請先切換到案件宣傳卡片頁面');return;}
+  const load=()=>html2canvas(target,{scale:3,useCORS:true,backgroundColor:'#ffffff'}).then(canvas=>{
+    const a=document.createElement('a');a.download='card-'+caseId+'.jpg';
+    a.href=canvas.toDataURL('image/jpeg',0.95);a.click();showToast('✓ JPG 已下載');
+  });
+  if(!window.html2canvas){
+    const s=document.createElement('script');
+    s.src='https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+    s.onload=load;document.head.appendChild(s);
+  } else load();
 }
 
 // ========== INIT ==========
