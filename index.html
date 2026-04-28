@@ -1472,8 +1472,7 @@ function saveData() {
 
 function loadData() {
   try {
-    const c = localStorage.getItem('road_cases');
-    if (c) CASES = JSON.parse(c);
+    // 73筆案件已硬寫，不從localStorage載入
     const r = localStorage.getItem('road_reports');
     if (r) REPORTS = JSON.parse(r);
   } catch(e) {}
