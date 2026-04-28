@@ -4,6 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>人行道・通學廊道工程管理系統</title>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyDfbOrNhUedw8aahKK3m-6Xe_kUE2AacB8",
+  authDomain: "road-management-dbabb.firebaseapp.com",
+  projectId: "road-management-dbabb",
+  storageBucket: "road-management-dbabb.firebasestorage.app",
+  messagingSenderId: "532229148028",
+  appId: "1:532229148028:web:c0057144c911bea9a368f9"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+</script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=DM+Mono:wght@400;500&family=Noto+Serif+TC:wght@400;600&display=swap');
 
@@ -1461,21 +1476,56 @@ function promoCardHTML(c) {
 // ========== STORAGE ==========
 function saveData() {
   try {
-    localStorage.setItem('road_cases', JSON.stringify(CASES));
-    localStorage.setItem('road_reports', JSON.stringify(REPORTS));
+    // 同步到 Firebase
+    db.collection('road_data').doc('cases').set({ data: JSON.stringify(CASES), updated: new Date().toISOString() });
+    db.collection('road_data').doc('reports').set({ data: JSON.stringify(REPORTS), updated: new Date().toISOString() });
     const now = new Date();
     const ts = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
     (document.getElementById('last-save')||document.createElement('span')).textContent = ts;
-    showToast('✓ 已儲存');
-  } catch(e) {}
+    showToast('✓ 已儲存並同步雲端');
+  } catch(e) { console.error('saveData error:', e); }
 }
 
 function loadData() {
-  try {
-    // 73筆案件已硬寫，不從localStorage載入
-    const r = localStorage.getItem('road_reports');
-    if (r) REPORTS = JSON.parse(r);
-  } catch(e) {}
+  // 從 Firebase 載入資料，若有雲端資料則覆蓋預設值
+  showToast('⏳ 載入雲端資料中...');
+  db.collection('road_data').doc('cases').get().then(function(doc) {
+    if (doc.exists && doc.data().data) {
+      try {
+        var saved = JSON.parse(doc.data().data);
+        if (saved && saved.length > 0) {
+          CASES = saved;
+          var badge = document.getElementById('badge-total');
+          if (badge) badge.textContent = CASES.length;
+          try { renderDashboard(); } catch(e) {}
+          try { renderPage('A2'); } catch(e) {}
+        }
+      } catch(e) { console.error('cases parse error', e); }
+    }
+  });
+  db.collection('road_data').doc('reports').get().then(function(doc) {
+    if (doc.exists && doc.data().data) {
+      try { REPORTS = JSON.parse(doc.data().data); } catch(e) {}
+    }
+  });
+}
+
+// 即時監聽雲端變更（其他電腦更新時自動同步）
+function startRealtimeSync() {
+  db.collection('road_data').doc('cases').onSnapshot(function(doc) {
+    if (doc.exists && doc.data().data) {
+      try {
+        var saved = JSON.parse(doc.data().data);
+        if (saved && saved.length > 0 && JSON.stringify(saved) !== JSON.stringify(CASES)) {
+          CASES = saved;
+          var badge = document.getElementById('badge-total');
+          if (badge) badge.textContent = CASES.length;
+          try { renderDashboard(); } catch(e) {}
+          showToast('🔄 資料已從其他裝置同步');
+        }
+      } catch(e) {}
+    }
+  });
 }
 
 // ========== UTILS ==========
@@ -2221,8 +2271,8 @@ function saveCase() {
       CASES.push(data);
     }
 
-    // 儲存到 localStorage
-    try { localStorage.setItem('road_cases', JSON.stringify(CASES)); } catch(e) {}
+    // 同步到 Firebase
+    try { db.collection('road_data').doc('cases').set({ data: JSON.stringify(CASES), updated: new Date().toISOString() }); } catch(e) {}
 
     // 關閉 modal
     closeModal();
@@ -2249,7 +2299,7 @@ function deleteCase(id) {
   if(!c) return;
   if(!confirm('確定要刪除這筆案件嗎？\n\n地點：' + c.location + '\n行政區：' + c.district + '\n\n此操作無法復原。')) return;
   CASES = CASES.filter(function(x){return x.id!==id;});
-  try { localStorage.setItem('road_cases', JSON.stringify(CASES)); } catch(e){}
+  try { db.collection('road_data').doc('cases').set({ data: JSON.stringify(CASES), updated: new Date().toISOString() }); } catch(e){}
   var badge = document.getElementById('badge-total');
   if(badge) badge.textContent = CASES.length;
   try { renderDashboard(); } catch(e){}
@@ -2457,6 +2507,7 @@ function renderC1() {
 // ========== INIT ==========
 loadData();
 renderDashboard();
+startRealtimeSync();
 </script>
 
 <!-- SheetJS -->
