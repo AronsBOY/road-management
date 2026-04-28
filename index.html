@@ -771,8 +771,8 @@ textarea { resize: vertical; min-height: 70px; }
 <nav class="sidebar">
   <div class="sidebar-header">
     <div class="sidebar-logo">桃園市養護工程處</div>
-    <div class="sidebar-title">人行道・通學廊道<br>工程管理系統</div>
-    <div class="sidebar-sub">115年度・115人行道5區</div>
+    <div class="sidebar-title">人行道管理系統</div>
+    <div class="sidebar-sub">戰情室</div>
   </div>
   <div class="nav-city-art">
     <svg width="100%" height="44" viewBox="0 0 224 44" xmlns="http://www.w3.org/2000/svg">
@@ -1263,13 +1263,27 @@ textarea { resize: vertical; min-height: 70px; }
         </div>
         <div class="form-field"><label>設計提交期限</label><input type="text" id="f-designDeadline" placeholder="5月31日"></div>
         <div class="form-field"><label>設計單位</label>
-          <select id="f-designFirm"><option>-</option><option>邑菖</option><option>開巨</option></select>
-        </div>
+          <input type="text" id="f-designFirm" list="firm-list-modal" placeholder="設計單位"></div>
         <div class="form-field"><label>監造單位</label>
-          <select id="f-superviseFirm"><option>開巨</option><option>-</option></select>
-        </div>
+          <input type="text" id="f-superviseFirm" list="firm-list-modal" placeholder="監造單位"></div>
         <div class="form-field"><label>施工單位</label>
-          <select id="f-constructFirm"><option>東鈺</option><option>-</option></select>
+          <input type="text" id="f-constructFirm" list="firm-list-modal" placeholder="施工單位"></div>
+        <datalist id="firm-list-modal"><option value="九鼎"><option value="邑菖"><option value="開巨"><option value="東鈺"><option value="泰普"><option value="台創"><option value="傑瀚"><option value="旭勝"></datalist>
+        <div class="form-field full" style="margin-top:4px">
+          <label style="font-weight:600;color:var(--accent)">📏 單號側</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div><label style="font-size:11px">起點</label><input type="text" id="f-singleStart" placeholder="起點"></div>
+            <div><label style="font-size:11px">迄點</label><input type="text" id="f-singleEnd" placeholder="迄點"></div>
+            <div><label style="font-size:11px">長度(m)</label><input type="number" id="f-singleLength" placeholder="0"></div>
+          </div>
+        </div>
+        <div class="form-field full">
+          <label style="font-weight:600;color:var(--green)">📏 雙號側</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
+            <div><label style="font-size:11px">起點</label><input type="text" id="f-doubleStart" placeholder="起點"></div>
+            <div><label style="font-size:11px">迄點</label><input type="text" id="f-doubleEnd" placeholder="迄點"></div>
+            <div><label style="font-size:11px">長度(m)</label><input type="number" id="f-doubleLength" placeholder="0"></div>
+          </div>
         </div>
         <div class="form-field full"><label>備註</label><textarea id="f-notes" rows="3"></textarea></div>
       </div>
@@ -1420,6 +1434,34 @@ function promoCardHTML(c) {
   const schedule = c.scheduleStart ? (c.scheduleEnd ? c.scheduleStart+'～'+c.scheduleEnd : c.scheduleStart) : '待排程';
   const amtStr = c.amount ? 'NT$'+Math.round(c.amount/10000)+'萬' : '-';
 
+  // 單/雙號側長度計算
+  const sA = Number(c.singleLength)||0;
+  const sB = Number(c.doubleLength)||0;
+  const sC = sA + sB;
+  const sideHTML = (sA||sB) ? `
+    <div style="margin-top:8px;background:var(--surface2);border-radius:6px;padding:7px 10px;font-size:11px;border-left:3px solid var(--accent)">
+      ${sA ? `<div><span style="color:var(--text3)">單號側：</span>${c.singleStart||''}${c.singleEnd?'～'+c.singleEnd:''} <b>${sA}m</b></div>` : ''}
+      ${sB ? `<div><span style="color:var(--text3)">雙號側：</span>${c.doubleStart||''}${c.doubleEnd?'～'+c.doubleEnd:''} <b>${sB}m</b></div>` : ''}
+      ${(sA&&sB) ? `<div style="color:var(--accent);font-weight:600">總長：${sC}m</div>` : ''}
+    </div>` : '';
+
+  // 廠商資訊
+  const firmHTML = (c.designFirm||c.superviseFirm||c.constructFirm) ? `
+    <div style="margin-top:8px;font-size:11px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px">
+      <div style="background:var(--accent-bg);border-radius:4px;padding:3px 6px;text-align:center">
+        <div style="color:var(--text3);font-size:10px">設計</div>
+        <div style="color:var(--accent);font-weight:600">${c.designFirm||'-'}</div>
+      </div>
+      <div style="background:#F0F8F0;border-radius:4px;padding:3px 6px;text-align:center">
+        <div style="color:var(--text3);font-size:10px">監造</div>
+        <div style="color:var(--green);font-weight:600">${c.superviseFirm||'-'}</div>
+      </div>
+      <div style="background:var(--orange-bg);border-radius:4px;padding:3px 6px;text-align:center">
+        <div style="color:var(--text3);font-size:10px">施工</div>
+        <div style="color:var(--orange);font-weight:600">${c.constructFirm||'-'}</div>
+      </div>
+    </div>` : '';
+
   return `<div class="promo-card">
     <div class="card-map-area ${bgClass(c)}">
       <div class="map-grid"></div>
@@ -1443,13 +1485,11 @@ function promoCardHTML(c) {
         </div>
       </div>
       ${c.description ? `<div class="card-desc">${c.description}</div>` : ''}
-      ${c.start ? `<div style="font-size:11px;color:var(--text3);margin-top:4px">
-        <span style="font-weight:500">起：</span>${c.start}
-        ${c.end&&c.end!=='-'?` <span style="font-weight:500;margin-left:6px">迄：</span>${c.end}`:''}
-      </div>`:''}
+      ${sideHTML}
+      ${firmHTML}
       <div class="card-stats">
         <div class="card-stat">
-          <div class="card-stat-num">${c.length||'-'}</div>
+          <div class="card-stat-num">${sC||c.length||'-'}</div>
           <div class="card-stat-lbl">長度(m)</div>
         </div>
         <div class="card-stat">
@@ -1993,6 +2033,62 @@ function renderReport(key) {
     </div>
 
     <div class="card" style="margin-bottom:16px">
+      <div class="card-title">📋 契約資訊</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+        <div class="form-field"><label>契約金額 A1（元）</label>
+          <input type="number" id="rc-a1-${key}" placeholder="0" value="${(savedReport.a1)||''}"
+            oninput="updateZoneCalc('${key}')"></div>
+        <div class="form-field"><label>可擴充金額 A2（元）</label>
+          <input type="number" id="rc-a2-${key}" placeholder="0" value="${(savedReport.a2)||''}"
+            oninput="updateZoneCalc('${key}')"></div>
+        <div class="form-field"><label>工期（日曆天）</label>
+          <input type="text" id="rc-dur-${key}" placeholder="例：180天" value="${savedReport.duration||''}"></div>
+        <div class="form-field"><label>可擴充工期</label>
+          <input type="text" id="rc-edur-${key}" placeholder="例：30天" value="${savedReport.extDuration||''}"></div>
+        <div class="form-field"><label>已派錄案金額 B（元）</label>
+          <input type="number" id="rc-b-${key}" placeholder="0" value="${savedReport.b||''}"
+            oninput="updateZoneCalc('${key}')"></div>
+        <div class="form-field"><label>已派工金額 C（元）</label>
+          <input type="number" id="rc-c-${key}" placeholder="0" value="${savedReport.c||''}"
+            oninput="updateZoneCalc('${key}')"></div>
+      </div>
+      <div id="rc-calc-${key}" style="background:var(--accent-bg);border-radius:8px;padding:10px 14px;display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;margin-bottom:12px">
+        <div><span style="color:var(--text3)">剩餘金額（A1+A2-C）：</span>
+          <span id="rc-remain-${key}" style="font-weight:700;color:var(--accent)">-</span></div>
+        <div><span style="color:var(--text3)">執行率（D÷(A1+A2)）：</span>
+          <span id="rc-rate-${key}" style="font-weight:700;color:var(--green)">-</span></div>
+      </div>
+
+      <div class="card-title" style="font-size:13px;margin-bottom:8px">💰 估驗記錄</div>
+      <div id="rc-est-list-${key}" style="margin-bottom:8px">${renderEstimations(key)}</div>
+      <div style="display:flex;gap:8px;align-items:flex-end">
+        <div class="form-field" style="flex:2;margin:0"><label>估驗名稱</label>
+          <input type="text" id="rc-en-${key}" placeholder="例：第一次估驗"></div>
+        <div class="form-field" style="flex:2;margin:0"><label>金額（元）</label>
+          <input type="number" id="rc-ea-${key}" placeholder="0"></div>
+        <button class="btn btn-sm" style="margin-bottom:1px" onclick="addEstimation('${key}')">＋ 新增</button>
+      </div>
+      <div style="margin-top:8px;background:var(--surface2);border-radius:6px;padding:7px 12px;font-size:12px">
+        累計估驗（D）：<span id="rc-total-${key}" style="font-weight:700;color:var(--accent)">NT$ ${(savedReport.estimations||[]).reduce((s,e)=>s+(Number(e.amount)||0),0).toLocaleString('zh-TW')}</span>
+      </div>
+
+      <div class="card-title" style="font-size:13px;margin-bottom:8px;margin-top:14px">🏢 廠商資訊</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px">
+        <div class="form-field"><label>設計單位</label>
+          <input type="text" id="rc-df-${key}" list="firm-list" placeholder="設計單位名稱" value="${savedReport.designFirm||''}"></div>
+        <div class="form-field"><label>監造單位</label>
+          <input type="text" id="rc-sf-${key}" list="firm-list" placeholder="監造單位名稱" value="${savedReport.superviseFirm||''}"></div>
+        <div class="form-field"><label>施工單位</label>
+          <input type="text" id="rc-cf-${key}" list="firm-list" placeholder="施工單位名稱" value="${savedReport.constructFirm||''}"></div>
+      </div>
+      <datalist id="firm-list">${getFirmOptions()}</datalist>
+
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn btn-primary btn-sm" onclick="saveZoneContract('${key}')">儲存契約資訊</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px">
       <div class="card-title">工作追蹤項目</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
         <div class="form-field"><label>工作事項</label><input type="text" id="rt-item-${key}" placeholder="輸入工作事項…"></div>
@@ -2016,6 +2112,8 @@ function renderReport(key) {
         : `<div style="color:var(--text3);padding:32px;text-align:center;font-size:13px">此區域目前無案件資料<br><span style="font-size:11px">可透過「新增案件」並選擇對應行政區新增</span></div>`
       }
     </div>`;
+  // 初始化計算
+  setTimeout(()=>updateZoneCalc(key), 50);
 }
 
 // ========== 金三角專屬渲染 ==========
@@ -2163,8 +2261,83 @@ function removeReportItem(key, idx) {
   document.getElementById('report-items-'+key).innerHTML = renderReportItems(key);
 }
 
+// ========== 契約/估驗/廠商 ==========
+function renderEstimations(key) {
+  const ests = (REPORTS[key]||{}).estimations||[];
+  if (!ests.length) return '<div style="color:var(--text3);font-size:12px;padding:4px">尚無估驗記錄</div>';
+  return `<table class="data-table"><thead><tr><th>估驗名稱</th><th>金額（元）</th><th>操作</th></tr></thead><tbody>
+    ${ests.map((e,i)=>`<tr>
+      <td>${e.name}</td>
+      <td style="font-family:'DM Mono',monospace">NT$ ${Number(e.amount).toLocaleString('zh-TW')}</td>
+      <td><button class="btn btn-sm" onclick="removeEstimation('${key}',${i})" style="color:var(--red)">刪除</button></td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function addEstimation(key) {
+  const name = document.getElementById('rc-en-'+key).value.trim();
+  const amount = document.getElementById('rc-ea-'+key).value;
+  if (!name) return;
+  if (!REPORTS[key]) REPORTS[key]={};
+  if (!REPORTS[key].estimations) REPORTS[key].estimations=[];
+  REPORTS[key].estimations.push({name, amount:Number(amount)||0});
+  document.getElementById('rc-en-'+key).value='';
+  document.getElementById('rc-ea-'+key).value='';
+  document.getElementById('rc-est-list-'+key).innerHTML = renderEstimations(key);
+  updateZoneCalc(key);
+  saveData();
+}
+
+function removeEstimation(key, idx) {
+  REPORTS[key].estimations.splice(idx,1);
+  document.getElementById('rc-est-list-'+key).innerHTML = renderEstimations(key);
+  updateZoneCalc(key);
+  saveData();
+}
+
+function updateZoneCalc(key) {
+  const a1 = Number(document.getElementById('rc-a1-'+key)?.value)||0;
+  const a2 = Number(document.getElementById('rc-a2-'+key)?.value)||0;
+  const c  = Number(document.getElementById('rc-c-'+key)?.value)||0;
+  const d  = (REPORTS[key]?.estimations||[]).reduce((s,e)=>s+(Number(e.amount)||0),0);
+  const remain = a1+a2-c;
+  const rate = (a1+a2)>0 ? ((d/(a1+a2))*100).toFixed(1)+'%' : '-';
+  const remEl = document.getElementById('rc-remain-'+key);
+  const rateEl = document.getElementById('rc-rate-'+key);
+  const totalEl = document.getElementById('rc-total-'+key);
+  if (remEl) remEl.textContent = 'NT$ '+remain.toLocaleString('zh-TW');
+  if (rateEl) rateEl.textContent = rate;
+  if (totalEl) totalEl.textContent = 'NT$ '+d.toLocaleString('zh-TW');
+}
+
+function saveZoneContract(key) {
+  if (!REPORTS[key]) REPORTS[key]={};
+  REPORTS[key].a1 = Number(document.getElementById('rc-a1-'+key)?.value)||0;
+  REPORTS[key].a2 = Number(document.getElementById('rc-a2-'+key)?.value)||0;
+  REPORTS[key].duration = document.getElementById('rc-dur-'+key)?.value||'';
+  REPORTS[key].extDuration = document.getElementById('rc-edur-'+key)?.value||'';
+  REPORTS[key].b = Number(document.getElementById('rc-b-'+key)?.value)||0;
+  REPORTS[key].c = Number(document.getElementById('rc-c-'+key)?.value)||0;
+  REPORTS[key].designFirm = document.getElementById('rc-df-'+key)?.value||'';
+  REPORTS[key].superviseFirm = document.getElementById('rc-sf-'+key)?.value||'';
+  REPORTS[key].constructFirm = document.getElementById('rc-cf-'+key)?.value||'';
+  // 記憶常用廠商
+  ['designFirm','superviseFirm','constructFirm'].forEach(f=>{
+    const v = REPORTS[key][f];
+    if (v && !KNOWN_FIRMS.includes(v)) KNOWN_FIRMS.push(v);
+  });
+  updateZoneCalc(key);
+  saveData();
+  showToast('✓ 契約資訊已儲存');
+}
+
+let KNOWN_FIRMS = ['九鼎','邑菖','開巨','東鈺','泰普','三峽','大觀','全澄','旭勝'];
+function getFirmOptions() {
+  return KNOWN_FIRMS.map(f=>`<option value="${f}">`).join('');
+}
+
 // ========== MODAL ==========
-const FIELDS = ['year','district','type','location','contract','start','end','length','amount','status','description','source','scheduleStart','scheduleEnd','handler','designStatus','designDeadline','designFirm','superviseFirm','constructFirm','notes'];
+const FIELDS = ['year','district','type','location','contract','start','end','length','amount','status','description','source','scheduleStart','scheduleEnd','handler','designStatus','designDeadline','designFirm','superviseFirm','constructFirm','singleStart','singleEnd','singleLength','doubleStart','doubleEnd','doubleLength','notes'];
 
 function openAddModal() {
   editingId = null;
