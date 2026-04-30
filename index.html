@@ -177,7 +177,7 @@ body {
 }
 
 /* Page */
-.page { display: none; padding: 28px 36px; max-width: 1200px; }
+.page { display: none; padding: 28px 36px; }
 .page.active { display: block; }
 
 .page-header {
@@ -222,14 +222,14 @@ body {
 .stat-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 16px 18px;
+  border-radius: 8px;
+  padding: 12px 14px;
   border-left: 4px solid #1565C0;
 }
 
-.stat-label { font-size: 11px; color: var(--text3); letter-spacing: 0.04em; margin-bottom: 6px; }
-.stat-value { font-size: 26px; font-weight: 700; color: var(--text); font-family: 'DM Mono', monospace; }
-.stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.stat-label { font-size:10px; color: var(--text3); letter-spacing: 0.03em; margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 700; color: var(--text); font-family: 'DM Mono', monospace; }
+.stat-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
 
 /* Card */
 .card {
@@ -1197,24 +1197,18 @@ textarea { resize: vertical; min-height: 70px; }
       <div class="page-title">[C1] 115年人行道預計改善路段-總表</div>
       <div class="page-sub">115年度・12行政區・29路段・總長15,970公尺</div>
     </div>
-    <div style="display:flex;gap:8px">
-      <div class="view-toggle">
-        <button class="view-btn" id="c1-vbtn-card" onclick="setC1View('card')">◫ 卡片</button>
-        <button class="view-btn" id="c1-vbtn-table" onclick="setC1View('table')">≡ 列表</button>
-      </div>
-    </div>
   </div>
-  <div class="stats-row" id="c1-stats"></div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px">
-    <select id="c1-district" onchange="renderC1()" style="font-size:12px;padding:6px 10px">
+  <div class="stats-row" id="c1-stats" style="grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:16px"></div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center">
+    <select id="c1-district" onchange="renderC1()" style="font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white">
       <option value="">行政區：全部</option>
     </select>
-    <select id="c1-budget" onchange="renderC1()" style="font-size:12px;padding:6px 10px">
+    <select id="c1-budget" onchange="renderC1()" style="font-size:12px;padding:5px 10px;border:1px solid var(--border);border-radius:6px;background:white">
       <option value="">預算來源：全部</option>
       <option>市府預算</option>
       <option>中央補助</option>
     </select>
-    <span id="c1-count" style="font-size:12px;color:var(--text3);align-self:center"></span>
+    <span id="c1-count" style="font-size:12px;color:var(--text3)"></span>
   </div>
   <div id="c1-content"></div>
 </div>
@@ -1297,137 +1291,369 @@ textarea { resize: vertical; min-height: 70px; }
 
 <div id="toast">✓ 已儲存</div>
 
-<!-- ====== 七大手法動畫 D1 ====== -->
+<!-- ====== 七大手法 D1 改善前後對比 ====== -->
 <div class="page" id="page-page-7methods">
   <div class="page-header">
     <div>
       <div class="page-title">[D1] 人行道改善七大手法</div>
-      <div class="page-sub">通學廊道改善策略圖解動畫</div>
+      <div class="page-sub">改善前 vs 改善後 · 通學廊道七大改善策略</div>
     </div>
   </div>
-  <div class="card" style="padding:24px">
-    <div id="seven-methods-anim" style="width:100%;background:#F0F6FF;border-radius:12px;overflow:hidden;position:relative;height:440px;font-family:'Noto Sans TC',sans-serif">
+  <style>
+    .sm7-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;box-sizing:border-box}
+    .sm7-card{background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(21,101,192,.09);transition:transform .2s,box-shadow .2s;box-sizing:border-box}
+    .sm7-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(21,101,192,.14)}
+    .sm7-card.full-width{grid-column:1/-1}
+    .sm7-hdr{padding:10px 14px;display:flex;align-items:center;gap:10px}
+    .sm7-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:white;flex-shrink:0}
+    .sm7-ttl{font-size:14px;font-weight:700;color:#0D2545}
+    .sm7-compare{display:grid;grid-template-columns:1fr 4px 1fr}
+    .sm7-divider{background:#E8EDF5;position:relative}
+    .sm7-divider::after{content:"VS";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#EBF2FB;color:#1565C0;font-size:9px;font-weight:800;padding:2px 3px;border-radius:3px;border:1px solid #C5D8F0;white-space:nowrap}
+    .sm7-lbl{font-size:10px;font-weight:700;letter-spacing:.5px;padding:4px 10px}
+    .sm7-lbl.b{color:#9E3A00;background:#FFF3E0}
+    .sm7-lbl.a{color:#1B6B3A;background:#E8F5E9}
+    .sm7-scene{height:120px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+    .sm7-scene svg{position:absolute;inset:0;width:100%;height:100%}
+    .sm7-desc{font-size:11px;color:#608080;padding:8px 12px;background:#F8FAFD;border-top:1px solid #EBF2FB;line-height:1.6}
+  </style>
 
-      <!-- 道路場景 SVG -->
-      <svg id="scene-svg" width="100%" height="440" viewBox="0 0 900 440" xmlns="http://www.w3.org/2000/svg">
-        <!-- 天空 -->
-        <rect x="0" y="0" width="900" height="200" fill="#D6EAFF"/>
-        <!-- 雲 -->
-        <ellipse cx="120" cy="50" rx="50" ry="20" fill="white" opacity=".8"/>
-        <ellipse cx="150" cy="40" rx="40" ry="18" fill="white" opacity=".8"/>
-        <ellipse cx="700" cy="60" rx="55" ry="22" fill="white" opacity=".7"/>
-        <ellipse cx="740" cy="48" rx="40" ry="18" fill="white" opacity=".7"/>
-        <!-- 地面 -->
-        <rect x="0" y="200" width="900" height="240" fill="#C8D8A8"/>
-        <!-- 道路 -->
-        <rect x="0" y="230" width="900" height="130" fill="#8A9070"/>
-        <!-- 標線 -->
-        <rect x="0" y="290" width="900" height="4" fill="#F5F5A0" opacity=".6"/>
-        <rect x="100" y="230" width="40" height="8" fill="white" opacity=".5"/>
-        <rect x="250" y="230" width="40" height="8" fill="white" opacity=".5"/>
-        <rect x="400" y="230" width="40" height="8" fill="white" opacity=".5"/>
-        <rect x="550" y="230" width="40" height="8" fill="white" opacity=".5"/>
-        <rect x="700" y="230" width="40" height="8" fill="white" opacity=".5"/>
-        <!-- 人行道（地面） -->
-        <rect x="0" y="360" width="900" height="60" fill="#B8C4A0"/>
-        <!-- 學校建築 -->
-        <rect x="680" y="100" width="180" height="130" fill="#F5E6C8"/>
-        <rect x="700" y="80" width="140" height="30" fill="#E8B84B"/>
-        <rect x="730" y="110" width="40" height="50" fill="#8BBAD0" rx="4"/>
-        <rect x="790" y="110" width="40" height="50" fill="#8BBAD0" rx="4"/>
-        <rect x="750" y="170" width="60" height="60" fill="#6B8F58" rx="2"/><!-- 校門 -->
-        <text x="755" y="210" font-size="11" fill="white" font-weight="bold">校門</text>
-        <!-- 校名 -->
-        <text x="730" y="100" font-size="13" fill="#5A3A10" font-weight="bold">（學校）</text>
+  <div class="sm7-grid">
 
-        <!-- ① 實體人行道 - 初始為標線型，動畫後變實體 -->
-        <rect id="sidewalk-base" x="0" y="360" width="660" height="50" fill="#C0C8A8"/>
-        <rect id="sidewalk-real" x="0" y="360" width="0" height="50" fill="#E8D4A0" rx="0"/>
-        <text x="10" y="352" font-size="11" fill="#666">標線型</text>
-        <text id="txt-sidewalk" x="10" y="395" font-size="11" fill="#444" opacity="0">✅ 改建實體人行道</text>
-
-        <!-- ② 候車亭 -->
-        <g id="g-busstop" opacity="0" transform="translate(200,230)">
-          <rect x="0" y="-60" width="50" height="60" fill="#4A90D9" rx="4" opacity=".85"/>
-          <rect x="-5" y="-65" width="60" height="8" fill="#2C5F8A" rx="2"/>
-          <text x="10" y="-35" font-size="10" fill="white" font-weight="bold">候車亭</text>
-          <text x="5" y="-20" font-size="9" fill="#D0E8FF">新設</text>
-        </g>
-
-        <!-- ③ 路緣斜坡 -->
-        <g id="g-ramp" opacity="0">
-          <polygon points="350,360 390,360 390,370" fill="#D4A84B"/>
-          <polygon points="420,360 460,360 420,370" fill="#D4A84B"/>
-          <polygon points="490,360 530,360 530,370" fill="#D4A84B"/>
-          <text x="380" y="350" font-size="10" fill="#B8860B" font-weight="bold">▲ 路緣斜坡</text>
-        </g>
-
-        <!-- ④ 電箱移設 -->
-        <g id="g-elec-old" transform="translate(300,340)">
-          <rect x="0" y="-30" width="20" height="30" fill="#888" rx="2"/>
-          <text x="-5" y="-35" font-size="9" fill="#666">電箱</text>
-        </g>
-        <g id="g-elec-new" opacity="0" transform="translate(300,340)">
-          <rect x="0" y="-30" width="20" height="30" fill="#4CAF50" rx="2"/>
-          <text x="-10" y="-35" font-size="9" fill="#2E7D32">已移設✓</text>
-        </g>
-
-        <!-- ⑤ 停等空間 -->
-        <g id="g-wait" opacity="0">
-          <rect x="580" y="230" width="80" height="40" fill="#FF8C42" opacity=".5" rx="4"/>
-          <text x="590" y="255" font-size="10" fill="#5C2A00" font-weight="bold">停等空間</text>
-        </g>
-
-        <!-- ⑥ 通學巷 -->
-        <g id="g-lane" opacity="0">
-          <rect x="0" y="170" width="60" height="60" fill="#FF6B6B" opacity=".3" rx="4"/>
-          <text x="5" y="195" font-size="9" fill="#C00" font-weight="bold">通學巷</text>
-          <circle cx="30" cy="220" r="12" fill="#CC0000"/>
-          <text x="25" y="225" font-size="12" fill="white" font-weight="bold">⊘</text>
-          <text x="2" y="245" font-size="8" fill="#C00">時段禁入</text>
-        </g>
-
-        <!-- ⑦ 雙色溫路燈 -->
-        <g id="g-lamp" opacity="0">
-          <line x1="500" y1="230" x2="500" y2="150" stroke="#888" stroke-width="4"/>
-          <ellipse cx="500" cy="148" rx="18" ry="8" fill="#FFE066"/>
-          <ellipse cx="500" cy="145" rx="12" ry="5" fill="#FFF0A0"/>
-          <text x="510" y="145" font-size="9" fill="#B8860B" font-weight="bold">雙色溫燈</text>
-        </g>
-
-        <!-- 行人動畫 -->
-        <g id="g-walker" transform="translate(50,370)">
-          <circle cx="0" cy="-30" r="8" fill="#FFB74D"/>
-          <line x1="0" y1="-22" x2="0" y2="-5" stroke="#5D4037" stroke-width="3"/>
-          <line x1="0" y1="-18" x2="-8" y2="-10" stroke="#5D4037" stroke-width="2"/>
-          <line x1="0" y1="-18" x2="8" y2="-10" stroke="#5D4037" stroke-width="2"/>
-          <line x1="0" y1="-5" x2="-6" y2="5" stroke="#5D4037" stroke-width="2"/>
-          <line x1="0" y1="-5" x2="6" y2="5" stroke="#5D4037" stroke-width="2"/>
-        </g>
-      </svg>
-
-      <!-- 手法說明卡 -->
-      <div id="method-card" style="position:absolute;top:16px;left:16px;background:white;border-radius:10px;padding:12px 16px;box-shadow:0 4px 16px rgba(0,0,0,0.15);max-width:260px;transition:all 0.4s ease;border-left:4px solid #1565C0">
-        <div id="method-num" style="font-size:20px;font-weight:700;color:#1565C0">①</div>
-        <div id="method-name" style="font-size:15px;font-weight:600;color:#0D2545;margin:4px 0">建立實體人行道</div>
-        <div id="method-desc" style="font-size:12px;color:#608080;line-height:1.6">將標線型人行道改建為實體人行道，提供行人安全的步行空間，與車道明確分隔。</div>
+    <!-- ① 建立實體人行道 -->
+    <div class="sm7-card">
+      <div class="sm7-hdr" style="background:#E3F0FF">
+        <div class="sm7-num" style="background:#1565C0">①</div>
+        <div class="sm7-ttl">建立實體人行道</div>
       </div>
-
-      <!-- 進度點 -->
-      <div style="position:absolute;bottom:12px;left:50%;transform:translateX(-50%);display:flex;gap:8px">
-        ${[1,2,3,4,5,6,7].map(i=>`<div class="method-dot" id="dot-${i}" onclick="goMethod(${i})" style="width:10px;height:10px;border-radius:50%;background:${i===1?'#1565C0':'#CBD5E0'};cursor:pointer;transition:all 0.3s"></div>`).join('')}
+      <div class="sm7-compare">
+        <div><div class="sm7-lbl b">❌ 改善前</div>
+          <div class="sm7-scene" style="background:linear-gradient(#C8D0B8 58%,#888070 58%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="70" width="160" height="50" fill="#888070"/>
+              <rect x="0" y="70" width="45" height="50" fill="#9A907E"/>
+              <line x1="43" y1="70" x2="43" y2="120" stroke="#777" stroke-width="1.5" stroke-dasharray="6,4"/>
+              <rect x="8" y="45" width="20" height="25" fill="#888" rx="2"/>
+              <rect x="10" y="47" width="16" height="10" fill="#666"/>
+              <text x="18" y="62" text-anchor="middle" font-size="6" fill="#bbb">電箱</text>
+              <circle cx="75" cy="80" r="7" fill="#FFB74D"/>
+              <line x1="75" y1="87" x2="75" y2="100" stroke="#5D4037" stroke-width="2.5"/>
+              <line x1="75" y1="91" x2="67" y2="98" stroke="#5D4037" stroke-width="2"/>
+              <line x1="75" y1="91" x2="83" y2="98" stroke="#5D4037" stroke-width="2"/>
+              <line x1="75" y1="100" x2="70" y2="110" stroke="#5D4037" stroke-width="2"/>
+              <line x1="75" y1="100" x2="80" y2="110" stroke="#5D4037" stroke-width="2"/>
+              <text x="75" y="74" text-anchor="middle" font-size="11" fill="#E53935">⚠</text>
+              <rect x="105" y="75" width="48" height="22" fill="#E53935" rx="4"/>
+              <rect x="112" y="67" width="32" height="14" fill="#EF9A9A" rx="3"/>
+              <circle cx="114" cy="99" r="5" fill="#333"/>
+              <circle cx="142" cy="99" r="5" fill="#333"/>
+            </svg>
+          </div>
+        </div>
+        <div class="sm7-divider"></div>
+        <div><div class="sm7-lbl a">✅ 改善後</div>
+          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 60%,#7A8A72 60%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="72" width="160" height="48" fill="#7A8A72"/>
+              <rect x="0" y="72" width="50" height="48" fill="#E8D4A0"/>
+              <line x1="17" y1="72" x2="17" y2="120" stroke="#D4B88A" stroke-width="1"/>
+              <line x1="34" y1="72" x2="34" y2="120" stroke="#D4B88A" stroke-width="1"/>
+              <line x1="0" y1="88" x2="50" y2="88" stroke="#D4B88A" stroke-width="1"/>
+              <line x1="0" y1="104" x2="50" y2="104" stroke="#D4B88A" stroke-width="1"/>
+              <rect x="49" y="72" width="5" height="48" fill="#B0A090"/>
+              <circle cx="25" cy="80" r="7" fill="#FFB74D"/>
+              <line x1="25" y1="87" x2="25" y2="100" stroke="#5D4037" stroke-width="2.5"/>
+              <line x1="25" y1="91" x2="17" y2="98" stroke="#5D4037" stroke-width="2"/>
+              <line x1="25" y1="91" x2="33" y2="98" stroke="#5D4037" stroke-width="2"/>
+              <text x="25" y="74" text-anchor="middle" font-size="10">😊</text>
+              <text x="25" y="114" text-anchor="middle" font-size="8" fill="#1B6B3A">安全行走</text>
+              <rect x="85" y="76" width="45" height="20" fill="#1565C0" rx="4"/>
+              <rect x="92" y="68" width="30" height="13" fill="#90CAF9" rx="3"/>
+              <circle cx="94" cy="98" r="5" fill="#333"/>
+              <circle cx="122" cy="98" r="5" fill="#333"/>
+            </svg>
+          </div>
+        </div>
       </div>
-
-      <!-- 控制按鈕 -->
-      <div style="position:absolute;bottom:8px;right:16px;display:flex;gap:8px">
-        <button onclick="prevMethod()" style="background:white;border:1px solid #CBD5E0;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer">◀ 上一個</button>
-        <button id="auto-btn" onclick="toggleAuto()" style="background:#1565C0;color:white;border:none;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer">▶ 自動播放</button>
-        <button onclick="nextMethod()" style="background:white;border:1px solid #CBD5E0;border-radius:6px;padding:4px 12px;font-size:12px;cursor:pointer">下一個 ▶</button>
-      </div>
+      <div class="sm7-desc">將標線型人行道改建為實體舖面，設置緣石與車道明確分隔，提供行人安全步行空間。</div>
     </div>
+
+    <!-- ② 新設候車亭 -->
+    <div class="sm7-card">
+      <div class="sm7-hdr" style="background:#E3F2FD">
+        <div class="sm7-num" style="background:#4A90D9">②</div>
+        <div class="sm7-ttl">新設候車亭</div>
+      </div>
+      <div class="sm7-compare">
+        <div><div class="sm7-lbl b">❌ 改善前</div>
+          <div class="sm7-scene" style="background:linear-gradient(#B8C8D8 60%,#888 60%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="72" width="160" height="48" fill="#888"/>
+              <rect x="0" y="72" width="55" height="48" fill="#A09880"/>
+              <rect x="26" y="24" width="4" height="48" fill="#777"/>
+              <rect x="14" y="24" width="28" height="18" fill="#1565C0" rx="2"/>
+              <text x="28" y="36" text-anchor="middle" font-size="7" fill="white">公車站</text>
+              <circle cx="28" cy="62" r="6" fill="#FFB74D"/>
+              <line x1="20" y1="48" x2="17" y2="60" stroke="#6AB0D8" stroke-width="1.5"/>
+              <line x1="28" y1="46" x2="25" y2="58" stroke="#6AB0D8" stroke-width="1.5"/>
+              <line x1="36" y1="48" x2="33" y2="60" stroke="#6AB0D8" stroke-width="1.5"/>
+              <text x="28" y="57" text-anchor="middle" font-size="9">😢</text>
+            </svg>
+          </div>
+        </div>
+        <div class="sm7-divider"></div>
+        <div><div class="sm7-lbl a">✅ 改善後</div>
+          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 60%,#7A8A72 60%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="72" width="160" height="48" fill="#7A8A72"/>
+              <rect x="0" y="72" width="60" height="48" fill="#E8D4A0"/>
+              <rect x="6" y="36" width="50" height="7" fill="#2C5F8A" rx="2"/>
+              <rect x="6" y="43" width="50" height="40" fill="rgba(180,210,240,0.35)" stroke="#4A90D9" stroke-width="1.5"/>
+              <rect x="6" y="43" width="4" height="40" fill="#4A90D9"/>
+              <rect x="52" y="43" width="4" height="40" fill="#4A90D9"/>
+              <rect x="26" y="16" width="4" height="20" fill="#777"/>
+              <rect x="14" y="16" width="28" height="16" fill="#1565C0" rx="2"/>
+              <text x="28" y="27" text-anchor="middle" font-size="7" fill="white">公車站</text>
+              <circle cx="31" cy="56" r="6" fill="#FFB74D"/>
+              <text x="31" y="51" text-anchor="middle" font-size="9">😊</text>
+              <line x1="72" y1="48" x2="69" y2="60" stroke="#6AB0D8" stroke-width="1.5"/>
+              <line x1="80" y1="46" x2="77" y2="58" stroke="#6AB0D8" stroke-width="1.5"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="sm7-desc">設置遮蔽候車亭，讓民眾等候公車時免受日曬雨淋，提升大眾運輸搭乘舒適度。</div>
+    </div>
+
+    <!-- ③ 無障礙路緣斜坡 -->
+    <div class="sm7-card">
+      <div class="sm7-hdr" style="background:#FFF8E1">
+        <div class="sm7-num" style="background:#D4A84B">③</div>
+        <div class="sm7-ttl">建立無障礙路緣斜坡</div>
+      </div>
+      <div class="sm7-compare">
+        <div><div class="sm7-lbl b">❌ 改善前</div>
+          <div class="sm7-scene" style="background:linear-gradient(#C8D0B8 60%,#888 60%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="72" width="160" height="48" fill="#888"/>
+              <rect x="0" y="72" width="65" height="48" fill="#A09880"/>
+              <rect x="63" y="58" width="5" height="62" fill="#9A9080"/>
+              <circle cx="42" cy="60" r="7" fill="#FFB74D"/>
+              <rect x="22" y="65" width="26" height="14" fill="#4A90D9" rx="3"/>
+              <circle cx="24" cy="81" r="5" fill="#333"/>
+              <circle cx="45" cy="81" r="5" fill="#333"/>
+              <line x1="42" y1="67" x2="42" y2="55" stroke="#5D4037" stroke-width="2"/>
+              <text x="42" y="53" text-anchor="middle" font-size="9" fill="#E53935">😤</text>
+              <text x="66" y="55" font-size="10" fill="#E53935">⚡</text>
+            </svg>
+          </div>
+        </div>
+        <div class="sm7-divider"></div>
+        <div><div class="sm7-lbl a">✅ 改善後</div>
+          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 60%,#7A8A72 60%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="72" width="160" height="48" fill="#7A8A72"/>
+              <rect x="0" y="72" width="68" height="48" fill="#E8D4A0"/>
+              <polygon points="53,72 68,72 68,86" fill="#D4A84B"/>
+              <text x="56" y="82" font-size="6" fill="white" font-weight="bold">1:12</text>
+              <circle cx="33" cy="60" r="7" fill="#FFB74D"/>
+              <rect x="14" y="65" width="26" height="14" fill="#4A90D9" rx="3"/>
+              <circle cx="16" cy="81" r="5" fill="#333"/>
+              <circle cx="37" cy="81" r="5" fill="#333"/>
+              <line x1="33" y1="67" x2="33" y2="55" stroke="#5D4037" stroke-width="2"/>
+              <text x="33" y="53" text-anchor="middle" font-size="9">😊</text>
+              <text x="33" y="96" text-anchor="middle" font-size="8" fill="#1B6B3A">順利通過</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="sm7-desc">將路口直角緣石改建為坡度1:12的斜坡，讓輪椅、娃娃車、長者均可順暢無障礙通行。</div>
+    </div>
+
+    <!-- ④ 障礙物移除或移設 -->
+    <div class="sm7-card">
+      <div class="sm7-hdr" style="background:#F1F8E9">
+        <div class="sm7-num" style="background:#6B8F58">④</div>
+        <div class="sm7-ttl">障礙物移除或移設</div>
+      </div>
+      <div class="sm7-compare">
+        <div><div class="sm7-lbl b">❌ 改善前</div>
+          <div class="sm7-scene" style="background:linear-gradient(#C0C8B0 60%,#888 60%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="72" width="160" height="48" fill="#888"/>
+              <rect x="0" y="72" width="60" height="48" fill="#A09880"/>
+              <rect x="18" y="45" width="24" height="28" fill="#777" rx="2"/>
+              <rect x="20" y="47" width="20" height="13" fill="#555"/>
+              <text x="30" y="68" text-anchor="middle" font-size="7" fill="#bbb">電箱</text>
+              <rect x="50" y="24" width="5" height="48" fill="#888"/>
+              <line x1="52" y1="34" x2="90" y2="48" stroke="#666" stroke-width="1.5"/>
+              <circle cx="32" cy="60" r="6" fill="#FFB74D"/>
+              <text x="32" y="55" text-anchor="middle" font-size="9" fill="#E53935">😤</text>
+              <text x="32" y="84" text-anchor="middle" font-size="7" fill="#E53935">無法通行</text>
+            </svg>
+          </div>
+        </div>
+        <div class="sm7-divider"></div>
+        <div><div class="sm7-lbl a">✅ 改善後</div>
+          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 60%,#7A8A72 60%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="72" width="160" height="48" fill="#7A8A72"/>
+              <rect x="0" y="72" width="60" height="48" fill="#E8D4A0"/>
+              <rect x="0" y="72" width="10" height="48" fill="#8BC34A" opacity=".5"/>
+              <rect x="0" y="76" width="10" height="18" fill="#777" rx="1"/>
+              <rect x="2" y="40" width="5" height="32" fill="#888"/>
+              <circle cx="34" cy="60" r="7" fill="#FFB74D"/>
+              <line x1="34" y1="67" x2="34" y2="80" stroke="#5D4037" stroke-width="2.5"/>
+              <line x1="34" y1="71" x2="26" y2="78" stroke="#5D4037" stroke-width="2"/>
+              <line x1="34" y1="71" x2="42" y2="78" stroke="#5D4037" stroke-width="2"/>
+              <text x="34" y="54" text-anchor="middle" font-size="9">😊</text>
+              <text x="34" y="96" text-anchor="middle" font-size="8" fill="#1B6B3A">暢行無阻</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="sm7-desc">將電箱、電桿等設施移至路邊設施帶，讓人行道空間完全淨空，行人可安全連續通行。</div>
+    </div>
+
+    <!-- ⑤ 擴大過路停等空間 -->
+    <div class="sm7-card">
+      <div class="sm7-hdr" style="background:#FFF3E0">
+        <div class="sm7-num" style="background:#FF8C42">⑤</div>
+        <div class="sm7-ttl">擴大過路停等空間</div>
+      </div>
+      <div class="sm7-compare">
+        <div><div class="sm7-lbl b">❌ 改善前</div>
+          <div class="sm7-scene" style="background:linear-gradient(#C0C8B0 55%,#888 55%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="66" width="160" height="54" fill="#888"/>
+              <rect x="0" y="66" width="18" height="54" fill="#A09880"/>
+              <rect x="142" y="66" width="18" height="54" fill="#A09880"/>
+              <rect x="18" y="86" width="124" height="5" fill="white" opacity=".55"/>
+              <rect x="18" y="98" width="124" height="5" fill="white" opacity=".55"/>
+              <circle cx="62" cy="75" r="6" fill="#FFB74D"/>
+              <circle cx="75" cy="75" r="6" fill="#FFCC80"/>
+              <circle cx="88" cy="75" r="6" fill="#FFB74D"/>
+              <text x="75" y="66" text-anchor="middle" font-size="9" fill="#E53935">😰</text>
+              <rect x="100" y="68" width="38" height="16" fill="#E53935" rx="3"/>
+              <text x="119" y="79" text-anchor="middle" font-size="8" fill="white">🚗</text>
+            </svg>
+          </div>
+        </div>
+        <div class="sm7-divider"></div>
+        <div><div class="sm7-lbl a">✅ 改善後</div>
+          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 55%,#7A8A72 55%)">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="66" width="160" height="54" fill="#7A8A72"/>
+              <rect x="0" y="54" width="36" height="66" fill="#E8A855" opacity=".8"/>
+              <rect x="124" y="54" width="36" height="66" fill="#E8A855" opacity=".8"/>
+              <text x="18" y="63" text-anchor="middle" font-size="6" fill="#7A3A00" font-weight="bold">停等區</text>
+              <text x="142" y="63" text-anchor="middle" font-size="6" fill="#7A3A00" font-weight="bold">停等區</text>
+              <rect x="36" y="88" width="88" height="5" fill="white" opacity=".6"/>
+              <rect x="36" y="100" width="88" height="5" fill="white" opacity=".6"/>
+              <circle cx="18" cy="72" r="6" fill="#FFB74D"/>
+              <circle cx="142" cy="72" r="6" fill="#FFCC80"/>
+              <text x="18" y="63" text-anchor="middle" font-size="9">😊</text>
+              <text x="142" y="63" text-anchor="middle" font-size="9">😊</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="sm7-desc">於路口行人穿越道兩端外擴停等空間，行人無需站在車道上等紅燈，大幅提升安全性。</div>
+    </div>
+
+    <!-- ⑥ 通學巷 -->
+    <div class="sm7-card">
+      <div class="sm7-hdr" style="background:#FFEBEE">
+        <div class="sm7-num" style="background:#FF6B6B">⑥</div>
+        <div class="sm7-ttl">周邊巷弄 → 通學巷</div>
+      </div>
+      <div class="sm7-compare">
+        <div><div class="sm7-lbl b">❌ 改善前</div>
+          <div class="sm7-scene" style="background:#C0C8B0">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="0" width="160" height="120" fill="#C0C8B0"/>
+              <rect x="50" y="0" width="60" height="120" fill="#A0A890"/>
+              <rect x="52" y="44" width="55" height="22" fill="#E53935" rx="4"/>
+              <circle cx="62" cy="68" r="5" fill="#333"/>
+              <circle cx="97" cy="68" r="5" fill="#333"/>
+              <text x="80" y="57" text-anchor="middle" font-size="8" fill="white">🚗 危險</text>
+              <circle cx="80" cy="22" r="7" fill="#FFB74D"/>
+              <text x="80" y="17" text-anchor="middle" font-size="10">😱</text>
+            </svg>
+          </div>
+        </div>
+        <div class="sm7-divider"></div>
+        <div><div class="sm7-lbl a">✅ 改善後</div>
+          <div class="sm7-scene" style="background:#D6EAFF">
+            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="0" width="160" height="120" fill="#D6EAFF"/>
+              <rect x="50" y="0" width="60" height="120" fill="#FFEBCC"/>
+              <circle cx="80" cy="30" r="16" fill="#CC0000"/>
+              <rect x="66" y="27" width="28" height="7" fill="white" rx="3"/>
+              <text x="80" y="52" text-anchor="middle" font-size="7" fill="#CC0000" font-weight="bold">禁止進入</text>
+              <text x="80" y="62" text-anchor="middle" font-size="6" fill="#888">07-08・12-13・15-16</text>
+              <circle cx="80" cy="90" r="7" fill="#FFB74D"/>
+              <text x="80" y="85" text-anchor="middle" font-size="10">😊</text>
+              <text x="80" y="108" text-anchor="middle" font-size="7" fill="#1B6B3A">安全通學</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="sm7-desc">對學校周邊過窄巷弄，時段性禁止車輛進入（07~08、12~13、15~16時，例假日除外），保障學童安全。</div>
+    </div>
+
+    <!-- ⑦ 路口雙色溫路燈（全寬） -->
+    <div class="sm7-card full-width">
+      <div class="sm7-hdr" style="background:#FFF8E1">
+        <div class="sm7-num" style="background:#B8860B">⑦</div>
+        <div class="sm7-ttl">路口雙色溫路燈</div>
+      </div>
+      <div class="sm7-compare">
+        <div><div class="sm7-lbl b">❌ 改善前</div>
+          <div class="sm7-scene" style="background:linear-gradient(#1A1A2A 60%,#444 60%);height:150px">
+            <svg viewBox="0 0 160 150" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="90" width="160" height="60" fill="#444"/>
+              <rect x="0" y="90" width="55" height="60" fill="#555"/>
+              <line x1="30" y1="90" x2="30" y2="30" stroke="#777" stroke-width="4"/>
+              <line x1="30" y1="30" x2="55" y2="20" stroke="#777" stroke-width="3"/>
+              <circle cx="55" cy="18" r="8" fill="#999" opacity=".4"/>
+              <circle cx="22" cy="80" r="7" fill="#7A6A5A"/>
+              <text x="22" y="74" text-anchor="middle" font-size="9" fill="#666">😟</text>
+              <text x="22" y="102" text-anchor="middle" font-size="7" fill="#666">看不見</text>
+              <circle cx="45" cy="82" r="6" fill="#6A5A4A"/>
+              <text x="45" y="102" text-anchor="middle" font-size="7" fill="#666">危險</text>
+            </svg>
+          </div>
+        </div>
+        <div class="sm7-divider"></div>
+        <div><div class="sm7-lbl a">✅ 改善後</div>
+          <div class="sm7-scene" style="background:linear-gradient(#1A2A3A 60%,#5A6A58 60%);height:150px">
+            <svg viewBox="0 0 160 150" xmlns="http://www.w3.org/2000/svg">
+              <rect x="0" y="90" width="160" height="60" fill="#5A6A58"/>
+              <rect x="0" y="90" width="60" height="60" fill="#D4C89A"/>
+              <line x1="32" y1="90" x2="32" y2="28" stroke="#AAA" stroke-width="4"/>
+              <line x1="32" y1="28" x2="58" y2="16" stroke="#AAA" stroke-width="3"/>
+              <ellipse cx="58" cy="14" rx="13" ry="6" fill="#FFD700"/>
+              <ellipse cx="58" cy="12" rx="9" ry="4" fill="#FFF59D"/>
+              <ellipse cx="32" cy="78" rx="40" ry="24" fill="#FFD700" opacity=".12"/>
+              <ellipse cx="32" cy="80" rx="26" ry="16" fill="#FFB300" opacity=".14"/>
+              <circle cx="22" cy="80" r="7" fill="#FFB74D"/>
+              <text x="22" y="74" text-anchor="middle" font-size="9">😊</text>
+              <line x1="22" y1="87" x2="22" y2="100" stroke="#5D4037" stroke-width="2.5"/>
+              <circle cx="42" cy="82" r="6" fill="#FFB74D"/>
+              <text x="42" y="76" text-anchor="middle" font-size="9">😊</text>
+              <text x="90" y="25" font-size="8" fill="#FFD700" font-weight="bold">🌟 雙色溫路燈</text>
+              <text x="90" y="37" font-size="7" fill="#FFB300">夜間暖光 清晰可見</text>
+              <text x="22" y="115" text-anchor="middle" font-size="7" fill="#1B6B3A">安全通學</text>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="sm7-desc">於學校周邊路口設置雙色溫路燈，夜間及清晨提供充足暖色照明，讓學童、家長及駕駛均能清楚辨識行人，大幅降低夜間通學風險。</div>
+    </div>
+
   </div>
 </div>
-
 <!-- ====== 新聞稿生成 Modal ====== -->
 <div id="news-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center">
   <div style="background:white;border-radius:16px;width:700px;max-width:95vw;max-height:90vh;overflow:auto;padding:28px">
@@ -1769,6 +1995,7 @@ function renderPage(id) {
   else if (id === 'budget') renderBudget();
   else if (id === 'schedule') renderSchedule();
   else if (id === 'bizreport-c1') { renderC1(); }
+  else if (id === 'page-7methods') { setTimeout(initSevenMethods, 50); }
   else if (id.startsWith('dist-')) renderDistrict(id.replace('dist-',''));
   else if (id.startsWith('report-')) renderReport(id.replace('report-',''));
 }
@@ -2712,7 +2939,7 @@ let BIZREPORT = [
 ];
 
 // ========== C1 渲染 ==========
-let c1ViewMode = 'card';
+let c1ViewMode = 'table';
 
 function setC1View(mode) {
   c1ViewMode = mode;
@@ -2769,164 +2996,112 @@ function renderC1() {
   const content = document.getElementById('c1-content');
   if (!content) return;
 
-  if (c1ViewMode === 'table') {
-    // ── 表格模式 ──
-    const byDist = {};
-    filtered.forEach(r=>{ if(!byDist[r.district])byDist[r.district]=[]; byDist[r.district].push(r); });
-    content.innerHTML = Object.entries(byDist).map(([dist, rows])=>`
-      <div style="margin-bottom:20px">
-        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:8px;
-          display:flex;align-items:center;gap:8px">
-          <span style="background:var(--surface2);border:1px solid var(--border);
-            border-radius:6px;padding:3px 12px">${dist}</span>
-          <span style="font-size:11px;color:var(--text3)">${rows.length} 條路段・${rows.reduce((s,r)=>s+r.length,0).toLocaleString()} m</span>
-        </div>
-        <table class="data-table" style="background:var(--surface);border-radius:10px;overflow:hidden;border:1px solid var(--border)">
-          <thead><tr>
-            <th>#</th><th>路名</th><th>長度(m)</th><th>預算來源</th>
-            <th>起點</th><th>迄點</th><th>概估經費(萬)</th><th>案件來源</th>
-          </tr></thead>
-          <tbody>${rows.map(r=>`<tr>
-            <td style="font-family:'DM Mono',monospace;color:var(--text3)">${r.seq}</td>
-            <td style="font-weight:600">${r.road}</td>
-            <td style="font-family:'DM Mono',monospace">${r.length.toLocaleString()}</td>
-            <td><span class="badge ${r.budgetSrc==='中央補助'?'badge-design':'badge-wip'}">${r.budgetSrc}</span></td>
-            <td>${r.start}</td>
-            <td>${r.end}</td>
-            <td style="font-family:'DM Mono',monospace">${r.cost?r.cost.toLocaleString()+(r.costNote?'<span style="font-size:10px;color:var(--orange);margin-left:3px">('+r.costNote+')</span>':''):'-'}</td>
-            <td style="font-size:11px;color:var(--text2)">${r.source||'-'}</td>
-          </tr>`).join('')}</tbody>
-        </table>
-      </div>`).join('');
-  } else {
-    // ── 卡片模式，依行政區分組 ──
-    const byDist = {};
-    filtered.forEach(r=>{ if(!byDist[r.district])byDist[r.district]=[]; byDist[r.district].push(r); });
-    content.innerHTML = Object.entries(byDist).map(([dist, rows])=>`
-      <div style="margin-bottom:28px">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px">
-          <span style="background:var(--text);color:#fff;font-size:12px;font-weight:700;
-            padding:4px 14px;border-radius:8px">${dist}</span>
-          <span style="font-size:12px;color:var(--text3)">${rows.length} 條路段・共 ${rows.reduce((s,r)=>s+r.length,0).toLocaleString()} m</span>
-        </div>
-        <div class="cards-grid">
-          ${rows.map(r=>{
-            const mapsUrl = 'https://maps.google.com/maps?q='+encodeURIComponent('桃園市'+dist+r.road);
-            const bgCls = DIST_COLOR[dist]||'todo';
-            const costStr = r.cost ? (r.cost.toLocaleString()+(r.costNote?' ('+r.costNote+')':'')+'萬') : '-';
-            return `<div class="promo-card">
-              <div class="card-map-area ${bgCls}-bg" style="height:90px">
-                <div class="map-grid"></div>
-                <div class="map-road-h"></div>
-                <div class="map-road-v"></div>
-                <div class="map-pin ${bgCls}-pin"></div>
-                <span class="card-zone-badge">C1 · ${dist}</span>
-                <span class="card-year-tag">#${r.seq}</span>
-                <a class="card-map-link" href="${mapsUrl}" target="_blank" onclick="event.stopPropagation()">◎ Google Maps</a>
-              </div>
-              <div class="card-body" style="padding:12px 16px">
-                <div class="card-top" style="margin-bottom:6px">
-                  <div>
-                    <div class="card-location" style="font-size:14px">${r.road}</div>
-                    <div class="card-district-tag">${dist}</div>
-                  </div>
-                  <span class="badge ${r.budgetSrc==='中央補助'?'badge-design':'badge-wip'}">${r.budgetSrc}</span>
-                </div>
-                <div style="font-size:11px;color:var(--text3);margin-bottom:8px">
-                  <span style="font-weight:500">起：</span>${r.start} <span style="margin:0 4px">→</span>
-                  <span style="font-weight:500">迄：</span>${r.end}
-                </div>
-                <div class="card-stats">
-                  <div class="card-stat">
-                    <div class="card-stat-num">${r.length.toLocaleString()}</div>
-                    <div class="card-stat-lbl">長度(m)</div>
-                  </div>
-                  <div class="card-stat">
-                    <div class="card-stat-num" style="font-size:13px;${r.costNote?'color:var(--orange)':''}">${r.cost?r.cost.toLocaleString():'-'}</div>
-                    <div class="card-stat-lbl">${r.costNote?'萬('+r.costNote+')':'概估萬元'}</div>
-                  </div>
-                </div>
-                ${r.source?`<div style="font-size:11px;color:var(--text3);margin-top:8px;padding-top:8px;border-top:1px solid var(--border)">案件來源：${r.source}</div>`:''}
-              </div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>`).join('');
-  }
+  // ── 全部用表格模式，依行政區分組 ──
+  const byDist = {};
+  filtered.forEach(r=>{ if(!byDist[r.district])byDist[r.district]=[]; byDist[r.district].push(r); });
+  content.innerHTML = Object.entries(byDist).map(([dist, rows])=>`
+    <div style="margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:6px 12px;background:linear-gradient(90deg,#1565C0,#2979CC);border-radius:8px">
+        <span style="color:white;font-size:13px;font-weight:700">${dist}</span>
+        <span style="font-size:11px;color:rgba(255,255,255,0.75)">${rows.length} 條路段・共 ${rows.reduce((s,r)=>s+r.length,0).toLocaleString()} m</span>
+      </div>
+      <div style="border-radius:8px;border:1px solid var(--border);overflow:hidden">
+      <table class="data-table" style="background:var(--surface);table-layout:fixed;width:100%">
+        <colgroup>
+          <col style="width:32px">
+          <col style="width:22%">
+          <col style="width:62px">
+          <col style="width:68px">
+          <col style="width:16%">
+          <col style="width:16%">
+          <col style="width:82px">
+          <col>
+        </colgroup>
+        <thead><tr>
+          <th>#</th><th>路名</th><th style="text-align:right">長度(m)</th><th>預算來源</th>
+          <th>起點</th><th>迄點</th><th style="text-align:right">概估(萬)</th><th>案件來源</th>
+        </tr></thead>
+        <tbody>${rows.map(r=>`<tr>
+          <td style="font-size:11px;color:var(--text3);text-align:center">${r.seq}</td>
+          <td style="font-weight:600;font-size:12px">${r.road}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:12px;text-align:right">${r.length.toLocaleString()}</td>
+          <td><span class="badge ${r.budgetSrc==='中央補助'?'badge-design':'badge-wip'}" style="font-size:10px;padding:1px 6px">${r.budgetSrc}</span></td>
+          <td style="font-size:11px">${r.start}</td>
+          <td style="font-size:11px">${r.end}</td>
+          <td style="font-family:'DM Mono',monospace;font-size:11px;text-align:right">${r.cost?r.cost.toLocaleString()+(r.costNote?'<br><span style="font-size:9px;color:var(--orange)">('+r.costNote+')</span>':''):'-'}</td>
+          <td style="font-size:11px;color:var(--text2)">${r.source||'-'}</td>
+        </tr>`).join('')}</tbody>
+      </table>
+      </div>
+    </div>`).join('');
 }
 
-// ========== 七大手法動畫 ==========
-const METHODS = [
-  { num:'①', name:'建立實體人行道', color:'#1565C0', desc:'將標線型人行道改建為實體人行道，提供行人安全的步行空間，與車道明確分隔。', fn: ()=>{
-    if(!window.anime)return;
-    anime({targets:'#sidewalk-real',width:[0,660],duration:1200,easing:'easeOutQuart'});
-    anime({targets:'#txt-sidewalk',opacity:[0,1],duration:600,delay:800});
-  }},
-  { num:'②', name:'新設候車亭', color:'#4A90D9', desc:'於公車站牌處新設候車亭，改善行人等候環境，提升大眾運輸服務品質。', fn: ()=>{
-    if(!window.anime)return;
-    anime({targets:'#g-busstop',opacity:[0,1],translateY:[20,0],duration:800,easing:'easeOutBack'});
-  }},
-  { num:'③', name:'建立無障礙路緣斜坡', color:'#D4A84B', desc:'於路口設置符合規範的路緣斜坡（坡度1:12），確保輪椅、娃娃車等無障礙通行。', fn: ()=>{
-    if(!window.anime)return;
-    anime({targets:'#g-ramp',opacity:[0,1],duration:700,easing:'easeOutQuart'});
-  }},
-  { num:'④', name:'障礙物移除或移設', color:'#888', desc:'將佔用人行道的電箱、電桿等設施移至設施帶，還原完整連續的行走空間。', fn: ()=>{
-    if(!window.anime)return;
-    anime({targets:'#g-elec-old',opacity:[1,0],duration:500});
-    anime({targets:'#g-elec-new',opacity:[0,1],duration:600,delay:400,easing:'easeOutBack'});
-  }},
-  { num:'⑤', name:'擴大過路停等空間', color:'#FF8C42', desc:'於路口行人穿越道兩端擴大停等空間，提升行人等候安全性並縮短穿越距離。', fn: ()=>{
-    if(!window.anime)return;
-    anime({targets:'#g-wait',opacity:[0,1],scaleX:[0.5,1],duration:800,easing:'easeOutBack'});
-  }},
-  { num:'⑥', name:'周邊巷弄→通學巷', color:'#FF6B6B', desc:'對學校周邊過窄巷弄實施時段性禁止進入（07~08、12~13、15~16時，例假日除外），保障學童通學安全。', fn: ()=>{
-    if(!window.anime)return;
-    anime({targets:'#g-lane',opacity:[0,1],duration:700,easing:'easeOutQuart'});
-  }},
-  { num:'⑦', name:'路口雙色溫路燈', color:'#B8860B', desc:'於學校路口設置雙色溫路燈，夜間提升照明亮度，白天以暖色調提示行人注意，改善夜間通學安全。', fn: ()=>{
-    if(!window.anime)return;
-    anime({targets:'#g-lamp',opacity:[0,1],translateY:[20,0],duration:800,easing:'easeOutBack'});
-  }},
+
+// ========== 七大手法動畫 (純 CSS/JS，不依賴外部庫) ==========
+const SM_DATA = [
+  { num:'①', name:'建立實體人行道',   color:'#1565C0', desc:'將標線型人行道改建為實體人行道，提供行人安全的步行空間，與車道明確分隔。' },
+  { num:'②', name:'新設候車亭',       color:'#4A90D9', desc:'於公車站牌處新設候車亭，改善行人等候環境，提升大眾運輸服務品質。' },
+  { num:'③', name:'建立無障礙路緣斜坡',color:'#D4A84B',desc:'於路口設置符合規範的路緣斜坡（坡度1:12），確保輪椅、娃娃車等無障礙通行。' },
+  { num:'④', name:'障礙物移除或移設', color:'#6B8F58', desc:'將佔用人行道的電箱、電桿等設施移至設施帶，還原完整連續的行走空間。' },
+  { num:'⑤', name:'擴大過路停等空間', color:'#FF8C42', desc:'於路口行人穿越道兩端擴大停等空間，提升行人等候安全性並縮短穿越距離。' },
+  { num:'⑥', name:'周邊巷弄→通學巷', color:'#FF6B6B', desc:'對學校周邊過窄巷弄實施時段性禁止進入（07~08、12~13、15~16時，例假日除外），保障學童通學安全。' },
+  { num:'⑦', name:'路口雙色溫路燈',   color:'#B8860B', desc:'於學校路口設置雙色溫路燈，夜間提升照明亮度，白天以暖色調提示行人注意。' },
 ];
-let currentMethod = 0, autoTimer = null;
+const SM_IDS = ['sm-sidewalk-real','sm-sw-label','sm-busstop','sm-ramps','sm-wait','sm-lane','sm-lamp'];
+const SM_SHOW_MAP = {
+  1:['sm-sidewalk-real','sm-sw-label'],
+  2:['sm-sidewalk-real','sm-sw-label','sm-busstop'],
+  3:['sm-sidewalk-real','sm-sw-label','sm-busstop','sm-ramps'],
+  4:['sm-sidewalk-real','sm-sw-label','sm-busstop','sm-ramps'],
+  5:['sm-sidewalk-real','sm-sw-label','sm-busstop','sm-ramps','sm-wait'],
+  6:['sm-sidewalk-real','sm-sw-label','sm-busstop','sm-ramps','sm-wait','sm-lane'],
+  7:['sm-sidewalk-real','sm-sw-label','sm-busstop','sm-ramps','sm-wait','sm-lane','sm-lamp'],
+};
+let smCurrent=1, smAuto=null;
 
-function initSevenMethods() {
-  if (!document.getElementById('scene-svg')) return;
-  if (!window.anime) {
-    const s = document.createElement('script');
-    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js';
-    s.onload = ()=>{ goMethod(1); startWalker(); };
-    document.head.appendChild(s);
-  } else { goMethod(1); startWalker(); }
-}
+function initSevenMethods(){ smGo(1); }
 
-function goMethod(n) {
-  currentMethod = n;
-  const m = METHODS[n-1];
-  const card = document.getElementById('method-card');
-  if (!card) return;
-  document.getElementById('method-num').textContent = m.num;
-  document.getElementById('method-name').textContent = m.name;
-  document.getElementById('method-desc').textContent = m.desc;
-  card.style.borderLeftColor = m.color;
-  document.getElementById('method-num').style.color = m.color;
-  document.getElementById('method-name').style.color = m.color;
-  document.querySelectorAll('.method-dot').forEach((d,i)=>{
-    d.style.background = (i+1)===n ? m.color : '#CBD5E0';
-    d.style.transform = (i+1)===n ? 'scale(1.4)' : 'scale(1)';
+function smGo(n){
+  smCurrent=n;
+  const m=SM_DATA[n-1];
+  // 更新說明卡
+  ['sm-card-num','sm-card-name'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.textContent=id==='sm-card-num'?m.num:m.name;el.style.color=m.color;}
   });
-  m.fn();
+  const desc=document.getElementById('sm-card-desc');
+  if(desc)desc.textContent=m.desc;
+  const card=document.getElementById('sm-card');
+  if(card)card.style.borderLeftColor=m.color;
+  // 更新進度點
+  SM_DATA.forEach((_,i)=>{
+    const d=document.getElementById('smdot-'+(i+1));
+    if(d){d.style.background=(i+1)===n?m.color:'#CBD5E0';d.className='sm-dot'+(((i+1)===n)?' active':'');}
+  });
+  // 更新清單 highlight
+  SM_DATA.forEach((_,i)=>{
+    const li=document.getElementById('smlist-'+(i+1));
+    if(li)li.style.background=(i+1)===n?'#EBF2FB':'transparent';
+  });
+  // 顯示/隱藏場景元素
+  SM_IDS.forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    const show=(SM_SHOW_MAP[n]||[]).includes(id);
+    el.classList.toggle('show',show);
+  });
+  // 手法④ 電箱特效
+  const eOld=document.getElementById('sm-elec-old');
+  const eNew=document.getElementById('sm-elec-new');
+  if(eOld)eOld.style.opacity=n>=4?'0':'1';
+  if(eNew)eNew.style.opacity=n>=4?'1':'0';
 }
-function nextMethod(){ goMethod(currentMethod<7?currentMethod+1:1); }
-function prevMethod(){ goMethod(currentMethod>1?currentMethod-1:7); }
-function toggleAuto(){
-  const btn=document.getElementById('auto-btn');
-  if(autoTimer){ clearInterval(autoTimer);autoTimer=null;btn.textContent='▶ 自動播放';btn.style.background='#1565C0'; }
-  else{ autoTimer=setInterval(nextMethod,3000);btn.textContent='⏸ 暫停';btn.style.background='#C0392B'; }
-}
-function startWalker(){
-  if(!window.anime)return;
-  anime({targets:'#g-walker',translateX:[0,580],duration:8000,easing:'linear',loop:true});
+function smNext(){ smGo(smCurrent<7?smCurrent+1:1); }
+function smPrev(){ smGo(smCurrent>1?smCurrent-1:7); }
+function smToggleAuto(){
+  const btn=document.getElementById('sm-auto-btn');
+  if(smAuto){clearInterval(smAuto);smAuto=null;if(btn){btn.textContent='▶ 自動';btn.classList.remove('paused');}}
+  else{smAuto=setInterval(smNext,3000);if(btn){btn.textContent='⏸ 暫停';btn.classList.add('paused');}}
 }
 
 // ========== 新聞稿 Modal ==========
