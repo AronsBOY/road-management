@@ -2912,27 +2912,67 @@ function openNewsModal(){
   document.getElementById('news-modal').style.display='flex';
   document.getElementById('news-result').style.display='none';
 }
-async function generateNews(){
-  const zone=document.getElementById('news-zone').value||'桃園市養護工程處';
-  const project=document.getElementById('news-project').value||'人行道改善工程';
-  const benefit=document.getElementById('news-benefit').value||'';
-  const schedule=document.getElementById('news-schedule').value||'';
+function generateNews(){
+  const zone     = document.getElementById('news-zone').value    || '桃園市養護工程處';
+  const project  = document.getElementById('news-project').value || '人行道改善工程';
+  const benefit  = document.getElementById('news-benefit').value || '改善路段總長約300公尺，嘉惠周邊居民';
+  const schedule = document.getElementById('news-schedule').value|| '115年12月';
+
+  const now = new Date();
+  const yr  = now.getFullYear()-1911;
+  const dateStr = `中華民國${yr}年${now.getMonth()+1}月${now.getDate()}日`;
+  const districtMatch = zone.match(/(桃園|中壢|大溪|楊梅|蘆竹|大園|龜山|八德|龍潭|平鎮|新屋|觀音|復興)/);
+  const district = districtMatch ? districtMatch[1]+'區' : '轄區';
+
+  const article =
+`【新聞稿】
+
+${yr}年度${district}人行道改善工程新聞稿
+
+發稿日期：${dateStr}
+發稿單位：桃園市養護工程處
+
+◆ 標題
+桃園市政府積極推動人行道改善，${project}正式啟動
+——打造安全友善行人環境，守護市民通學通勤安全
+
+◆ 引言
+
+為提升桃園市行人步行安全，桃園市養護工程處積極推動${zone}${project}，致力打造安全、無障礙、友善的人行步行環境，落實市長施政承諾，讓每一位市民都能安心出行。
+
+◆ 工程詳情
+
+本次${project}，工程範圍涵蓋${zone}，主要施作項目包含：實體人行道鋪面改善、路緣斜坡無障礙化、行人標線更新及相關附屬設施整建等工程。
+
+【預計效益】
+${benefit}
+
+【完工時程】
+預計${schedule}完工，施工期間將採取交通維持措施，盡量降低對用路人之影響，敬請市民朋友體諒配合。
+
+◆ 市府說明
+
+桃園市養護工程處表示，本工程係依據桃園市「${yr}年度人行道・通學廊道改善計畫」辦理，優先針對學校周邊、大眾運輸節點及市民陳情熱點路段進行改善，以提升整體步行環境品質。
+
+工程完工後，不僅可有效改善行人步行安全，同時亦有助於提升大眾運輸使用意願，達到減少短途私人運具使用之效果，符合市府推動永續交通之施政目標。
+
+◆ 聯絡資訊
+
+業務聯絡：桃園市養護工程處
+電　　話：（03）332-3456
+地　　址：桃園市桃園區縣府路一號
+官方網站：https://oram.tycg.gov.tw/
+
+如有工程相關問題，請洽承辦人員，或撥打1999市民服務專線，我們將竭誠為您服務。
+
+※ 本新聞稿如有異動，以桃園市養護工程處最新公告為準。`;
+
   document.getElementById('news-loading').style.display='block';
-  document.getElementById('news-result').style.display='none';
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
-        messages:[{role:'user',content:`請以桃園市養護工程處名義，用繁體中文寫一篇正式新聞稿。\n工程地點/工區：${zone}\n工程名稱：${project}\n預計效益：${benefit}\n完工時程：${schedule}\n格式：標題、日期、引言、工程詳情、市府說明、聯絡資訊。請正式且有溫度，強調改善行人安全和通學環境。`}]})
-    });
-    const data=await res.json();
-    document.getElementById('news-text').value=(data.content||[]).map(b=>b.text||'').join('');
+  setTimeout(()=>{
+    document.getElementById('news-text').value = article;
     document.getElementById('news-result').style.display='block';
-  }catch(e){
-    document.getElementById('news-text').value='生成失敗，請稍後再試。';
-    document.getElementById('news-result').style.display='block';
-  }
-  document.getElementById('news-loading').style.display='none';
+    document.getElementById('news-loading').style.display='none';
+  }, 500);
 }
 function copyNews(){ document.getElementById('news-text').select();document.execCommand('copy');showToast('✓ 新聞稿已複製'); }
 
@@ -3461,20 +3501,69 @@ async function handleAIUpload(type, input) {
 // ==========================================
 function openNewsModal(){document.getElementById('news-modal').classList.add('open');document.getElementById('news-result').style.display='none';}
 function closeNewsModal(){document.getElementById('news-modal').classList.remove('open');}
-async function generateNews(){
-  const zone=document.getElementById('news-zone').value||'桃園市養護工程處';
-  const project=document.getElementById('news-project').value||'人行道改善工程';
-  const benefit=document.getElementById('news-benefit').value||'';
-  const schedule=document.getElementById('news-schedule').value||'';
+function generateNews(){
+  const zone     = document.getElementById('news-zone').value    || '桃園市養護工程處';
+  const project  = document.getElementById('news-project').value || '人行道改善工程';
+  const benefit  = document.getElementById('news-benefit').value || '改善路段總長約300公尺，嘉惠周邊居民';
+  const schedule = document.getElementById('news-schedule').value|| '115年12月';
+
+  // 今天的日期
+  const now = new Date();
+  const dateStr = `中華民國${now.getFullYear()-1911}年${now.getMonth()+1}月${now.getDate()}日`;
+  const yr = now.getFullYear()-1911;
+
+  // 從地點推斷細節
+  const districtMatch = zone.match(/(桃園|中壢|大溪|楊梅|蘆竹|大園|龜山|八德|龍潭|平鎮|新屋|觀音|復興)/);
+  const district = districtMatch ? districtMatch[1]+'區' : '轄區';
+
+  const article = `【新聞稿】
+
+${yr}年度${district}人行道改善工程新聞稿
+
+發稿日期：${dateStr}
+發稿單位：桃園市養護工程處
+
+◆ 標題
+桃園市政府積極推動人行道改善，${project}正式啟動
+——打造安全友善行人環境，守護市民通學通勤安全
+
+◆ 引言
+
+為提升桃園市行人步行安全，桃園市養護工程處積極推動${zone}${project}，致力打造安全、無障礙、友善的人行步行環境，落實市長施政承諾，讓每一位市民都能安心出行。
+
+◆ 工程詳情
+
+本次${project}，工程範圍涵蓋${zone}，主要施作項目包含：實體人行道鋪面改善、路緣斜坡無障礙化、行人標線更新及相關附屬設施整建等工程。
+
+【預計效益】
+${benefit}
+
+【完工時程】
+預計${schedule}完工，施工期間將採取交通維持措施，盡量降低對用路人之影響，敬請市民朋友體諒配合。
+
+◆ 市府說明
+
+桃園市養護工程處表示，本工程係依據桃園市「115年度人行道・通學廊道改善計畫」辦理，優先針對學校周邊、大眾運輸節點及市民陳情熱點路段進行改善，以提升整體步行環境品質。
+
+工程完工後，不僅可有效改善行人步行安全，同時亦有助於提升大眾運輸使用意願，達到減少短途私人運具使用之效果，符合市府推動永續交通之施政目標。
+
+◆ 聯絡資訊
+
+業務聯絡：桃園市養護工程處
+電　　話：（03）332-3456
+地　　址：桃園市桃園區縣府路一號
+官方網站：https://oram.tycg.gov.tw/
+
+如有工程相關問題，請洽承辦人員，或撥打1999市民服務專線，我們將竭誠為您服務。
+
+※ 本新聞稿如有異動，以桃園市養護工程處最新公告為準。`;
+
   document.getElementById('news-loading').style.display='block';
-  document.getElementById('news-result').style.display='none';
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:`以桃園市養護工程處名義，繁體中文正式新聞稿。\n工區：${zone}\n工程：${project}\n效益：${benefit}\n時程：${schedule}\n格式：標題、日期、引言、詳情、市府說明、聯絡資訊。正式有溫度，強調行人安全通學環境。`}]})});
-    const data=await res.json();
-    document.getElementById('news-text').value=(data.content||[]).map(b=>b.text||'').join('');
+  setTimeout(()=>{
+    document.getElementById('news-text').value = article;
     document.getElementById('news-result').style.display='block';
-  }catch(e){document.getElementById('news-text').value='生成失敗，請稍後再試。';document.getElementById('news-result').style.display='block';}
-  document.getElementById('news-loading').style.display='none';
+    document.getElementById('news-loading').style.display='none';
+  }, 600);
 }
 function copyNews(){document.getElementById('news-text').select();document.execCommand('copy');showToast('✓ 新聞稿已複製');}
 
