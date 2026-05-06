@@ -907,7 +907,21 @@ textarea { resize: vertical; min-height: 70px; }
     </div>
   </div>
 
+  <div class="nav-section">
+    <div class="nav-label">專案管理</div>
+    <div class="nav-item" onclick="showPage('projects')" data-num="E1">
+      <span class="nav-num" style="background:rgba(21,101,192,0.4);color:#90CAF9">E1</span>
+      <span>專案列管案件<br><span style="font-size:10px;color:rgba(255,255,255,0.35)">監控室・設計圖・會議・LINE</span></span>
+      <span class="nav-badge" id="badge-projects">0</span>
+    </div>
+  </div>
+
   <div class="sidebar-footer">
+    <div style="margin-bottom:10px">
+      <button onclick="openNewsModal()" style="width:100%;background:linear-gradient(90deg,#1565C0,#2979CC);color:white;border:none;border-radius:8px;padding:9px 12px;font-size:12px;font-family:inherit;cursor:pointer;font-weight:600;letter-spacing:.02em">
+        📰 生成新聞稿
+      </button>
+    </div>
     <span class="sync-dot"></span>資料已同步・<span id="last-save">-</span>
   </div>
 </nav>
@@ -1289,371 +1303,180 @@ textarea { resize: vertical; min-height: 70px; }
   </div>
 </div>
 
+<!-- ====== E1 專案列管案件 ====== -->
+<div class="page" id="page-projects">
+  <div class="page-header">
+    <div>
+      <div class="page-title">[E1] 專案列管案件</div>
+      <div class="page-sub">整合設計圖・會議紀錄・LINE 對話，AI 自動建立 · 施工中案件可上傳工地照片</div>
+    </div>
+    <button class="btn btn-primary" onclick="openProjectModal()">＋ 新增專案</button>
+  </div>
+  <div class="stats-row" id="proj-stats"></div>
+  <div class="filter-bar" style="margin-bottom:16px">
+    <input class="filter-input" type="text" id="proj-search" placeholder="搜尋專案名稱、地點、承辦人…" oninput="renderProjects()" style="max-width:260px">
+    <select id="proj-filter-status" onchange="renderProjects()">
+      <option value="">狀態：全部</option>
+      <option>規劃中</option><option>設計中</option><option>施工中</option><option>驗收中</option><option>已完工</option><option>暫停</option>
+    </select>
+    <select id="proj-filter-district" onchange="renderProjects()">
+      <option value="">行政區：全部</option>
+    </select>
+    <span id="proj-count" style="font-size:12px;color:var(--text3)"></span>
+  </div>
+  <div id="proj-list"></div>
+</div>
+
+<!-- ====== 新增/編輯專案 Modal ====== -->
+<div class="modal-overlay" id="proj-modal">
+  <div class="modal" style="width:min(820px,96vw);max-height:93vh">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:18px 24px;border-bottom:1px solid var(--border);flex-shrink:0">
+      <div id="proj-modal-title" style="font-size:16px;font-weight:700">新增專案</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="closeProjectModal()">✕ 取消</button>
+        <button class="btn btn-primary" onclick="saveProject()">✓ 儲存</button>
+      </div>
+    </div>
+    <div style="overflow-y:auto;padding:20px 24px;flex:1">
+      <!-- AI 上傳 -->
+      <div style="background:linear-gradient(135deg,#E3F0FF,#F0F8FF);border:2px dashed var(--border2);border-radius:12px;padding:16px 20px;margin-bottom:20px">
+        <div style="font-size:14px;font-weight:700;color:var(--accent);margin-bottom:6px">✨ AI 自動填入</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px">上傳設計圖、會議紀錄或 LINE 截圖，AI 自動提取資訊</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--border2);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">📐 設計圖<input type="file" id="ai-design-upload" multiple accept="image/*,.pdf" style="display:none" onchange="handleAIUpload('design',this)"></label>
+          <label style="display:flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--border2);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">📋 會議紀錄<input type="file" id="ai-meeting-upload" multiple accept="image/*,.pdf,.txt" style="display:none" onchange="handleAIUpload('meeting',this)"></label>
+          <label style="display:flex;align-items:center;gap:6px;background:white;border:1.5px solid var(--border2);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text2);transition:all 0.2s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='var(--border2)'">💬 LINE 對話<input type="file" id="ai-line-upload" multiple accept="image/*,.txt" style="display:none" onchange="handleAIUpload('line',this)"></label>
+        </div>
+        <div id="ai-status" style="margin-top:10px;font-size:12px;display:none;padding:6px 10px;background:white;border-radius:6px;border:1px solid var(--border)"></div>
+        <div id="ai-attach-preview" style="margin-top:8px"></div>
+      </div>
+      <!-- 基本資料 -->
+      <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">📌 基本資料</div>
+      <div class="form-grid">
+        <div class="form-field full"><label>專案名稱 *</label><input type="text" id="pf-name" placeholder="例：中山路人行道改善工程"></div>
+        <div class="form-field"><label>行政區</label><select id="pf-district"><option>桃園區</option><option>中壢區</option><option>大溪區</option><option>楊梅區</option><option>蘆竹區</option><option>大園區</option><option>龜山區</option><option>八德區</option><option>龍潭區</option><option>平鎮區</option><option>新屋區</option><option>觀音區</option><option>復興區</option></select></div>
+        <div class="form-field"><label>類型</label><select id="pf-type"><option>人行道</option><option>通學廊道</option><option>騎樓整平</option><option>綜合改善</option></select></div>
+        <div class="form-field"><label>狀態</label><select id="pf-status"><option>規劃中</option><option>設計中</option><option>施工中</option><option>驗收中</option><option>已完工</option><option>暫停</option></select></div>
+        <div class="form-field full"><label>路段</label><input type="text" id="pf-location" placeholder="例：中山路（民族路～中正路）"></div>
+        <div class="form-field"><label>起點</label><input type="text" id="pf-start"></div>
+        <div class="form-field"><label>迄點</label><input type="text" id="pf-end"></div>
+        <div class="form-field"><label>長度（m）</label><input type="number" id="pf-length" value="0"></div>
+        <div class="form-field"><label>契約金額（元）</label><input type="number" id="pf-amount" value="0"></div>
+        <div class="form-field"><label>承辦人</label><input type="text" id="pf-handler" list="pf-hlist"><datalist id="pf-hlist"><option>游智翔</option><option>劉秀霞</option></datalist></div>
+        <div class="form-field"><label>設計單位</label><input type="text" id="pf-design-firm" list="pf-flist"></div>
+        <div class="form-field"><label>監造單位</label><input type="text" id="pf-supervise-firm" list="pf-flist"></div>
+        <div class="form-field"><label>施工單位</label><input type="text" id="pf-construct-firm" list="pf-flist"><datalist id="pf-flist"><option>九鼎</option><option>邑菖</option><option>開巨</option><option>東鈺</option><option>泰普</option></datalist></div>
+        <div class="form-field"><label>開工日期</label><input type="text" id="pf-start-date" placeholder="115/4/1"></div>
+        <div class="form-field"><label>預計完工</label><input type="text" id="pf-end-date" placeholder="115/12/31"></div>
+        <div class="form-field full"><label>工程概述</label><textarea id="pf-desc" rows="3"></textarea></div>
+        <div class="form-field full"><label>案件來源</label><input type="text" id="pf-source" placeholder="議員、里長…"></div>
+      </div>
+      <!-- 進度 -->
+      <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin:18px 0 10px">📊 進度 & 估驗</div>
+      <div class="form-grid">
+        <div class="form-field"><label>設計進度（%）</label><input type="number" id="pf-prog-design" value="0" min="0" max="100"></div>
+        <div class="form-field"><label>施工進度（%）</label><input type="number" id="pf-prog-const" value="0" min="0" max="100"></div>
+        <div class="form-field"><label>估驗期數</label><input type="number" id="pf-est-count" value="0"></div>
+        <div class="form-field"><label>累計估驗金額（元）</label><input type="number" id="pf-est-amount" value="0"></div>
+      </div>
+      <!-- 記錄 -->
+      <div style="font-size:11px;font-weight:700;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin:18px 0 10px">📎 記錄</div>
+      <div class="form-grid">
+        <div class="form-field full"><label>📋 會議紀錄摘要</label><textarea id="pf-meeting-notes" rows="4" placeholder="日期、決議事項、待辦追蹤…"></textarea></div>
+        <div class="form-field full"><label>💬 LINE 重點</label><textarea id="pf-line-notes" rows="4" placeholder="聯繫事項、確認內容、時程…"></textarea></div>
+        <div class="form-field full"><label>⚠️ 待處理事項</label><textarea id="pf-risks" rows="3" placeholder="管線遷移、跨局處協調…"></textarea></div>
+        <div class="form-field full"><label>備註</label><textarea id="pf-notes" rows="2"></textarea></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ====== 新聞稿 Modal ====== -->
+<div class="modal-overlay" id="news-modal">
+  <div style="background:white;border-radius:16px;width:700px;max-width:95vw;max-height:90vh;overflow:auto;padding:28px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <div style="font-size:18px;font-weight:700;color:#0D2545">📰 生成新聞稿</div>
+      <button onclick="closeNewsModal()" style="border:none;background:none;font-size:20px;cursor:pointer">✕</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div class="form-field"><label>工區 / 路段</label><input id="news-zone" type="text" placeholder="第一工區・桃園區"></div>
+      <div class="form-field"><label>工程名稱</label><input id="news-project" type="text" placeholder="中山路人行道改善工程"></div>
+      <div class="form-field"><label>預計效益</label><input id="news-benefit" type="text" placeholder="改善300公尺，嘉惠5,000人"></div>
+      <div class="form-field"><label>完工時程</label><input id="news-schedule" type="text" placeholder="115年12月"></div>
+    </div>
+    <button onclick="generateNews()" style="background:#1565C0;color:white;border:none;border-radius:8px;padding:10px 20px;font-size:14px;cursor:pointer;width:100%;margin-bottom:16px">✨ AI 生成新聞稿</button>
+    <div id="news-loading" style="display:none;text-align:center;color:#608080;padding:20px">⏳ 生成中…</div>
+    <div id="news-result" style="display:none">
+      <textarea id="news-text" style="width:100%;min-height:280px;border:1px solid #C5D8F0;border-radius:8px;padding:12px;font-size:13px;line-height:1.8;font-family:inherit"></textarea>
+      <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:10px">
+        <button onclick="copyNews()" style="background:white;border:1px solid #C5D8F0;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer">📋 複製</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes blink-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
+</style>
+
 <div id="toast">✓ 已儲存</div>
 
-<!-- ====== 七大手法 D1 改善前後對比 ====== -->
+<!-- ====== 七大手法 D1 ====== -->
 <div class="page" id="page-page-7methods">
   <div class="page-header">
     <div>
       <div class="page-title">[D1] 人行道改善七大手法</div>
-      <div class="page-sub">改善前 vs 改善後 · 通學廊道七大改善策略</div>
+      <div class="page-sub">行人友善七大改善策略影片說明</div>
     </div>
   </div>
-  <style>
-    .sm7-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;width:100%;box-sizing:border-box}
-    .sm7-card{background:white;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(21,101,192,.09);transition:transform .2s,box-shadow .2s;box-sizing:border-box}
-    .sm7-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(21,101,192,.14)}
-    .sm7-card.full-width{grid-column:1/-1}
-    .sm7-hdr{padding:10px 14px;display:flex;align-items:center;gap:10px}
-    .sm7-num{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;color:white;flex-shrink:0}
-    .sm7-ttl{font-size:14px;font-weight:700;color:#0D2545}
-    .sm7-compare{display:grid;grid-template-columns:1fr 4px 1fr}
-    .sm7-divider{background:#E8EDF5;position:relative}
-    .sm7-divider::after{content:"VS";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#EBF2FB;color:#1565C0;font-size:9px;font-weight:800;padding:2px 3px;border-radius:3px;border:1px solid #C5D8F0;white-space:nowrap}
-    .sm7-lbl{font-size:10px;font-weight:700;letter-spacing:.5px;padding:4px 10px}
-    .sm7-lbl.b{color:#9E3A00;background:#FFF3E0}
-    .sm7-lbl.a{color:#1B6B3A;background:#E8F5E9}
-    .sm7-scene{height:120px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
-    .sm7-scene svg{position:absolute;inset:0;width:100%;height:100%}
-    .sm7-desc{font-size:11px;color:#608080;padding:8px 12px;background:#F8FAFD;border-top:1px solid #EBF2FB;line-height:1.6}
-  </style>
 
-  <div class="sm7-grid">
-
-    <!-- ① 建立實體人行道 -->
-    <div class="sm7-card">
-      <div class="sm7-hdr" style="background:#E3F0FF">
-        <div class="sm7-num" style="background:#1565C0">①</div>
-        <div class="sm7-ttl">建立實體人行道</div>
+  <div class="card" style="padding:0;overflow:hidden;border-radius:14px">
+    <!-- 影片播放器 -->
+    <div style="position:relative;background:#000;border-radius:14px 14px 0 0;overflow:hidden">
+      <video id="d1-video"
+        src="./seven_methods.mp4"
+        controls
+        autoplay
+        muted
+        loop
+        playsinline
+        style="width:100%;max-height:540px;display:block;object-fit:contain;background:#0A1929"
+        onerror="document.getElementById('d1-video-err').style.display='flex'">
+      </video>
+      <!-- 載入失敗提示 -->
+      <div id="d1-video-err" style="display:none;position:absolute;inset:0;background:#0A1929;flex-direction:column;align-items:center;justify-content:center;color:#5A8AB0;font-size:14px;gap:12px">
+        <div style="font-size:48px">🎬</div>
+        <div style="font-weight:600">影片載入中...</div>
+        <div style="font-size:12px;max-width:300px;text-align:center;color:#4A6A80">請確認 seven_methods.mp4 已上傳到 GitHub 同一資料夾</div>
       </div>
-      <div class="sm7-compare">
-        <div><div class="sm7-lbl b">❌ 改善前</div>
-          <div class="sm7-scene" style="background:linear-gradient(#C8D0B8 58%,#888070 58%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="70" width="160" height="50" fill="#888070"/>
-              <rect x="0" y="70" width="45" height="50" fill="#9A907E"/>
-              <line x1="43" y1="70" x2="43" y2="120" stroke="#777" stroke-width="1.5" stroke-dasharray="6,4"/>
-              <rect x="8" y="45" width="20" height="25" fill="#888" rx="2"/>
-              <rect x="10" y="47" width="16" height="10" fill="#666"/>
-              <text x="18" y="62" text-anchor="middle" font-size="6" fill="#bbb">電箱</text>
-              <circle cx="75" cy="80" r="7" fill="#FFB74D"/>
-              <line x1="75" y1="87" x2="75" y2="100" stroke="#5D4037" stroke-width="2.5"/>
-              <line x1="75" y1="91" x2="67" y2="98" stroke="#5D4037" stroke-width="2"/>
-              <line x1="75" y1="91" x2="83" y2="98" stroke="#5D4037" stroke-width="2"/>
-              <line x1="75" y1="100" x2="70" y2="110" stroke="#5D4037" stroke-width="2"/>
-              <line x1="75" y1="100" x2="80" y2="110" stroke="#5D4037" stroke-width="2"/>
-              <text x="75" y="74" text-anchor="middle" font-size="11" fill="#E53935">⚠</text>
-              <rect x="105" y="75" width="48" height="22" fill="#E53935" rx="4"/>
-              <rect x="112" y="67" width="32" height="14" fill="#EF9A9A" rx="3"/>
-              <circle cx="114" cy="99" r="5" fill="#333"/>
-              <circle cx="142" cy="99" r="5" fill="#333"/>
-            </svg>
-          </div>
-        </div>
-        <div class="sm7-divider"></div>
-        <div><div class="sm7-lbl a">✅ 改善後</div>
-          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 60%,#7A8A72 60%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="72" width="160" height="48" fill="#7A8A72"/>
-              <rect x="0" y="72" width="50" height="48" fill="#E8D4A0"/>
-              <line x1="17" y1="72" x2="17" y2="120" stroke="#D4B88A" stroke-width="1"/>
-              <line x1="34" y1="72" x2="34" y2="120" stroke="#D4B88A" stroke-width="1"/>
-              <line x1="0" y1="88" x2="50" y2="88" stroke="#D4B88A" stroke-width="1"/>
-              <line x1="0" y1="104" x2="50" y2="104" stroke="#D4B88A" stroke-width="1"/>
-              <rect x="49" y="72" width="5" height="48" fill="#B0A090"/>
-              <circle cx="25" cy="80" r="7" fill="#FFB74D"/>
-              <line x1="25" y1="87" x2="25" y2="100" stroke="#5D4037" stroke-width="2.5"/>
-              <line x1="25" y1="91" x2="17" y2="98" stroke="#5D4037" stroke-width="2"/>
-              <line x1="25" y1="91" x2="33" y2="98" stroke="#5D4037" stroke-width="2"/>
-              <text x="25" y="74" text-anchor="middle" font-size="10">😊</text>
-              <text x="25" y="114" text-anchor="middle" font-size="8" fill="#1B6B3A">安全行走</text>
-              <rect x="85" y="76" width="45" height="20" fill="#1565C0" rx="4"/>
-              <rect x="92" y="68" width="30" height="13" fill="#90CAF9" rx="3"/>
-              <circle cx="94" cy="98" r="5" fill="#333"/>
-              <circle cx="122" cy="98" r="5" fill="#333"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div class="sm7-desc">將標線型人行道改建為實體舖面，設置緣石與車道明確分隔，提供行人安全步行空間。</div>
     </div>
 
-    <!-- ② 新設候車亭 -->
-    <div class="sm7-card">
-      <div class="sm7-hdr" style="background:#E3F2FD">
-        <div class="sm7-num" style="background:#4A90D9">②</div>
-        <div class="sm7-ttl">新設候車亭</div>
+    <!-- 七大手法說明列 -->
+    <div style="background:#0A1929;padding:16px 20px">
+      <div style="font-size:11px;color:#42A5F5;font-weight:700;letter-spacing:.1em;margin-bottom:12px">七大改善手法</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px">
+        ${[
+          ['①','建立實體人行道','#1565C0','將標線型改建為實體人行道，與車道明確分隔'],
+          ['②','新設候車亭','#1976D2','設置遮蔽候車亭，改善候車環境'],
+          ['③','無障礙路緣斜坡','#D4A84B','坡度1:12，輪椅娃娃車順暢通行'],
+          ['④','障礙物移除或移設','#6B8F58','電箱電桿移至設施帶，淨空步行空間'],
+          ['⑤','擴大過路停等空間','#FF8C42','路口外擴停等區，不須站車道等紅燈'],
+          ['⑥','周邊巷弄→通學巷','#E53935','時段禁車，保障學童通學安全'],
+          ['⑦','路口雙色溫路燈','#B8860B','夜間暖色照明，降低夜間事故'],
+        ].map(([num,name,color,desc])=>`
+          <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:10px 12px;transition:background 0.2s" onmouseover="this.style.background='rgba(21,101,192,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px">
+              <span style="width:22px;height:22px;border-radius:50%;background:${color};color:white;font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0">${num}</span>
+              <span style="font-size:12px;font-weight:700;color:#E3F2FD">${name}</span>
+            </div>
+            <div style="font-size:11px;color:#7AA0C0;line-height:1.5">${desc}</div>
+          </div>`).join('')}
       </div>
-      <div class="sm7-compare">
-        <div><div class="sm7-lbl b">❌ 改善前</div>
-          <div class="sm7-scene" style="background:linear-gradient(#B8C8D8 60%,#888 60%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="72" width="160" height="48" fill="#888"/>
-              <rect x="0" y="72" width="55" height="48" fill="#A09880"/>
-              <rect x="26" y="24" width="4" height="48" fill="#777"/>
-              <rect x="14" y="24" width="28" height="18" fill="#1565C0" rx="2"/>
-              <text x="28" y="36" text-anchor="middle" font-size="7" fill="white">公車站</text>
-              <circle cx="28" cy="62" r="6" fill="#FFB74D"/>
-              <line x1="20" y1="48" x2="17" y2="60" stroke="#6AB0D8" stroke-width="1.5"/>
-              <line x1="28" y1="46" x2="25" y2="58" stroke="#6AB0D8" stroke-width="1.5"/>
-              <line x1="36" y1="48" x2="33" y2="60" stroke="#6AB0D8" stroke-width="1.5"/>
-              <text x="28" y="57" text-anchor="middle" font-size="9">😢</text>
-            </svg>
-          </div>
-        </div>
-        <div class="sm7-divider"></div>
-        <div><div class="sm7-lbl a">✅ 改善後</div>
-          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 60%,#7A8A72 60%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="72" width="160" height="48" fill="#7A8A72"/>
-              <rect x="0" y="72" width="60" height="48" fill="#E8D4A0"/>
-              <rect x="6" y="36" width="50" height="7" fill="#2C5F8A" rx="2"/>
-              <rect x="6" y="43" width="50" height="40" fill="rgba(180,210,240,0.35)" stroke="#4A90D9" stroke-width="1.5"/>
-              <rect x="6" y="43" width="4" height="40" fill="#4A90D9"/>
-              <rect x="52" y="43" width="4" height="40" fill="#4A90D9"/>
-              <rect x="26" y="16" width="4" height="20" fill="#777"/>
-              <rect x="14" y="16" width="28" height="16" fill="#1565C0" rx="2"/>
-              <text x="28" y="27" text-anchor="middle" font-size="7" fill="white">公車站</text>
-              <circle cx="31" cy="56" r="6" fill="#FFB74D"/>
-              <text x="31" y="51" text-anchor="middle" font-size="9">😊</text>
-              <line x1="72" y1="48" x2="69" y2="60" stroke="#6AB0D8" stroke-width="1.5"/>
-              <line x1="80" y1="46" x2="77" y2="58" stroke="#6AB0D8" stroke-width="1.5"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div class="sm7-desc">設置遮蔽候車亭，讓民眾等候公車時免受日曬雨淋，提升大眾運輸搭乘舒適度。</div>
     </div>
-
-    <!-- ③ 無障礙路緣斜坡 -->
-    <div class="sm7-card">
-      <div class="sm7-hdr" style="background:#FFF8E1">
-        <div class="sm7-num" style="background:#D4A84B">③</div>
-        <div class="sm7-ttl">建立無障礙路緣斜坡</div>
-      </div>
-      <div class="sm7-compare">
-        <div><div class="sm7-lbl b">❌ 改善前</div>
-          <div class="sm7-scene" style="background:linear-gradient(#C8D0B8 60%,#888 60%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="72" width="160" height="48" fill="#888"/>
-              <rect x="0" y="72" width="65" height="48" fill="#A09880"/>
-              <rect x="63" y="58" width="5" height="62" fill="#9A9080"/>
-              <circle cx="42" cy="60" r="7" fill="#FFB74D"/>
-              <rect x="22" y="65" width="26" height="14" fill="#4A90D9" rx="3"/>
-              <circle cx="24" cy="81" r="5" fill="#333"/>
-              <circle cx="45" cy="81" r="5" fill="#333"/>
-              <line x1="42" y1="67" x2="42" y2="55" stroke="#5D4037" stroke-width="2"/>
-              <text x="42" y="53" text-anchor="middle" font-size="9" fill="#E53935">😤</text>
-              <text x="66" y="55" font-size="10" fill="#E53935">⚡</text>
-            </svg>
-          </div>
-        </div>
-        <div class="sm7-divider"></div>
-        <div><div class="sm7-lbl a">✅ 改善後</div>
-          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 60%,#7A8A72 60%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="72" width="160" height="48" fill="#7A8A72"/>
-              <rect x="0" y="72" width="68" height="48" fill="#E8D4A0"/>
-              <polygon points="53,72 68,72 68,86" fill="#D4A84B"/>
-              <text x="56" y="82" font-size="6" fill="white" font-weight="bold">1:12</text>
-              <circle cx="33" cy="60" r="7" fill="#FFB74D"/>
-              <rect x="14" y="65" width="26" height="14" fill="#4A90D9" rx="3"/>
-              <circle cx="16" cy="81" r="5" fill="#333"/>
-              <circle cx="37" cy="81" r="5" fill="#333"/>
-              <line x1="33" y1="67" x2="33" y2="55" stroke="#5D4037" stroke-width="2"/>
-              <text x="33" y="53" text-anchor="middle" font-size="9">😊</text>
-              <text x="33" y="96" text-anchor="middle" font-size="8" fill="#1B6B3A">順利通過</text>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div class="sm7-desc">將路口直角緣石改建為坡度1:12的斜坡，讓輪椅、娃娃車、長者均可順暢無障礙通行。</div>
-    </div>
-
-    <!-- ④ 障礙物移除或移設 -->
-    <div class="sm7-card">
-      <div class="sm7-hdr" style="background:#F1F8E9">
-        <div class="sm7-num" style="background:#6B8F58">④</div>
-        <div class="sm7-ttl">障礙物移除或移設</div>
-      </div>
-      <div class="sm7-compare">
-        <div><div class="sm7-lbl b">❌ 改善前</div>
-          <div class="sm7-scene" style="background:linear-gradient(#C0C8B0 60%,#888 60%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="72" width="160" height="48" fill="#888"/>
-              <rect x="0" y="72" width="60" height="48" fill="#A09880"/>
-              <rect x="18" y="45" width="24" height="28" fill="#777" rx="2"/>
-              <rect x="20" y="47" width="20" height="13" fill="#555"/>
-              <text x="30" y="68" text-anchor="middle" font-size="7" fill="#bbb">電箱</text>
-              <rect x="50" y="24" width="5" height="48" fill="#888"/>
-              <line x1="52" y1="34" x2="90" y2="48" stroke="#666" stroke-width="1.5"/>
-              <circle cx="32" cy="60" r="6" fill="#FFB74D"/>
-              <text x="32" y="55" text-anchor="middle" font-size="9" fill="#E53935">😤</text>
-              <text x="32" y="84" text-anchor="middle" font-size="7" fill="#E53935">無法通行</text>
-            </svg>
-          </div>
-        </div>
-        <div class="sm7-divider"></div>
-        <div><div class="sm7-lbl a">✅ 改善後</div>
-          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 60%,#7A8A72 60%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="72" width="160" height="48" fill="#7A8A72"/>
-              <rect x="0" y="72" width="60" height="48" fill="#E8D4A0"/>
-              <rect x="0" y="72" width="10" height="48" fill="#8BC34A" opacity=".5"/>
-              <rect x="0" y="76" width="10" height="18" fill="#777" rx="1"/>
-              <rect x="2" y="40" width="5" height="32" fill="#888"/>
-              <circle cx="34" cy="60" r="7" fill="#FFB74D"/>
-              <line x1="34" y1="67" x2="34" y2="80" stroke="#5D4037" stroke-width="2.5"/>
-              <line x1="34" y1="71" x2="26" y2="78" stroke="#5D4037" stroke-width="2"/>
-              <line x1="34" y1="71" x2="42" y2="78" stroke="#5D4037" stroke-width="2"/>
-              <text x="34" y="54" text-anchor="middle" font-size="9">😊</text>
-              <text x="34" y="96" text-anchor="middle" font-size="8" fill="#1B6B3A">暢行無阻</text>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div class="sm7-desc">將電箱、電桿等設施移至路邊設施帶，讓人行道空間完全淨空，行人可安全連續通行。</div>
-    </div>
-
-    <!-- ⑤ 擴大過路停等空間 -->
-    <div class="sm7-card">
-      <div class="sm7-hdr" style="background:#FFF3E0">
-        <div class="sm7-num" style="background:#FF8C42">⑤</div>
-        <div class="sm7-ttl">擴大過路停等空間</div>
-      </div>
-      <div class="sm7-compare">
-        <div><div class="sm7-lbl b">❌ 改善前</div>
-          <div class="sm7-scene" style="background:linear-gradient(#C0C8B0 55%,#888 55%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="66" width="160" height="54" fill="#888"/>
-              <rect x="0" y="66" width="18" height="54" fill="#A09880"/>
-              <rect x="142" y="66" width="18" height="54" fill="#A09880"/>
-              <rect x="18" y="86" width="124" height="5" fill="white" opacity=".55"/>
-              <rect x="18" y="98" width="124" height="5" fill="white" opacity=".55"/>
-              <circle cx="62" cy="75" r="6" fill="#FFB74D"/>
-              <circle cx="75" cy="75" r="6" fill="#FFCC80"/>
-              <circle cx="88" cy="75" r="6" fill="#FFB74D"/>
-              <text x="75" y="66" text-anchor="middle" font-size="9" fill="#E53935">😰</text>
-              <rect x="100" y="68" width="38" height="16" fill="#E53935" rx="3"/>
-              <text x="119" y="79" text-anchor="middle" font-size="8" fill="white">🚗</text>
-            </svg>
-          </div>
-        </div>
-        <div class="sm7-divider"></div>
-        <div><div class="sm7-lbl a">✅ 改善後</div>
-          <div class="sm7-scene" style="background:linear-gradient(#D6EAFF 45%,#C8D8A8 45%,#C8D8A8 55%,#7A8A72 55%)">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="66" width="160" height="54" fill="#7A8A72"/>
-              <rect x="0" y="54" width="36" height="66" fill="#E8A855" opacity=".8"/>
-              <rect x="124" y="54" width="36" height="66" fill="#E8A855" opacity=".8"/>
-              <text x="18" y="63" text-anchor="middle" font-size="6" fill="#7A3A00" font-weight="bold">停等區</text>
-              <text x="142" y="63" text-anchor="middle" font-size="6" fill="#7A3A00" font-weight="bold">停等區</text>
-              <rect x="36" y="88" width="88" height="5" fill="white" opacity=".6"/>
-              <rect x="36" y="100" width="88" height="5" fill="white" opacity=".6"/>
-              <circle cx="18" cy="72" r="6" fill="#FFB74D"/>
-              <circle cx="142" cy="72" r="6" fill="#FFCC80"/>
-              <text x="18" y="63" text-anchor="middle" font-size="9">😊</text>
-              <text x="142" y="63" text-anchor="middle" font-size="9">😊</text>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div class="sm7-desc">於路口行人穿越道兩端外擴停等空間，行人無需站在車道上等紅燈，大幅提升安全性。</div>
-    </div>
-
-    <!-- ⑥ 通學巷 -->
-    <div class="sm7-card">
-      <div class="sm7-hdr" style="background:#FFEBEE">
-        <div class="sm7-num" style="background:#FF6B6B">⑥</div>
-        <div class="sm7-ttl">周邊巷弄 → 通學巷</div>
-      </div>
-      <div class="sm7-compare">
-        <div><div class="sm7-lbl b">❌ 改善前</div>
-          <div class="sm7-scene" style="background:#C0C8B0">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="0" width="160" height="120" fill="#C0C8B0"/>
-              <rect x="50" y="0" width="60" height="120" fill="#A0A890"/>
-              <rect x="52" y="44" width="55" height="22" fill="#E53935" rx="4"/>
-              <circle cx="62" cy="68" r="5" fill="#333"/>
-              <circle cx="97" cy="68" r="5" fill="#333"/>
-              <text x="80" y="57" text-anchor="middle" font-size="8" fill="white">🚗 危險</text>
-              <circle cx="80" cy="22" r="7" fill="#FFB74D"/>
-              <text x="80" y="17" text-anchor="middle" font-size="10">😱</text>
-            </svg>
-          </div>
-        </div>
-        <div class="sm7-divider"></div>
-        <div><div class="sm7-lbl a">✅ 改善後</div>
-          <div class="sm7-scene" style="background:#D6EAFF">
-            <svg viewBox="0 0 160 120" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="0" width="160" height="120" fill="#D6EAFF"/>
-              <rect x="50" y="0" width="60" height="120" fill="#FFEBCC"/>
-              <circle cx="80" cy="30" r="16" fill="#CC0000"/>
-              <rect x="66" y="27" width="28" height="7" fill="white" rx="3"/>
-              <text x="80" y="52" text-anchor="middle" font-size="7" fill="#CC0000" font-weight="bold">禁止進入</text>
-              <text x="80" y="62" text-anchor="middle" font-size="6" fill="#888">07-08・12-13・15-16</text>
-              <circle cx="80" cy="90" r="7" fill="#FFB74D"/>
-              <text x="80" y="85" text-anchor="middle" font-size="10">😊</text>
-              <text x="80" y="108" text-anchor="middle" font-size="7" fill="#1B6B3A">安全通學</text>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div class="sm7-desc">對學校周邊過窄巷弄，時段性禁止車輛進入（07~08、12~13、15~16時，例假日除外），保障學童安全。</div>
-    </div>
-
-    <!-- ⑦ 路口雙色溫路燈（全寬） -->
-    <div class="sm7-card full-width">
-      <div class="sm7-hdr" style="background:#FFF8E1">
-        <div class="sm7-num" style="background:#B8860B">⑦</div>
-        <div class="sm7-ttl">路口雙色溫路燈</div>
-      </div>
-      <div class="sm7-compare">
-        <div><div class="sm7-lbl b">❌ 改善前</div>
-          <div class="sm7-scene" style="background:linear-gradient(#1A1A2A 60%,#444 60%);height:150px">
-            <svg viewBox="0 0 160 150" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="90" width="160" height="60" fill="#444"/>
-              <rect x="0" y="90" width="55" height="60" fill="#555"/>
-              <line x1="30" y1="90" x2="30" y2="30" stroke="#777" stroke-width="4"/>
-              <line x1="30" y1="30" x2="55" y2="20" stroke="#777" stroke-width="3"/>
-              <circle cx="55" cy="18" r="8" fill="#999" opacity=".4"/>
-              <circle cx="22" cy="80" r="7" fill="#7A6A5A"/>
-              <text x="22" y="74" text-anchor="middle" font-size="9" fill="#666">😟</text>
-              <text x="22" y="102" text-anchor="middle" font-size="7" fill="#666">看不見</text>
-              <circle cx="45" cy="82" r="6" fill="#6A5A4A"/>
-              <text x="45" y="102" text-anchor="middle" font-size="7" fill="#666">危險</text>
-            </svg>
-          </div>
-        </div>
-        <div class="sm7-divider"></div>
-        <div><div class="sm7-lbl a">✅ 改善後</div>
-          <div class="sm7-scene" style="background:linear-gradient(#1A2A3A 60%,#5A6A58 60%);height:150px">
-            <svg viewBox="0 0 160 150" xmlns="http://www.w3.org/2000/svg">
-              <rect x="0" y="90" width="160" height="60" fill="#5A6A58"/>
-              <rect x="0" y="90" width="60" height="60" fill="#D4C89A"/>
-              <line x1="32" y1="90" x2="32" y2="28" stroke="#AAA" stroke-width="4"/>
-              <line x1="32" y1="28" x2="58" y2="16" stroke="#AAA" stroke-width="3"/>
-              <ellipse cx="58" cy="14" rx="13" ry="6" fill="#FFD700"/>
-              <ellipse cx="58" cy="12" rx="9" ry="4" fill="#FFF59D"/>
-              <ellipse cx="32" cy="78" rx="40" ry="24" fill="#FFD700" opacity=".12"/>
-              <ellipse cx="32" cy="80" rx="26" ry="16" fill="#FFB300" opacity=".14"/>
-              <circle cx="22" cy="80" r="7" fill="#FFB74D"/>
-              <text x="22" y="74" text-anchor="middle" font-size="9">😊</text>
-              <line x1="22" y1="87" x2="22" y2="100" stroke="#5D4037" stroke-width="2.5"/>
-              <circle cx="42" cy="82" r="6" fill="#FFB74D"/>
-              <text x="42" y="76" text-anchor="middle" font-size="9">😊</text>
-              <text x="90" y="25" font-size="8" fill="#FFD700" font-weight="bold">🌟 雙色溫路燈</text>
-              <text x="90" y="37" font-size="7" fill="#FFB300">夜間暖光 清晰可見</text>
-              <text x="22" y="115" text-anchor="middle" font-size="7" fill="#1B6B3A">安全通學</text>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div class="sm7-desc">於學校周邊路口設置雙色溫路燈，夜間及清晨提供充足暖色照明，讓學童、家長及駕駛均能清楚辨識行人，大幅降低夜間通學風險。</div>
-    </div>
-
   </div>
 </div>
+
+
 <!-- ====== 新聞稿生成 Modal ====== -->
 <div id="news-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:2000;align-items:center;justify-content:center">
   <div style="background:white;border-radius:16px;width:700px;max-width:95vw;max-height:90vh;overflow:auto;padding:28px">
@@ -1995,7 +1818,8 @@ function renderPage(id) {
   else if (id === 'budget') renderBudget();
   else if (id === 'schedule') renderSchedule();
   else if (id === 'bizreport-c1') { renderC1(); }
-  else if (id === 'page-7methods') { setTimeout(initSevenMethods, 50); }
+  else if (id === 'page-7methods') { setTimeout(initD1, 80); }
+  else if (id === 'projects') { renderProjects(); }
   else if (id.startsWith('dist-')) renderDistrict(id.replace('dist-',''));
   else if (id.startsWith('report-')) renderReport(id.replace('report-',''));
 }
@@ -3000,39 +2824,29 @@ function renderC1() {
   const byDist = {};
   filtered.forEach(r=>{ if(!byDist[r.district])byDist[r.district]=[]; byDist[r.district].push(r); });
   content.innerHTML = Object.entries(byDist).map(([dist, rows])=>`
-    <div style="margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;padding:6px 12px;background:linear-gradient(90deg,#1565C0,#2979CC);border-radius:8px">
-        <span style="color:white;font-size:13px;font-weight:700">${dist}</span>
-        <span style="font-size:11px;color:rgba(255,255,255,0.75)">${rows.length} 條路段・共 ${rows.reduce((s,r)=>s+r.length,0).toLocaleString()} m</span>
+    <div style="margin-bottom:28px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px 16px;background:linear-gradient(90deg,#0D47A1,#1976D2);border-radius:10px">
+        <span style="color:white;font-size:14px;font-weight:700">${dist}</span>
+        <span style="font-size:12px;color:rgba(255,255,255,0.8)">${rows.length} 條路段・共 ${rows.reduce((s,r)=>s+r.length,0).toLocaleString()} m</span>
       </div>
-      <div style="border-radius:8px;border:1px solid var(--border);overflow:hidden">
-      <table class="data-table" style="background:var(--surface);table-layout:fixed;width:100%">
-        <colgroup>
-          <col style="width:32px">
-          <col style="width:22%">
-          <col style="width:62px">
-          <col style="width:68px">
-          <col style="width:16%">
-          <col style="width:16%">
-          <col style="width:82px">
-          <col>
-        </colgroup>
-        <thead><tr>
-          <th>#</th><th>路名</th><th style="text-align:right">長度(m)</th><th>預算來源</th>
-          <th>起點</th><th>迄點</th><th style="text-align:right">概估(萬)</th><th>案件來源</th>
-        </tr></thead>
-        <tbody>${rows.map(r=>`<tr>
-          <td style="font-size:11px;color:var(--text3);text-align:center">${r.seq}</td>
-          <td style="font-weight:600;font-size:12px">${r.road}</td>
-          <td style="font-family:'DM Mono',monospace;font-size:12px;text-align:right">${r.length.toLocaleString()}</td>
-          <td><span class="badge ${r.budgetSrc==='中央補助'?'badge-design':'badge-wip'}" style="font-size:10px;padding:1px 6px">${r.budgetSrc}</span></td>
-          <td style="font-size:11px">${r.start}</td>
-          <td style="font-size:11px">${r.end}</td>
-          <td style="font-family:'DM Mono',monospace;font-size:11px;text-align:right">${r.cost?r.cost.toLocaleString()+(r.costNote?'<br><span style="font-size:9px;color:var(--orange)">('+r.costNote+')</span>':''):'-'}</td>
-          <td style="font-size:11px;color:var(--text2)">${r.source||'-'}</td>
-        </tr>`).join('')}</tbody>
-      </table>
-      </div>
+      ${rows.map(r=>`
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 18px;margin-bottom:10px;transition:box-shadow 0.2s" onmouseover="this.style.boxShadow='0 2px 12px rgba(21,101,192,0.12)'" onmouseout="this.style.boxShadow=''">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:8px">
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+              <span style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;background:var(--surface2);padding:1px 7px;border-radius:4px">#${r.seq}</span>
+              <span style="font-size:15px;font-weight:700;color:var(--text)">${r.road}</span>
+            </div>
+            <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
+              <span class="badge ${r.budgetSrc==='中央補助'?'badge-design':'badge-wip'}">${r.budgetSrc}</span>
+              ${r.cost?`<span style="font-family:'DM Mono',monospace;font-size:12px;font-weight:700;color:var(--accent)">${r.cost.toLocaleString()}萬${r.costNote?'<span style="font-size:9px;color:var(--orange);margin-left:3px">('+r.costNote+')</span>':''}</span>`:'<span style="color:var(--text3);font-size:12px">-</span>'}
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px 20px;font-size:12px">
+            ${r.start||r.end?`<div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text3);flex-shrink:0">起點</span><span style="color:var(--text)">${r.start||'-'}</span></div><div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text3);flex-shrink:0">迄點</span><span style="color:var(--text)">${r.end||'-'}</span></div>`:''}
+            <div style="display:flex;gap:8px;align-items:center"><span style="color:var(--text3);flex-shrink:0">長度</span><span style="font-family:'DM Mono',monospace;color:var(--accent);font-weight:600">${r.length.toLocaleString()} m</span></div>
+            ${r.source?`<div style="display:flex;gap:8px;align-items:center;grid-column:1/-1"><span style="color:var(--text3);flex-shrink:0">來源</span><span style="color:var(--text2)">${r.source}</span></div>`:''}
+          </div>
+        </div>`).join('')}
     </div>`).join('');
 }
 
@@ -3150,10 +2964,485 @@ function exportCardAsJPG(caseId){
   } else load();
 }
 
+// ==========================================
+// ===== D1 七大手法動畫系統 =================
+// ==========================================
+const D1_LABELS = [
+  {id:'L1',num:'⑦',name:'路口雙色溫路燈',    x:9,  y:22, color:'#B8860B',desc:'於學校周邊路口設置雙色溫LED路燈，夜間暖色照明讓行人與駕駛清楚辨識，大幅降低夜間事故風險。'},
+  {id:'L2',num:'②',name:'新設候車亭',        x:33, y:20, color:'#1976D2',desc:'於公車站點設置遮蔽候車亭，讓民眾等候時免受日曬雨淋，提升大眾運輸搭乘意願。'},
+  {id:'L3',num:'④',name:'障礙物移除或移設',  x:49, y:28, color:'#6B8F58',desc:'將電箱、電桿等設施遷移至路邊設施帶，讓人行道空間完全淨空，保障連續行走空間。'},
+  {id:'L4',num:'⑥',name:'通學巷(時段性禁入)',x:84, y:26, color:'#E53935',desc:'學校周邊巷弄上下學時段禁止車輛進入（07-08、12-13、15-16時，例假日除外）。'},
+  {id:'L5',num:'③',name:'建立無障礙路緣斜坡',x:49, y:52, color:'#D4A84B',desc:'路口設置坡度1:12標準斜坡，讓輪椅、娃娃車、長者均可順暢無障礙通行。'},
+  {id:'L6',num:'①',name:'實體人行道',        x:29, y:54, color:'#1565C0',desc:'將標線型人行道改建為有緣石的實體磚面人行道，與車道明確分隔，提供安全步行空間。'},
+  {id:'L7',num:'⑤',name:'擴大過路停等空間',  x:81, y:60, color:'#FF8C42',desc:'路口行人穿越道兩端外擴停等區，行人不須站在車道上等紅燈，大幅提升路口安全性。'},
+];
+let d1ActiveId = null;
+let d1IsNight = false;
+let d1AnimFrame = null;
+let d1Canvas = null, d1Ctx = null;
+
+// 行人與雲的狀態
+const d1Walkers = [
+  {x:-10, y:88, speed:0.08, emoji:'🚶', size:22, delay:0},
+  {x:20,  y:90, speed:0.05, emoji:'👩', size:20, delay:60},
+  {x:60,  y:87, speed:0.06, emoji:'🧒', size:18, delay:120},
+  {x:-30, y:91, speed:0.04, emoji:'👴', size:20, delay:200},
+];
+const d1Clouds = [
+  {x:10,  y:8,  speed:0.02, scale:1.2, opacity:0.7},
+  {x:40,  y:5,  speed:0.015,scale:0.9, opacity:0.6},
+  {x:70,  y:10, speed:0.025,scale:1.0, opacity:0.65},
+  {x:85,  y:6,  speed:0.018,scale:0.8, opacity:0.55},
+];
+let d1Tick = 0;
+
+function initD1() {
+  d1Canvas = document.getElementById('d1-canvas');
+  if (!d1Canvas) return;
+  const wrap = document.getElementById('d1-img-wrap');
+  if (!wrap) return;
+  d1Canvas.width  = wrap.offsetWidth;
+  d1Canvas.height = wrap.offsetHeight;
+  d1Ctx = d1Canvas.getContext('2d');
+
+  // 初始化行人位置
+  d1Walkers.forEach((w,i) => { w.x = -10 - i*25; });
+
+  if (d1AnimFrame) cancelAnimationFrame(d1AnimFrame);
+  d1AnimLoop();
+}
+
+function d1AnimLoop() {
+  if (!d1Ctx || !d1Canvas) return;
+  d1Tick++;
+  const W = d1Canvas.width, H = d1Canvas.height;
+  d1Ctx.clearRect(0,0,W,H);
+
+  // 繪製雲（白天才顯示）
+  if (!d1IsNight) {
+    d1Clouds.forEach(c => {
+      c.x += c.speed;
+      if (c.x > 110) c.x = -15;
+      const cx = c.x/100*W, cy = c.y/100*H;
+      const r = c.scale * W * 0.05;
+      d1Ctx.save();
+      d1Ctx.globalAlpha = c.opacity;
+      d1Ctx.fillStyle = 'white';
+      d1Ctx.beginPath();
+      d1Ctx.arc(cx, cy, r, 0, Math.PI*2);
+      d1Ctx.arc(cx+r*0.7, cy-r*0.3, r*0.7, 0, Math.PI*2);
+      d1Ctx.arc(cx-r*0.6, cy-r*0.2, r*0.6, 0, Math.PI*2);
+      d1Ctx.fill();
+      d1Ctx.restore();
+    });
+  } else {
+    // 夜晚繪製星星
+    if (d1Tick % 40 === 0) {
+      d1Ctx.save();
+      d1Ctx.globalAlpha = 0.8;
+      for (let i=0; i<5; i++) {
+        const sx = Math.random()*W, sy = Math.random()*H*0.45;
+        d1Ctx.fillStyle = '#FFE57F';
+        d1Ctx.beginPath();
+        d1Ctx.arc(sx, sy, 1.5, 0, Math.PI*2);
+        d1Ctx.fill();
+      }
+      d1Ctx.restore();
+    }
+  }
+
+  // 繪製行人（在路面高度）
+  d1Walkers.forEach(w => {
+    if (d1Tick > w.delay) {
+      w.x += w.speed;
+      if (w.x > 112) w.x = -12;
+    }
+    if (w.x < 0 || w.x > 100) return;
+    const px = w.x/100*W;
+    const py = w.y/100*H;
+    // 走路彈跳效果
+    const bob = Math.sin(d1Tick * 0.15 + w.delay) * 1.5;
+    d1Ctx.save();
+    d1Ctx.font = `${w.size * W/800}px serif`;
+    d1Ctx.globalAlpha = d1IsNight ? 0.7 : 0.9;
+    d1Ctx.fillText(w.emoji, px, py + bob);
+    d1Ctx.restore();
+  });
+
+  d1AnimFrame = requestAnimationFrame(d1AnimLoop);
+}
+
+function d1Click(id) {
+  const label = D1_LABELS.find(l=>l.id===id);
+  if (!label) return;
+  d1ActiveId = id;
+
+  const panel = document.getElementById('d1-panel');
+  const badge = document.getElementById('d1-panel-badge');
+  const name  = document.getElementById('d1-panel-name');
+  const desc  = document.getElementById('d1-panel-desc');
+  if (!panel) return;
+
+  if (badge) { badge.textContent = label.num; badge.style.background = label.color; }
+  if (name)  { name.textContent = label.name; }
+  if (desc)  { desc.textContent = label.desc; }
+  panel.style.transform = 'translateY(0)';
+  panel.style.borderTopColor = label.color;
+
+  // 更新 chips 和圓點
+  D1_LABELS.forEach(l => {
+    const chip = document.getElementById('d1-chip-'+l.id);
+    if (chip) chip.style.borderColor = l.id===id ? l.color : '#E8EDF5';
+    const dot = document.getElementById('d1-dot-'+l.id);
+    if (dot) dot.setAttribute('opacity', l.id===id ? '1' : '0.45');
+  });
+}
+
+function d1PanelClose() {
+  const panel = document.getElementById('d1-panel');
+  if (panel) panel.style.transform = 'translateY(100%)';
+  d1ActiveId = null;
+  D1_LABELS.forEach(l => {
+    const chip = document.getElementById('d1-chip-'+l.id);
+    if (chip) chip.style.borderColor = '#E8EDF5';
+    const dot = document.getElementById('d1-dot-'+l.id);
+    if (dot) dot.setAttribute('opacity', '0.9');
+  });
+}
+
+function d1ToggleTime() {
+  d1IsNight = !d1IsNight;
+  const mask  = document.getElementById('d1-night-mask');
+  const label = document.getElementById('d1-time-label');
+  const btn   = document.querySelector('[onclick="d1ToggleTime()"]');
+  if (mask)  mask.style.background = d1IsNight ? 'rgba(5,15,40,0.52)' : 'rgba(5,15,40,0)';
+  if (label) label.textContent = d1IsNight ? '夜晚' : '白天';
+  if (btn)   btn.textContent = d1IsNight ? '☀️ 切換白天' : '🌙 切換晝夜';
+}
+
+// ==========================================
+// ===== E1 專案列管案件 =====================
+// ==========================================
+let PROJECTS = [];
+let editingProjectId = null;
+const PROJ_COLORS = {
+  '規劃中':{bg:'#DDE6EE',color:'#4A5E70'},
+  '設計中':{bg:'#EDE7FF',color:'#4527A0'},
+  '施工中':{bg:'#E3F0FF',color:'#1565C0'},
+  '驗收中':{bg:'#FFF0DC',color:'#C45A00'},
+  '已完工':{bg:'#D4F0E0',color:'#1B6B3A'},
+  '暫停':  {bg:'#FFEBEE',color:'#B71C1C'},
+};
+
+function renderProjects() {
+  const dSel = document.getElementById('proj-filter-district');
+  if (dSel && dSel.options.length <= 1) {
+    [...new Set(PROJECTS.map(p=>p.district).filter(Boolean))].sort().forEach(d=>{
+      const o=document.createElement('option'); o.value=o.text=d; dSel.add(o);
+    });
+  }
+  const search   = (document.getElementById('proj-search')||{}).value?.toLowerCase()||'';
+  const fStatus  = (document.getElementById('proj-filter-status')||{}).value||'';
+  const fDistrict= (document.getElementById('proj-filter-district')||{}).value||'';
+  const filtered = PROJECTS.filter(p=>{
+    if (fStatus   && p.status!==fStatus)     return false;
+    if (fDistrict && p.district!==fDistrict) return false;
+    if (search && !(p.name+p.location+p.handler+p.district).toLowerCase().includes(search)) return false;
+    return true;
+  });
+  const badge=document.getElementById('badge-projects'); if(badge) badge.textContent=PROJECTS.length||0;
+  const countEl=document.getElementById('proj-count'); if(countEl) countEl.textContent=`共 ${filtered.length} 件`;
+  const stats=document.getElementById('proj-stats');
+  if(stats){
+    const byS={};PROJECTS.forEach(p=>{byS[p.status]=(byS[p.status]||0)+1;});
+    const amt=PROJECTS.reduce((s,p)=>s+(Number(p.amount)||0),0);
+    stats.innerHTML=[
+      {label:'專案總數',val:PROJECTS.length,sub:'件'},
+      {label:'施工中', val:byS['施工中']||0,sub:'件',color:'var(--accent)'},
+      {label:'設計中', val:byS['設計中']||0,sub:'件',color:'var(--purple)'},
+      {label:'已完工', val:byS['已完工']||0,sub:'件',color:'var(--green)'},
+      {label:'契約總額',val:amt?'NT$'+Math.round(amt/10000)+'萬':'-',sub:''},
+    ].map(s=>`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value" style="font-size:20px;${s.color?'color:'+s.color:''}">${s.val}</div><div class="stat-sub">${s.sub}</div></div>`).join('');
+  }
+  const list=document.getElementById('proj-list'); if(!list) return;
+  if(!PROJECTS.length){
+    list.innerHTML=`<div style="text-align:center;padding:80px 20px;color:var(--text3)">
+      <div style="font-size:52px;margin-bottom:16px">🏗️</div>
+      <div style="font-size:16px;font-weight:700;color:var(--text2);margin-bottom:8px">尚無專案</div>
+      <div style="font-size:13px;max-width:380px;margin:0 auto;line-height:1.7">點擊「＋ 新增專案」或上傳設計圖讓 AI 自動建立</div>
+      <button class="btn btn-primary" style="margin-top:20px" onclick="openProjectModal()">＋ 新增第一個專案</button>
+    </div>`;
+    return;
+  }
+  list.innerHTML=filtered.length?filtered.map(p=>projCardHTML(p)).join(''):`<div style="text-align:center;padding:40px;color:var(--text3)">篩選條件無符合結果</div>`;
+}
+
+function projCardHTML(p) {
+  const pc=PROJ_COLORS[p.status]||{bg:'#DDE6EE',color:'#4A5E70'};
+  const isWip=p.status==='施工中';
+  const photos=p.photos||[];
+  const amtStr=p.amount?'NT$'+Math.round(Number(p.amount)/10000).toLocaleString()+'萬':'-';
+  const dProg=Math.min(Number(p.progDesign)||0,100);
+  const cProg=Math.min(Number(p.progConst)||0,100);
+  return `<div style="background:var(--surface);border:1px solid ${isWip?'#1565C0':pc.color};border-left:5px solid ${pc.color};border-radius:14px;overflow:hidden;margin-bottom:20px;box-shadow:${isWip?'0 4px 20px rgba(21,101,192,0.18)':'0 2px 10px rgba(0,0,0,0.06)'}">
+    <!-- 頭部 -->
+    <div style="padding:16px 20px;background:${isWip?'linear-gradient(90deg,#E3F0FF,#F0F6FF)':'var(--surface2)'};display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <span style="background:${pc.bg};color:${pc.color};font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:4px">
+            <span style="width:6px;height:6px;border-radius:50%;background:${pc.color};display:inline-block${isWip?';animation:blink-dot 1.2s ease-in-out infinite':''} "></span>${p.status}
+          </span>
+          <span style="font-size:11px;color:var(--text3)">${p.district||''} · ${p.type||''}</span>
+          ${(p.photos||[]).length?`<span style="font-size:10px;background:#E3F0FF;color:#1565C0;padding:2px 8px;border-radius:5px;font-weight:600">📷 ${p.photos.length} 張工地照</span>`:''}
+        </div>
+        <div style="font-size:17px;font-weight:700;color:var(--text)">${p.name}</div>
+        ${p.location?`<div style="font-size:12px;color:var(--text3);margin-top:2px">${p.location}${p.start&&p.end?' ('+p.start+'～'+p.end+')':''}</div>`:''}
+      </div>
+      <div style="display:flex;gap:6px">
+        ${isWip?`<button class="btn btn-sm" onclick="openPhotoUpload(${p.id})" style="background:#1565C0;color:white;border-color:#1565C0">📷 上傳照片</button>`:''}
+        <button class="btn btn-sm" onclick="openProjectEdit(${p.id})">✏️ 編輯</button>
+        <button class="btn btn-sm" onclick="deleteProject(${p.id})" style="color:var(--red)">🗑</button>
+      </div>
+    </div>
+
+    <!-- 施工中：監控室樣式 -->
+    ${isWip&&photos.length?`
+    <div style="background:#0A1929;padding:12px 16px">
+      <div style="font-size:11px;color:#42A5F5;font-weight:700;letter-spacing:.1em;margin-bottom:8px">📹 工地現場照片</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px">
+        ${photos.map((ph,i)=>`
+          <div onclick="openPhotoViewer(${p.id},${i})" style="cursor:pointer;border-radius:8px;overflow:hidden;aspect-ratio:4/3;background:#1A2A3A;position:relative;border:1px solid #1565C0">
+            <img src="${ph.dataUrl}" style="width:100%;height:100%;object-fit:cover" alt="工地照片">
+            <div style="position:absolute;bottom:4px;right:4px;background:rgba(0,0,0,.6);color:white;font-size:9px;padding:1px 5px;border-radius:3px">${ph.date||''}</div>
+          </div>`).join('')}
+      </div>
+    </div>`:isWip?`
+    <div style="background:#0A1929;padding:14px 16px;text-align:center">
+      <div style="color:#5A8AB0;font-size:12px;margin-bottom:8px">尚無工地照片</div>
+      <button onclick="openPhotoUpload(${p.id})" style="background:#1565C0;color:white;border:none;border-radius:8px;padding:7px 16px;font-size:12px;cursor:pointer;font-family:inherit">📷 上傳工地照片</button>
+    </div>`:''}
+
+    <!-- 三欄資訊 -->
+    <div style="display:grid;grid-template-columns:200px 1fr 1fr;border-top:1px solid var(--border)">
+      <div style="padding:14px 16px;border-right:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">📌 基本</div>
+        ${[['承辦',p.handler],['契約',amtStr],['長度',p.length?Number(p.length).toLocaleString()+' m':null],['開工',p.startDate],['完工',p.endDate],['設計',p.designFirm],['監造',p.superviseFirm],['施工',p.constructFirm]].filter(([,v])=>v).map(([k,v])=>`<div style="display:flex;justify-content:space-between;font-size:11px;padding:2px 0;border-bottom:1px solid rgba(0,0,0,.04)"><span style="color:var(--text3)">${k}</span><span style="font-weight:500">${v}</span></div>`).join('')}
+      </div>
+      <div style="padding:14px 16px;border-right:1px solid var(--border)">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">📊 進度</div>
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--text3)">設計進度</span><span style="font-weight:700;color:#4527A0">${dProg}%</span></div>
+          <div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden"><div style="height:100%;width:${dProg}%;background:#7C4DFF;border-radius:3px;transition:width 0.8s"></div></div>
+        </div>
+        <div style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:var(--text3)">施工進度</span><span style="font-weight:700;color:var(--accent)">${cProg}%</span></div>
+          <div style="height:6px;background:var(--surface2);border-radius:3px;overflow:hidden"><div style="height:100%;width:${cProg}%;background:#1565C0;border-radius:3px;transition:width 0.8s"></div></div>
+        </div>
+        ${p.estCount||p.estAmount?`<div style="background:var(--accent-bg);border-radius:7px;padding:7px 10px;font-size:11px"><span style="color:var(--text3)">累計估驗</span> <span style="font-weight:700;color:var(--accent)">第${p.estCount||0}期 ${p.estAmount?'・NT$'+Math.round(Number(p.estAmount)/10000)+'萬':''}</span></div>`:''}
+        ${p.desc?`<div style="margin-top:8px;font-size:11px;color:var(--text2);line-height:1.6;border-top:1px solid var(--border);padding-top:8px">${p.desc}</div>`:''}
+      </div>
+      <div style="padding:14px 16px">
+        <div style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">💬 記錄</div>
+        ${p.meetingNotes?`<div style="background:var(--surface2);border-radius:7px;padding:8px 11px;font-size:11px;color:var(--text2);line-height:1.6;border-left:3px solid var(--border2);margin-bottom:7px"><b style="font-size:10px;color:var(--text);display:block;margin-bottom:3px">📋 會議紀錄</b>${p.meetingNotes.slice(0,150)}${p.meetingNotes.length>150?'…':''}</div>`:''}
+        ${p.lineNotes?`<div style="background:#E8F5E9;border-radius:7px;padding:8px 11px;font-size:11px;color:var(--text2);line-height:1.6;border-left:3px solid #06C755;margin-bottom:7px"><b style="font-size:10px;color:var(--text);display:block;margin-bottom:3px">💬 LINE 重點</b>${p.lineNotes.slice(0,120)}${p.lineNotes.length>120?'…':''}</div>`:''}
+        ${p.risks?`<div style="background:var(--orange-bg);border-radius:7px;padding:8px 11px;font-size:11px;color:var(--text2);line-height:1.6;border-left:3px solid var(--orange)"><b style="font-size:10px;color:var(--orange);display:block;margin-bottom:3px">⚠️ 待處理</b>${p.risks.slice(0,100)}${p.risks.length>100?'…':''}</div>`:''}
+        ${!p.meetingNotes&&!p.lineNotes&&!p.risks?`<div style="color:var(--text3);font-size:11px;padding-top:8px">尚無記錄</div>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+
+// 隱藏的照片上傳 input
+let _photoUploadProjId = null;
+function openPhotoUpload(projId) {
+  _photoUploadProjId = projId;
+  let inp = document.getElementById('proj-photo-input');
+  if (!inp) {
+    inp = document.createElement('input');
+    inp.type='file'; inp.id='proj-photo-input';
+    inp.accept='image/*'; inp.multiple=true;
+    inp.style.display='none';
+    inp.onchange = handlePhotoUpload;
+    document.body.appendChild(inp);
+  }
+  inp.click();
+}
+
+async function handlePhotoUpload(e) {
+  const files = Array.from(e.target.files);
+  const p = PROJECTS.find(x=>x.id===_photoUploadProjId);
+  if (!p||!files.length) return;
+  if (!p.photos) p.photos=[];
+  const today = new Date().toLocaleDateString('zh-TW',{month:'2-digit',day:'2-digit'});
+  for (const file of files) {
+    const dataUrl = await new Promise(res=>{ const r=new FileReader(); r.onload=()=>res(r.result); r.readAsDataURL(file); });
+    p.photos.push({dataUrl, name:file.name, date:today});
+  }
+  saveProjectsToFirebase();
+  renderProjects();
+  showToast(`✓ 已上傳 ${files.length} 張工地照片`);
+  e.target.value='';
+}
+
+// 照片瀏覽器
+function openPhotoViewer(projId, idx) {
+  const p=PROJECTS.find(x=>x.id===projId);
+  if(!p||!p.photos) return;
+  let viewer=document.getElementById('photo-viewer');
+  if(!viewer){
+    viewer=document.createElement('div');
+    viewer.id='photo-viewer';
+    viewer.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer';
+    viewer.onclick=()=>viewer.remove();
+    document.body.appendChild(viewer);
+  }
+  viewer.innerHTML=`
+    <div onclick="event.stopPropagation()" style="max-width:90vw;max-height:90vh;position:relative">
+      <img id="pv-img" src="${p.photos[idx].dataUrl}" style="max-width:90vw;max-height:80vh;border-radius:10px;display:block">
+      <div style="color:white;text-align:center;margin-top:10px;font-size:12px">${p.photos[idx].date||''} · ${idx+1}/${p.photos.length}</div>
+      <div style="display:flex;justify-content:center;gap:12px;margin-top:10px">
+        ${idx>0?`<button onclick="openPhotoViewer(${projId},${idx-1})" style="background:white;border:none;border-radius:8px;padding:6px 16px;cursor:pointer;font-size:13px">◀</button>`:''}
+        <button onclick="document.getElementById('photo-viewer').remove()" style="background:rgba(255,255,255,.15);color:white;border:none;border-radius:8px;padding:6px 16px;cursor:pointer;font-size:13px">✕ 關閉</button>
+        ${idx<p.photos.length-1?`<button onclick="openPhotoViewer(${projId},${idx+1})" style="background:white;border:none;border-radius:8px;padding:6px 16px;cursor:pointer;font-size:13px">▶</button>`:''}
+      </div>
+    </div>`;
+}
+
+function openProjectModal() {
+  editingProjectId=null;
+  document.getElementById('proj-modal-title').textContent='新增專案';
+  const clr=['pf-name','pf-location','pf-start','pf-end','pf-desc','pf-source','pf-handler','pf-design-firm','pf-supervise-firm','pf-construct-firm','pf-start-date','pf-end-date','pf-meeting-notes','pf-line-notes','pf-risks','pf-notes'];
+  clr.forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['pf-length','pf-amount','pf-prog-design','pf-prog-const','pf-est-count','pf-est-amount'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=0;});
+  document.getElementById('pf-status').value='規劃中';
+  document.getElementById('pf-type').value='人行道';
+  const ap=document.getElementById('ai-attach-preview'); if(ap) ap.innerHTML='';
+  const as=document.getElementById('ai-status'); if(as) as.style.display='none';
+  window._pendingAttachments=[];
+  document.getElementById('proj-modal').classList.add('open');
+}
+
+function openProjectEdit(id) {
+  const p=PROJECTS.find(x=>x.id===id); if(!p) return;
+  editingProjectId=id;
+  document.getElementById('proj-modal-title').textContent='編輯專案 — '+p.name;
+  const sv=(fid,v)=>{const el=document.getElementById(fid);if(el)el.value=v||'';};
+  sv('pf-name',p.name);sv('pf-location',p.location);sv('pf-start',p.start);sv('pf-end',p.end);
+  sv('pf-desc',p.desc);sv('pf-source',p.source);sv('pf-handler',p.handler);
+  sv('pf-design-firm',p.designFirm);sv('pf-supervise-firm',p.superviseFirm);sv('pf-construct-firm',p.constructFirm);
+  sv('pf-start-date',p.startDate);sv('pf-end-date',p.endDate);
+  sv('pf-meeting-notes',p.meetingNotes);sv('pf-line-notes',p.lineNotes);
+  sv('pf-risks',p.risks);sv('pf-notes',p.notes);
+  sv('pf-length',p.length||0);sv('pf-amount',p.amount||0);
+  sv('pf-prog-design',p.progDesign||0);sv('pf-prog-const',p.progConst||0);
+  sv('pf-est-count',p.estCount||0);sv('pf-est-amount',p.estAmount||0);
+  document.getElementById('pf-district').value=p.district||'桃園區';
+  document.getElementById('pf-status').value=p.status||'規劃中';
+  document.getElementById('pf-type').value=p.type||'人行道';
+  const ap=document.getElementById('ai-attach-preview');
+  if(ap) ap.innerHTML=(p.attachments||[]).map((a,i)=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent-bg);color:var(--accent);font-size:10px;padding:3px 8px;border-radius:5px;margin-right:5px">${a.type==='design'?'📐':a.type==='meeting'?'📋':'💬'} ${a.name}</span>`).join('');
+  window._pendingAttachments=JSON.parse(JSON.stringify(p.attachments||[]));
+  document.getElementById('proj-modal').classList.add('open');
+}
+
+function closeProjectModal(){document.getElementById('proj-modal').classList.remove('open');}
+
+function saveProject() {
+  const gv=id=>{const el=document.getElementById(id);return el?el.value.trim():'';};
+  const data={
+    name:gv('pf-name'),district:gv('pf-district'),type:gv('pf-type'),status:gv('pf-status'),
+    location:gv('pf-location'),start:gv('pf-start'),end:gv('pf-end'),
+    length:Number(gv('pf-length'))||0,amount:Number(gv('pf-amount'))||0,
+    handler:gv('pf-handler'),source:gv('pf-source'),
+    designFirm:gv('pf-design-firm'),superviseFirm:gv('pf-supervise-firm'),constructFirm:gv('pf-construct-firm'),
+    startDate:gv('pf-start-date'),endDate:gv('pf-end-date'),desc:gv('pf-desc'),
+    progDesign:Number(gv('pf-prog-design'))||0,progConst:Number(gv('pf-prog-const'))||0,
+    estCount:Number(gv('pf-est-count'))||0,estAmount:Number(gv('pf-est-amount'))||0,
+    meetingNotes:gv('pf-meeting-notes'),lineNotes:gv('pf-line-notes'),
+    risks:gv('pf-risks'),notes:gv('pf-notes'),
+    attachments:window._pendingAttachments||[],
+  };
+  if(!data.name){showToast('⚠ 請輸入專案名稱');return;}
+  if(editingProjectId){
+    const idx=PROJECTS.findIndex(p=>p.id===editingProjectId);
+    if(idx>=0){data.id=editingProjectId;data.photos=PROJECTS[idx].photos||[];data.createdAt=PROJECTS[idx].createdAt;PROJECTS[idx]=data;}
+  }else{data.id=Date.now();data.photos=[];data.createdAt=new Date().toISOString();PROJECTS.push(data);}
+  saveProjectsToFirebase();closeProjectModal();renderProjects();showToast('✓ 專案已儲存');
+}
+
+function deleteProject(id){
+  const p=PROJECTS.find(x=>x.id===id);if(!p) return;
+  if(!confirm(`確定刪除「${p.name}」？`)) return;
+  PROJECTS=PROJECTS.filter(x=>x.id!==id);saveProjectsToFirebase();renderProjects();showToast('🗑 已刪除');
+}
+
+function saveProjectsToFirebase(){
+  try{db.collection('road_data').doc('projects').set({data:JSON.stringify(PROJECTS),updated:new Date().toISOString()});}catch(e){console.error(e);}
+}
+function loadProjectsFromFirebase(){
+  try{db.collection('road_data').doc('projects').get().then(doc=>{
+    if(doc.exists&&doc.data().data){try{PROJECTS=JSON.parse(doc.data().data)||[];const b=document.getElementById('badge-projects');if(b)b.textContent=PROJECTS.length||0;}catch(e){}}
+  });}catch(e){}
+}
+
+async function handleAIUpload(type, input) {
+  const files=Array.from(input.files);if(!files.length) return;
+  const status=document.getElementById('ai-status');
+  if(status){status.style.display='block';status.textContent=`⏳ AI 分析中…`;}
+  if(!window._pendingAttachments) window._pendingAttachments=[];
+  for(const file of files){
+    try{
+      const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
+      const isImg=file.type.startsWith('image/');
+      const prompts={
+        design:'這是工程設計圖。用繁體中文JSON回答（只回JSON）：{"name":"工程名稱","location":"路段","district":"行政區","start":"起點","end":"迄點","length":"長度數字","desc":"概述"}。找不到填空字串。',
+        meeting:'這是工程會議紀錄。繁體中文條列重點：日期、決議事項、待辦追蹤。不超過300字，只回摘要。',
+        line:'這是LINE對話截圖（工程相關）。繁體中文條列重點：聯絡事項、確認內容、時程討論。不超過200字。',
+      };
+      const messages=isImg?[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type,data:b64}},{type:'text',text:prompts[type]}]}]:[{role:'user',content:`檔名：${file.name}。${prompts[type]}`}];
+      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages})});
+      const data=await res.json();
+      const text=(data.content||[]).map(b=>b.text||'').join('').trim();
+      if(type==='design'){try{const info=JSON.parse(text.replace(/```json|```/g,'').trim());const tf=(id,v)=>{if(v){const el=document.getElementById(id);if(el&&!el.value)el.value=v;}};tf('pf-name',info.name);tf('pf-location',info.location);tf('pf-start',info.start);tf('pf-end',info.end);tf('pf-desc',info.desc);if(info.length){const el=document.getElementById('pf-length');if(el&&!Number(el.value))el.value=String(info.length).replace(/[^0-9]/g,'');}if(info.district){const sel=document.getElementById('pf-district');if(sel)for(let i=0;i<sel.options.length;i++)if(sel.options[i].value===info.district){sel.selectedIndex=i;break;}}}catch(e){const el=document.getElementById('pf-desc');if(el)el.value=(el.value?el.value+'\n\n':'')+text;}}
+      else if(type==='meeting'){const el=document.getElementById('pf-meeting-notes');if(el)el.value=(el.value?el.value+'\n\n---\n':'')+text;}
+      else{const el=document.getElementById('pf-line-notes');if(el)el.value=(el.value?el.value+'\n\n---\n':'')+text;}
+      window._pendingAttachments.push({type,name:file.name,addedAt:new Date().toISOString()});
+      const ap=document.getElementById('ai-attach-preview');
+      if(ap) ap.innerHTML=window._pendingAttachments.map(a=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent-bg);color:var(--accent);font-size:10px;padding:3px 8px;border-radius:5px;margin-right:5px;margin-bottom:4px">${a.type==='design'?'📐':a.type==='meeting'?'📋':'💬'} ${a.name}</span>`).join('');
+      if(status) status.textContent=`✅ 完成：${file.name}`;
+    }catch(e){if(status)status.textContent=`❌ 失敗：${file.name}`;}
+  }
+  setTimeout(()=>{if(status)status.style.display='none';},3000);
+  input.value='';
+}
+
+// ==========================================
+// ===== 新聞稿 ==============================
+// ==========================================
+function openNewsModal(){document.getElementById('news-modal').classList.add('open');document.getElementById('news-result').style.display='none';}
+function closeNewsModal(){document.getElementById('news-modal').classList.remove('open');}
+async function generateNews(){
+  const zone=document.getElementById('news-zone').value||'桃園市養護工程處';
+  const project=document.getElementById('news-project').value||'人行道改善工程';
+  const benefit=document.getElementById('news-benefit').value||'';
+  const schedule=document.getElementById('news-schedule').value||'';
+  document.getElementById('news-loading').style.display='block';
+  document.getElementById('news-result').style.display='none';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:`以桃園市養護工程處名義，繁體中文正式新聞稿。\n工區：${zone}\n工程：${project}\n效益：${benefit}\n時程：${schedule}\n格式：標題、日期、引言、詳情、市府說明、聯絡資訊。正式有溫度，強調行人安全通學環境。`}]})});
+    const data=await res.json();
+    document.getElementById('news-text').value=(data.content||[]).map(b=>b.text||'').join('');
+    document.getElementById('news-result').style.display='block';
+  }catch(e){document.getElementById('news-text').value='生成失敗，請稍後再試。';document.getElementById('news-result').style.display='block';}
+  document.getElementById('news-loading').style.display='none';
+}
+function copyNews(){document.getElementById('news-text').select();document.execCommand('copy');showToast('✓ 新聞稿已複製');}
+
 // ========== INIT ==========
 loadData();
 renderDashboard();
 startRealtimeSync();
+loadProjectsFromFirebase();
 </script>
 
 <!-- SheetJS -->
