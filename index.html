@@ -3466,34 +3466,214 @@ function loadProjectsFromFirebase(){
 }
 
 async function handleAIUpload(type, input) {
-  const files=Array.from(input.files);if(!files.length) return;
-  const status=document.getElementById('ai-status');
-  if(status){status.style.display='block';status.textContent=`⏳ AI 分析中…`;}
-  if(!window._pendingAttachments) window._pendingAttachments=[];
-  for(const file of files){
-    try{
-      const b64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(file);});
-      const isImg=file.type.startsWith('image/');
-      const prompts={
-        design:'這是工程設計圖。用繁體中文JSON回答（只回JSON）：{"name":"工程名稱","location":"路段","district":"行政區","start":"起點","end":"迄點","length":"長度數字","desc":"概述"}。找不到填空字串。',
-        meeting:'這是工程會議紀錄。繁體中文條列重點：日期、決議事項、待辦追蹤。不超過300字，只回摘要。',
-        line:'這是LINE對話截圖（工程相關）。繁體中文條列重點：聯絡事項、確認內容、時程討論。不超過200字。',
-      };
-      const messages=isImg?[{role:'user',content:[{type:'image',source:{type:'base64',media_type:file.type,data:b64}},{type:'text',text:prompts[type]}]}]:[{role:'user',content:`檔名：${file.name}。${prompts[type]}`}];
-      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages})});
-      const data=await res.json();
-      const text=(data.content||[]).map(b=>b.text||'').join('').trim();
-      if(type==='design'){try{const info=JSON.parse(text.replace(/```json|```/g,'').trim());const tf=(id,v)=>{if(v){const el=document.getElementById(id);if(el&&!el.value)el.value=v;}};tf('pf-name',info.name);tf('pf-location',info.location);tf('pf-start',info.start);tf('pf-end',info.end);tf('pf-desc',info.desc);if(info.length){const el=document.getElementById('pf-length');if(el&&!Number(el.value))el.value=String(info.length).replace(/[^0-9]/g,'');}if(info.district){const sel=document.getElementById('pf-district');if(sel)for(let i=0;i<sel.options.length;i++)if(sel.options[i].value===info.district){sel.selectedIndex=i;break;}}}catch(e){const el=document.getElementById('pf-desc');if(el)el.value=(el.value?el.value+'\n\n':'')+text;}}
-      else if(type==='meeting'){const el=document.getElementById('pf-meeting-notes');if(el)el.value=(el.value?el.value+'\n\n---\n':'')+text;}
-      else{const el=document.getElementById('pf-line-notes');if(el)el.value=(el.value?el.value+'\n\n---\n':'')+text;}
-      window._pendingAttachments.push({type,name:file.name,addedAt:new Date().toISOString()});
-      const ap=document.getElementById('ai-attach-preview');
-      if(ap) ap.innerHTML=window._pendingAttachments.map(a=>`<span style="display:inline-flex;align-items:center;gap:4px;background:var(--accent-bg);color:var(--accent);font-size:10px;padding:3px 8px;border-radius:5px;margin-right:5px;margin-bottom:4px">${a.type==='design'?'📐':a.type==='meeting'?'📋':'💬'} ${a.name}</span>`).join('');
-      if(status) status.textContent=`✅ 完成：${file.name}`;
-    }catch(e){if(status)status.textContent=`❌ 失敗：${file.name}`;}
+  const files = Array.from(input.files);
+  if (!files.length) return;
+  const status = document.getElementById('ai-status');
+  const ap = document.getElementById('ai-attach-preview');
+  if (!window._pendingAttachments) window._pendingAttachments = [];
+  if (status) { status.style.display='block'; status.innerHTML='⏳ 讀取中…'; }
+
+  for (const file of files) {
+    try {
+      const isPDF = file.type === 'application/pdf';
+      const isImg = file.type.startsWith('image/');
+      const isTxt = file.type === 'text/plain' || file.name.endsWith('.txt');
+      if (status) status.innerHTML = `⏳ 讀取：<b>${file.name}</b>`;
+
+      let extractedText = '';
+
+      // ── PDF：用 PDF.js 提取全文 ──
+      if (isPDF) {
+        const arrayBuf = await file.arrayBuffer();
+        if (!window.pdfjsLib) {
+          await new Promise((res, rej) => {
+            const s = document.createElement('script');
+            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+            s.onload = () => {
+              window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+              res();
+            };
+            s.onerror = rej;
+            document.head.appendChild(s);
+          });
+        }
+        const pdf = await window.pdfjsLib.getDocument({data: arrayBuf}).promise;
+        const maxPages = Math.min(pdf.numPages, 8);
+        for (let i = 1; i <= maxPages; i++) {
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          extractedText += content.items.map(s => s.str).join('') + '\n';
+        }
+        if (status) status.innerHTML = `✅ PDF 讀取完成（${pdf.numPages}頁），正在智慧分析…`;
+        // 用提取的文字做本地智慧分析
+        smartFillFromText(extractedText, file.name, type);
+
+      // ── 圖片：讀取為 base64，然後顯示預覽並做智慧分析 ──
+      } else if (isImg) {
+        const dataUrl = await new Promise(res => {
+          const r = new FileReader(); r.onload = () => res(r.result); r.readAsDataURL(file);
+        });
+        // 圖片預覽
+        if (ap) {
+          const wrapper = document.createElement('div');
+          wrapper.style.cssText = 'display:inline-flex;align-items:center;gap:6px;background:var(--accent-bg);border-radius:6px;padding:4px 8px;margin-right:6px;margin-bottom:4px';
+          wrapper.innerHTML = `<img src="${dataUrl}" style="height:36px;width:36px;object-fit:cover;border-radius:4px;border:1px solid var(--border)">
+            <span style="font-size:11px;color:var(--accent);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${file.name}</span>`;
+          ap.appendChild(wrapper);
+        }
+        // 從檔名智慧填入
+        smartFillFromText('', file.name, type);
+        if (status) status.innerHTML = `✅ 圖片已記錄：<b>${file.name}</b>（請手動填寫詳細資訊）`;
+
+      // ── 純文字 ──
+      } else if (isTxt) {
+        extractedText = await file.text();
+        smartFillFromText(extractedText, file.name, type);
+        if (status) status.innerHTML = `✅ 文字讀取完成：<b>${file.name}</b>`;
+
+      } else {
+        if (status) status.innerHTML = `✅ 已記錄附件：<b>${file.name}</b>`;
+      }
+
+      // 記錄附件（非圖片用文字chip顯示）
+      window._pendingAttachments.push({ type, name: file.name, addedAt: new Date().toISOString() });
+      if (ap && !isImg) {
+        const chip = document.createElement('span');
+        chip.style.cssText = 'display:inline-flex;align-items:center;gap:4px;background:var(--accent-bg);color:var(--accent);font-size:10px;padding:3px 8px;border-radius:5px;margin-right:5px;margin-bottom:4px';
+        chip.textContent = (type==='design'?'📐':type==='meeting'?'📋':'💬') + ' ' + file.name;
+        ap.appendChild(chip);
+      }
+
+    } catch(err) {
+      console.error('handleAIUpload error:', err);
+      if (status) status.innerHTML = `⚠️ 讀取失敗：<b>${file.name}</b>（${err.message||'未知錯誤'}）`;
+      // 即使失敗仍記錄附件
+      window._pendingAttachments.push({ type, name: file.name, addedAt: new Date().toISOString() });
+    }
   }
-  setTimeout(()=>{if(status)status.style.display='none';},3000);
-  input.value='';
+
+  setTimeout(() => { if (status) status.style.display = 'none'; }, 4000);
+  input.value = '';
+}
+
+// ── 智慧填入：從文字/檔名提取工程相關資訊 ──
+function smartFillFromText(text, filename, type) {
+  // 清理文字
+  const combined = (text + '\n' + filename).replace(/\s+/g, ' ');
+
+  // 輔助填入（只填空白欄位）
+  const fill = (id, val) => {
+    if (!val || !val.trim()) return false;
+    const el = document.getElementById(id);
+    if (el && !el.value.trim()) { el.value = val.trim(); return true; }
+    return false;
+  };
+  // 附加到文字欄位（可重複加）
+  const append = (id, val) => {
+    if (!val || !val.trim()) return;
+    const el = document.getElementById(id);
+    if (el) el.value = (el.value ? el.value + '\n---\n' : '') + val.trim();
+  };
+
+  // ── 行政區偵測 ──
+  const districts = ['桃園','中壢','大溪','楊梅','蘆竹','大園','龜山','八德','龍潭','平鎮','新屋','觀音','復興'];
+  for (const d of districts) {
+    if (combined.includes(d)) {
+      const sel = document.getElementById('pf-district');
+      if (sel) for (let i=0; i<sel.options.length; i++) {
+        if (sel.options[i].value === d+'區') { sel.selectedIndex=i; break; }
+      }
+      break;
+    }
+  }
+
+  // ── 學校名稱 ──
+  const schoolM = combined.match(/([^\s,，。、]{2,8}(?:國小|國中|高中|高職|小學|中學|大學))/);
+  if (schoolM) {
+    fill('pf-name', schoolM[1] + '周邊人行道改善工程');
+    fill('pf-location', schoolM[1] + '周邊');
+  }
+
+  // ── 路名/地點 ──
+  const roadM = combined.match(/([^\s,，。、]{1,6}(?:路|街|大道|幹道|Boulevard))([一二三四五六七八九十\d]*段)?/);
+  if (roadM) fill('pf-location', roadM[0]);
+
+  // ── 長度 ──
+  const lenM = text.match(/長(?:度|約)?\s*[:：]?\s*(\d+[\.,]?\d*)\s*(?:m|M|公尺|米)/);
+  if (lenM) {
+    const el = document.getElementById('pf-length');
+    if (el && !Number(el.value)) el.value = lenM[1].replace(',','');
+  }
+
+  // ── 金額 ──
+  const amtM = text.match(/(?:金額|預算|總額|經費)[：:\s]*(?:新臺幣|NT\$?)?\s*([\d,]+)\s*(?:元|萬)/);
+  if (amtM) {
+    const el = document.getElementById('pf-amount');
+    if (el && !Number(el.value)) {
+      let amt = parseInt(amtM[1].replace(/,/g,''));
+      if (text.includes('萬')) amt *= 10000;
+      el.value = amt;
+    }
+  }
+
+  // ── 日期（開工/完工）──
+  const startM = text.match(/(?:開工|施工起|施工日期|預計施作)[：:\s]*(\d{3,4})[\/年](\d{1,2})[\/月]?(\d{0,2})/);
+  if (startM) fill('pf-start-date', `${startM[1]}/${startM[2]}${startM[3]?'/'+startM[3]:''}`);
+  const endM = text.match(/(?:完工|竣工|施工迄)[：:\s]*(\d{3,4})[\/年](\d{1,2})[\/月]?(\d{0,2})/);
+  if (endM) fill('pf-end-date', `${endM[1]}/${endM[2]}${endM[3]?'/'+endM[3]:''}`);
+
+  // ── 廠商名稱 ──
+  const firmM = text.match(/(?:設計|監造|承包|施工)[單廠]?(?:位|商)?[：:\s]*([^\n,，。、（(]{2,10}(?:工程|顧問|有限|股份)?(?:公司)?)/);
+  if (firmM) fill('pf-design-firm', firmM[1]);
+
+  // ── 根據 type 決定要把全文放哪 ──
+  if (type === 'meeting') {
+    // 會議紀錄：提取日期行、決議、待辦
+    const lines = text.split(/[\n。]/).filter(l => l.trim().length > 5);
+    const keyLines = lines.filter(l =>
+      /日期|時間|出席|決議|辦理|追蹤|待辦|辦理|請|應|需|建議|確認|協調/.test(l)
+    );
+    const summary = keyLines.length > 0
+      ? keyLines.slice(0,15).join('\n')
+      : lines.slice(0, 12).join('\n');
+    append('pf-meeting-notes', summary || text.slice(0, 600));
+
+  } else if (type === 'line') {
+    // LINE：提取聯繫重點
+    const lines = text.split(/[\n。]/).filter(l => l.trim().length > 4);
+    const keyLines = lines.filter(l =>
+      /請|麻煩|確認|通知|回覆|時程|日期|完成|進度|問題|感謝|好的|了解|收到/.test(l)
+    );
+    const summary = keyLines.length > 0
+      ? keyLines.slice(0,10).join('\n')
+      : lines.slice(0,8).join('\n');
+    append('pf-line-notes', summary || text.slice(0,400));
+
+  } else {
+    // 設計圖/其他：從檔名取工程名稱，把文字放工程概述
+    const cleanName = filename
+      .replace(/\.(pdf|jpg|jpeg|png|txt|docx)$/i, '')
+      .replace(/[-_]+/g, ' ')
+      .replace(/\s*V\d+\s*$/i, '')
+      .trim();
+    if (cleanName.length >= 3) fill('pf-name', cleanName);
+
+    if (text.trim().length > 10) {
+      const lines = text.split(/[\n。]/).filter(l => l.trim().length > 5);
+      const descLines = lines.filter(l =>
+        /工程|改善|人行道|施作|規劃|設計|路段|公尺|施工/.test(l)
+      );
+      const desc = descLines.length > 0
+        ? descLines.slice(0,6).join('；')
+        : lines.slice(0,4).join('；');
+      fill('pf-desc', desc || text.slice(0,200));
+    }
+  }
+
+  // ── 承辦人偵測 ──
+  const handlerM = text.match(/承辦(?:人)?[：:\s]*([^\n,，。、\s]{2,4})/);
+  if (handlerM) fill('pf-handler', handlerM[1]);
 }
 
 // ==========================================
