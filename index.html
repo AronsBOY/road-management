@@ -1719,57 +1719,155 @@ function promoCardHTML(c) {
 }
 
 // ========== STORAGE ==========
-function saveData() {
-  try {
-    // 同步到 Firebase
-    db.collection('road_data').doc('cases').set({ data: JSON.stringify(CASES), updated: new Date().toISOString() });
-    db.collection('road_data').doc('reports').set({ data: JSON.stringify(REPORTS), updated: new Date().toISOString() });
+// ========== Firebase 連線狀態 ==========
+let _fbConnected = true;
+
+function updateSyncStatus(status, msg) {
+  const el = document.getElementById('last-save');
+  if (!el) return;
+  const dot = document.querySelector('.sync-dot');
+  if (status === 'ok') {
     const now = new Date();
-    const ts = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')}`;
-    (document.getElementById('last-save')||document.createElement('span')).textContent = ts;
-    showToast('✓ 已儲存並同步雲端');
-  } catch(e) { console.error('saveData error:', e); }
+    el.textContent = `${now.getHours()}:${String(now.getMinutes()).padStart(2,'0')} 已同步`;
+    if (dot) { dot.style.background = '#4CAF50'; dot.title = '已連線'; }
+    _fbConnected = true;
+  } else if (status === 'saving') {
+    el.textContent = '儲存中…';
+    if (dot) dot.style.background = '#FF9800';
+  } else if (status === 'error') {
+    el.textContent = msg || '儲存失敗';
+    if (dot) { dot.style.background = '#F44336'; dot.title = msg; }
+    _fbConnected = false;
+  } else if (status === 'offline') {
+    el.textContent = '離線中';
+    if (dot) { dot.style.background = '#9E9E9E'; dot.title = '網路斷線'; }
+  }
+}
+
+async function saveData() {
+  updateSyncStatus('saving');
+  try {
+    await Promise.all([
+      db.collection('road_data').doc('cases').set({
+        data: JSON.stringify(CASES),
+        updated: new Date().toISOString()
+      }),
+      db.collection('road_data').doc('reports').set({
+        data: JSON.stringify(REPORTS),
+        updated: new Date().toISOString()
+      }),
+    ]);
+    updateSyncStatus('ok');
+    showToast('✅ 已儲存並同步雲端');
+  } catch(e) {
+    console.error('saveData error:', e);
+    updateSyncStatus('error', '儲存失敗：' + (e.code || e.message || '未知錯誤'));
+    showToast('❌ 儲存失敗：' + (e.code || e.message));
+  }
 }
 
 function loadData() {
-  // 從 Firebase 載入資料，若有雲端資料則覆蓋預設值
-  showToast('⏳ 載入雲端資料中...');
-  db.collection('road_data').doc('cases').get().then(function(doc) {
-    if (doc.exists && doc.data().data) {
+  updateSyncStatus('saving');
+  const p1 = db.collection('road_data').doc('cases').get().then(doc => {
+    if (doc.exists && doc.data()?.data) {
       try {
-        var saved = JSON.parse(doc.data().data);
-        if (saved && saved.length > 0) {
+        const saved = JSON.parse(doc.data().data);
+        if (saved?.length > 0) {
           CASES = saved;
-          var badge = document.getElementById('badge-total');
+          const badge = document.getElementById('badge-total');
           if (badge) badge.textContent = CASES.length;
           try { renderDashboard(); } catch(e) {}
-          try { renderPage('A2'); } catch(e) {}
         }
       } catch(e) { console.error('cases parse error', e); }
     }
   });
-  db.collection('road_data').doc('reports').get().then(function(doc) {
-    if (doc.exists && doc.data().data) {
+  const p2 = db.collection('road_data').doc('reports').get().then(doc => {
+    if (doc.exists && doc.data()?.data) {
       try { REPORTS = JSON.parse(doc.data().data); } catch(e) {}
     }
   });
+  Promise.all([p1, p2])
+    .then(() => updateSyncStatus('ok'))
+    .catch(e => {
+      console.error('loadData error:', e);
+      updateSyncStatus('error', '載入失敗：' + (e.code || e.message));
+      showToast('⚠️ 雲端載入失敗，顯示本地資料');
+    });
 }
 
-// 即時監聽雲端變更（其他電腦更新時自動同步）
+// ── 即時同步（監聽所有集合）──
 function startRealtimeSync() {
-  db.collection('road_data').doc('cases').onSnapshot(function(doc) {
-    if (doc.exists && doc.data().data) {
-      try {
-        var saved = JSON.parse(doc.data().data);
-        if (saved && saved.length > 0 && JSON.stringify(saved) !== JSON.stringify(CASES)) {
-          CASES = saved;
-          var badge = document.getElementById('badge-total');
-          if (badge) badge.textContent = CASES.length;
-          try { renderDashboard(); } catch(e) {}
-          showToast('🔄 資料已從其他裝置同步');
+  // 監聽 cases
+  db.collection('road_data').doc('cases').onSnapshot(doc => {
+    if (!doc.exists || !doc.data()?.data) return;
+    try {
+      const saved = JSON.parse(doc.data().data);
+      if (saved?.length > 0 && JSON.stringify(saved) !== JSON.stringify(CASES)) {
+        CASES = saved;
+        const badge = document.getElementById('badge-total');
+        if (badge) badge.textContent = CASES.length;
+        try { renderDashboard(); } catch(e) {}
+        // 若目前在某工區頁面，重新渲染
+        const active = document.querySelector('.page.active');
+        if (active) {
+          const pid = active.id.replace('page-','');
+          if (pid.startsWith('report-') || pid === 'all-cases') {
+            try { renderPage(pid); } catch(e) {}
+          }
         }
-      } catch(e) {}
-    }
+        updateSyncStatus('ok');
+        showToast('🔄 案件資料已從其他裝置同步');
+      }
+    } catch(e) { console.error('cases snapshot error:', e); }
+  }, err => updateSyncStatus('error', err.code));
+
+  // 監聽 reports（工區追蹤、估驗等）
+  db.collection('road_data').doc('reports').onSnapshot(doc => {
+    if (!doc.exists || !doc.data()?.data) return;
+    try {
+      const saved = JSON.parse(doc.data().data);
+      if (JSON.stringify(saved) !== JSON.stringify(REPORTS)) {
+        REPORTS = saved;
+        // 若目前在工區報告頁重新渲染
+        const active = document.querySelector('.page.active');
+        if (active) {
+          const pid = active.id.replace('page-','');
+          if (pid.startsWith('report-')) try { renderPage(pid); } catch(e) {}
+        }
+        showToast('🔄 工區報告已從其他裝置同步');
+      }
+    } catch(e) {}
+  });
+
+  // 監聽 projects（專案監控室）
+  db.collection('road_data').doc('projects').onSnapshot(doc => {
+    if (!doc.exists || !doc.data()?.data) return;
+    try {
+      const saved = JSON.parse(doc.data().data);
+      if (JSON.stringify(saved) !== JSON.stringify(PROJECTS)) {
+        PROJECTS = saved;
+        const badge = document.getElementById('badge-projects');
+        if (badge) badge.textContent = PROJECTS.length || 0;
+        // 若監控室可見則更新
+        try { renderDashMonitor(); } catch(e) {}
+        const active = document.querySelector('.page.active');
+        if (active?.id === 'page-projects') try { renderProjects(); } catch(e) {}
+        showToast('🔄 專案資料已從其他裝置同步');
+      }
+    } catch(e) {}
+  });
+
+  // 監聽 dash_tracks（個案追蹤）
+  db.collection('road_data').doc('dash_tracks').onSnapshot(doc => {
+    if (!doc.exists || !doc.data()?.data) return;
+    try {
+      const saved = JSON.parse(doc.data().data);
+      if (JSON.stringify(saved) !== JSON.stringify(window.DASH_TRACKS)) {
+        window.DASH_TRACKS = saved;
+        try { renderDashTrack(); } catch(e) {}
+        showToast('🔄 個案追蹤已從其他裝置同步');
+      }
+    } catch(e) {}
   });
 }
 
@@ -1972,51 +2070,131 @@ function renderAllCases() {
     listEl.innerHTML = filtered.map(c=>promoCardHTML(c)).join('');
   } else {
     listEl.className = '';
-    listEl.innerHTML = filtered.map(c=>caseItemHTML(c)).join('');
+    listEl.innerHTML = `
+      <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:60px 1fr 80px 70px 70px 80px 80px auto;gap:0;padding:7px 14px;background:var(--surface2);border-bottom:1px solid var(--border)">
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">#</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">地點 / 概述</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">狀態</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">派設</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">長度</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">金額</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">承辦人</span>
+          <span></span>
+        </div>
+        ${filtered.map(c=>caseItemHTML(c)).join('')}
+      </div>`;
   }
 }
 
 function caseItemHTML(c) {
-  return `<div class="case-item" id="case-${c.id}">
-    <div class="case-header">
-      <span class="case-num">${c.year}年 #${c.seq}</span>
-      <span class="case-title">${c.location}</span>
-      <span class="case-district">${c.district}</span>
-      ${typeBadge(c.type)}
-    </div>
-    <div class="case-meta">
-      ${statusBadge(c.status)}
-      ${designBadge(c.designStatus)}
-      ${c.amount?`<span class="case-amount">NT$ ${c.amount.toLocaleString()}</span>`:''}
-      ${c.handler?`<span class="case-handler">承辦：${c.handler}</span>`:''}
-      <span style="margin-left:auto;display:flex;gap:6px">
-        <button class="btn btn-sm" onclick="event.stopPropagation();openEditModal(${c.id})">編輯</button>
-        <button class="btn btn-sm" onclick="event.stopPropagation();toggleDetail(${c.id})">詳情</button>
-        <button class="btn btn-sm" onclick="event.stopPropagation();deleteCase(${c.id})" style="color:var(--red);border-color:var(--red-bg)">刪除</button>
-      </span>
-    </div>
-    <div class="case-detail" id="detail-${c.id}">
-      <div class="detail-grid">
-        ${c.start?`<div class="detail-field"><div class="detail-label">起點</div><div class="detail-val">${c.start}</div></div>`:''}
-        ${c.end&&c.end!=='-'?`<div class="detail-field"><div class="detail-label">終點</div><div class="detail-val">${c.end}</div></div>`:''}
-        ${c.length?`<div class="detail-field"><div class="detail-label">長度</div><div class="detail-val">${c.length} m</div></div>`:''}
-        ${c.description?`<div class="detail-field"><div class="detail-label">施工概述</div><div class="detail-val">${c.description}</div></div>`:''}
-        ${c.source?`<div class="detail-field"><div class="detail-label">案件來源</div><div class="detail-val">${c.source}</div></div>`:''}
-        ${(c.scheduleStart||c.scheduleEnd)?`<div class="detail-field"><div class="detail-label">預計施作</div><div class="detail-val">${c.scheduleStart||'-'} ~ ${c.scheduleEnd||'-'}</div></div>`:''}
-        ${c.designDeadline&&c.designDeadline!=='-'?`<div class="detail-field"><div class="detail-label">設計提交期限</div><div class="detail-val">${c.designDeadline}</div></div>`:''}
-        ${c.designFirm&&c.designFirm!=='-'?`<div class="detail-field"><div class="detail-label">設計單位</div><div class="detail-val">${c.designFirm}</div></div>`:''}
-        <div class="detail-field"><div class="detail-label">監造單位</div><div class="detail-val">${c.superviseFirm}</div></div>
-        <div class="detail-field"><div class="detail-label">施工單位</div><div class="detail-val">${c.constructFirm}</div></div>
-        <div class="detail-field"><div class="detail-label">執行契約</div><div class="detail-val">${c.contract}</div></div>
+  const amtStr = c.amount ? 'NT$' + Math.round(c.amount/10000).toLocaleString() + '萬' : '—';
+  const sA = Number(c.singleLength)||0;
+  const sB = Number(c.doubleLength)||0;
+  const totalLen = (sA||sB) ? sA+sB : (Number(c.length)||0);
+  const lenStr = totalLen ? totalLen.toLocaleString()+'m' : '—';
+  const statusStyle = {
+    '已完成':  'background:var(--green-bg);color:var(--green)',
+    '施工中':  'background:var(--accent-bg);color:var(--accent)',
+    '尚未開始':'background:var(--gray-bg);color:var(--gray)',
+  }[c.status] || 'background:var(--gray-bg);color:var(--gray)';
+  const addr = c.address || ('桃園市' + c.district + c.location);
+  const mapsUrl = 'https://maps.google.com/?q=' + encodeURIComponent(addr);
+  const hasSingle = c.singleStart || c.singleEnd || c.singleLength;
+  const hasDouble = c.doubleStart || c.doubleEnd || c.doubleLength;
+  const hasBasic  = c.start || c.end;
+
+  return `
+  <div id="case-${c.id}" style="border-bottom:1px solid var(--border)">
+    <!-- 主列 -->
+    <div style="display:grid;grid-template-columns:54px 1fr 80px 68px 68px 80px 76px auto;align-items:center;gap:0;padding:9px 14px;cursor:pointer"
+      onclick="toggleDetail(${c.id})"
+      onmouseover="this.style.background='var(--surface2)'"
+      onmouseout="this.style.background=''">
+      <span style="font-size:10px;color:var(--text3);font-family:'DM Mono',monospace">${c.year}/#${c.seq}</span>
+      <div style="min-width:0;padding-right:10px">
+        <div style="display:flex;align-items:baseline;gap:6px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:700;color:var(--text)">${c.location}</span>
+          <span style="font-size:11px;color:var(--text3)">${c.district}</span>
+          <span style="font-size:10px;padding:1px 6px;border-radius:4px;font-weight:600;${c.type==='通學'?'background:var(--orange-bg);color:var(--orange)':'background:var(--accent-bg);color:var(--accent)'}">${c.type}</span>
+        </div>
+        ${c.description?`<div style="font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.description}</div>`:''}
       </div>
-      ${c.notes?`<div class="detail-notes">備註：${c.notes}</div>`:''}
+      <span style="font-size:10px;padding:2px 7px;border-radius:5px;font-weight:600;white-space:nowrap;${statusStyle}">${c.status}</span>
+      <span style="font-size:10px;padding:2px 7px;border-radius:5px;font-weight:600;white-space:nowrap;${c.designStatus==='有派設'?'background:var(--purple-bg);color:var(--purple)':'background:var(--gray-bg);color:var(--gray)'}">${c.designStatus}</span>
+      <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--text2)">${lenStr}</span>
+      <span style="font-size:11px;font-family:'DM Mono',monospace;color:var(--accent)">${amtStr}</span>
+      <span style="font-size:11px;color:var(--text3)">${c.handler||'—'}</span>
+      <div style="display:flex;gap:4px;flex-shrink:0" onclick="event.stopPropagation()">
+        <a href="${mapsUrl}" target="_blank" title="Google 地圖" style="font-size:13px;padding:3px 7px;border:1px solid var(--border);border-radius:5px;background:var(--surface);text-decoration:none;display:flex;align-items:center;transition:all 0.15s" onmouseover="this.style.borderColor='#1A73E8'" onmouseout="this.style.borderColor='var(--border)'">🗺️</a>
+        <button onclick="openEditModal(${c.id})" style="font-size:11px;padding:3px 9px;border:1px solid var(--border);border-radius:5px;background:var(--surface);cursor:pointer;color:var(--text2);transition:all 0.15s" onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text2)'">編輯</button>
+        <button onclick="deleteCase(${c.id})" style="font-size:11px;padding:3px 9px;border:1px solid var(--red-bg);border-radius:5px;background:var(--surface);cursor:pointer;color:var(--red)">刪除</button>
+      </div>
+    </div>
+
+    <!-- 展開詳情 -->
+    <div id="detail-${c.id}" style="display:none;border-top:1px solid var(--border);background:var(--surface2)">
+
+      <!-- 單號側 / 雙號側 起訖點 -->
+      ${(hasSingle||hasDouble||hasBasic)?`
+      <div style="padding:10px 14px;display:grid;grid-template-columns:${hasSingle&&hasDouble?'1fr 1fr':'1fr'};gap:8px;border-bottom:1px solid var(--border)">
+        ${hasSingle?`
+        <div style="background:white;border-radius:8px;padding:10px 12px;border:1px solid var(--border);border-left:3px solid var(--accent)">
+          <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:.06em;margin-bottom:6px">📏 單號側</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;font-size:12px">
+            <div><div style="font-size:10px;color:var(--text3)">起點</div><div style="font-weight:600;margin-top:2px">${c.singleStart||'—'}</div></div>
+            <div><div style="font-size:10px;color:var(--text3)">迄點</div><div style="font-weight:600;margin-top:2px">${c.singleEnd||'—'}</div></div>
+            <div style="text-align:right"><div style="font-size:10px;color:var(--text3)">長度</div><div style="font-weight:700;color:var(--accent);font-family:'DM Mono',monospace;font-size:13px;margin-top:2px">${sA?sA.toLocaleString()+'m':'—'}</div></div>
+          </div>
+        </div>`:''}
+        ${hasDouble?`
+        <div style="background:white;border-radius:8px;padding:10px 12px;border:1px solid var(--border);border-left:3px solid var(--green)">
+          <div style="font-size:10px;font-weight:700;color:var(--green);letter-spacing:.06em;margin-bottom:6px">📏 雙號側</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;font-size:12px">
+            <div><div style="font-size:10px;color:var(--text3)">起點</div><div style="font-weight:600;margin-top:2px">${c.doubleStart||'—'}</div></div>
+            <div><div style="font-size:10px;color:var(--text3)">迄點</div><div style="font-weight:600;margin-top:2px">${c.doubleEnd||'—'}</div></div>
+            <div style="text-align:right"><div style="font-size:10px;color:var(--text3)">長度</div><div style="font-weight:700;color:var(--green);font-family:'DM Mono',monospace;font-size:13px;margin-top:2px">${sB?sB.toLocaleString()+'m':'—'}</div></div>
+          </div>
+        </div>`:''}
+        ${(!hasSingle&&!hasDouble&&hasBasic)?`
+        <div style="background:white;border-radius:8px;padding:10px 12px;border:1px solid var(--border)">
+          <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:8px;font-size:12px">
+            <div><div style="font-size:10px;color:var(--text3)">起點</div><div style="font-weight:600;margin-top:2px">${c.start||'—'}</div></div>
+            <div><div style="font-size:10px;color:var(--text3)">迄點</div><div style="font-weight:600;margin-top:2px">${c.end||'—'}</div></div>
+            <div style="text-align:right"><div style="font-size:10px;color:var(--text3)">長度</div><div style="font-weight:700;font-family:'DM Mono',monospace;font-size:13px;margin-top:2px">${c.length?Number(c.length).toLocaleString()+'m':'—'}</div></div>
+          </div>
+        </div>`:''}
+        ${(hasSingle&&hasDouble)?`
+        <div style="grid-column:1/-1;display:flex;justify-content:flex-end;align-items:center;gap:8px;font-size:12px">
+          <span style="color:var(--text3)">合計總長</span>
+          <span style="font-weight:700;font-size:15px;color:var(--text);font-family:'DM Mono',monospace">${totalLen.toLocaleString()} m</span>
+        </div>`:''}
+      </div>`:''}
+
+      <!-- Google Maps + 其他資訊 -->
+      <div style="padding:10px 14px">
+        <a href="${mapsUrl}" target="_blank" style="display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#1A73E8;font-weight:600;text-decoration:none;background:#E8F0FE;padding:5px 12px;border-radius:7px;margin-bottom:10px;transition:background 0.15s" onmouseover="this.style.background='#D2E3FC'" onmouseout="this.style.background='#E8F0FE'">
+          🗺️ 在 Google 地圖查看
+        </a>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:5px 20px;font-size:11px">
+          ${c.scheduleStart?`<div><span style="color:var(--text3)">施作期程 </span>${c.scheduleStart}${c.scheduleEnd?'～'+c.scheduleEnd:''}</div>`:''}
+          ${c.source?`<div><span style="color:var(--text3)">案件來源 </span>${c.source}</div>`:''}
+          ${c.designDeadline&&c.designDeadline!=='-'?`<div><span style="color:var(--text3)">設計期限 </span><span style="color:var(--purple);font-weight:600">${c.designDeadline}</span></div>`:''}
+          ${c.designFirm&&c.designFirm!=='-'?`<div><span style="color:var(--text3)">設計 </span>${c.designFirm}</div>`:''}
+          ${c.superviseFirm?`<div><span style="color:var(--text3)">監造 </span>${c.superviseFirm}</div>`:''}
+          ${c.constructFirm?`<div><span style="color:var(--text3)">施工 </span>${c.constructFirm}</div>`:''}
+          <div><span style="color:var(--text3)">契約 </span>${c.contract}</div>
+        </div>
+        ${c.notes?`<div style="margin-top:8px;background:white;border-radius:6px;padding:7px 10px;font-size:11px;color:var(--text2);line-height:1.6;border-left:3px solid var(--border2)">備註：${c.notes}</div>`:''}
+      </div>
     </div>
   </div>`;
 }
 
 function toggleDetail(id) {
   const el = document.getElementById('detail-'+id);
-  if (el) el.classList.toggle('open');
+  if (!el) return;
+  el.style.display = el.style.display !== 'none' ? 'none' : 'block';
 }
 
 // ========== BUDGET ==========
@@ -2328,13 +2506,26 @@ function renderReport(key) {
     </div>
 
     <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <div class="card-title" style="margin-bottom:0">案件宣傳卡片</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div class="card-title" style="margin-bottom:0">案件列表</div>
         <button class="btn btn-primary btn-sm" onclick="openAddModal()">＋ 新增案件</button>
       </div>
-      ${zoneCases.length
-        ? `<div class="cards-grid">${zoneCases.map(c=>promoCardHTML(c)).join('')}</div>`
-        : `<div style="color:var(--text3);padding:32px;text-align:center;font-size:13px">此區域目前無案件資料<br><span style="font-size:11px">可透過「新增案件」並選擇對應行政區新增</span></div>`
+      ${zoneCases.length ? `
+      <div style="border:1px solid var(--border);border-radius:10px;overflow:hidden">
+        <!-- 表頭 -->
+        <div style="display:grid;grid-template-columns:60px 1fr 80px 70px 70px 80px 80px auto;gap:0;padding:7px 14px;background:var(--surface2);border-bottom:1px solid var(--border)">
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">#</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">地點 / 概述</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">狀態</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">派設</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">長度</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">金額</span>
+          <span style="font-size:10px;font-weight:700;color:var(--text3);letter-spacing:.05em">承辦人</span>
+          <span></span>
+        </div>
+        ${zoneCases.map(c=>caseItemHTML(c)).join('')}
+      </div>` :
+      `<div style="color:var(--text3);padding:32px;text-align:center;font-size:13px">此區域目前無案件資料<br><span style="font-size:11px">可透過「新增案件」並選擇對應行政區新增</span></div>`
       }
     </div>`;
   // 初始化計算
@@ -3718,12 +3909,23 @@ function deleteProject(id){
 }
 
 function saveProjectsToFirebase(){
-  try{db.collection('road_data').doc('projects').set({data:JSON.stringify(PROJECTS),updated:new Date().toISOString()});}catch(e){console.error(e);}
+  updateSyncStatus('saving');
+  db.collection('road_data').doc('projects').set({
+    data:JSON.stringify(PROJECTS), updated:new Date().toISOString()
+  }).then(()=>updateSyncStatus('ok'))
+    .catch(e=>{
+      console.error('saveProjects:',e);
+      updateSyncStatus('error','專案儲存失敗：'+(e.code||e.message));
+      showToast('❌ 專案儲存失敗：'+(e.code||e.message));
+    });
 }
 function loadProjectsFromFirebase(){
-  try{db.collection('road_data').doc('projects').get().then(doc=>{
-    if(doc.exists&&doc.data().data){try{PROJECTS=JSON.parse(doc.data().data)||[];const b=document.getElementById('badge-projects');if(b)b.textContent=PROJECTS.length||0;}catch(e){}}
-  });}catch(e){}
+  db.collection('road_data').doc('projects').get()
+    .then(doc=>{
+      if(doc.exists&&doc.data()?.data){
+        try{PROJECTS=JSON.parse(doc.data().data)||[];const b=document.getElementById('badge-projects');if(b)b.textContent=PROJECTS.length||0;}catch(e){}
+      }
+    }).catch(e=>console.error('loadProjects:',e));
 }
 
 // ==========================================
@@ -4617,12 +4819,24 @@ function addReportItem(key){openItemModal(key);}
 
 // ── Firebase ──
 function saveDashTracks() {
-  try{db.collection('road_data').doc('dash_tracks').set({data:JSON.stringify(window.DASH_TRACKS),updated:new Date().toISOString()});}catch(e){}
+  updateSyncStatus('saving');
+  db.collection('road_data').doc('dash_tracks').set({
+    data:JSON.stringify(window.DASH_TRACKS), updated:new Date().toISOString()
+  }).then(()=>updateSyncStatus('ok'))
+    .catch(e=>{
+      console.error('saveDashTracks:',e);
+      updateSyncStatus('error','個案追蹤儲存失敗：'+(e.code||e.message));
+      showToast('❌ 個案追蹤儲存失敗：'+(e.code||e.message));
+    });
 }
 function loadDashTracks() {
-  try{db.collection('road_data').doc('dash_tracks').get().then(doc=>{
-    if(doc.exists&&doc.data().data){window.DASH_TRACKS=JSON.parse(doc.data().data)||[];renderDashTrack();}
-  });}catch(e){}
+  db.collection('road_data').doc('dash_tracks').get()
+    .then(doc=>{
+      if(doc.exists&&doc.data()?.data){
+        window.DASH_TRACKS=JSON.parse(doc.data().data)||[];
+        renderDashTrack();
+      }
+    }).catch(e=>console.error('loadDashTracks:',e));
 }
 
 // ========== INIT ==========
